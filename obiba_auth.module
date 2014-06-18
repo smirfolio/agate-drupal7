@@ -1,0 +1,186 @@
+<?php
+/**
+ * @file
+ * Obiba Auth file
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function obiba_auth_menu() {
+  global $user;
+  $items = array();
+  //cas_login_check();
+  $items['admin/config/people/obiba'] = array(
+    'title' => 'OBiBa Auth settings',
+    'description' => 'Configure OBiBa central authentication services',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('obiba_auth_admin_settings'),
+    'access arguments' => array('administer obiba'),
+    'type' => MENU_NORMAL_ITEM,
+    'file' => 'obiba_auth.admin.inc',
+  );
+  return $items;
+}
+
+/**
+ * Implements hook_permission().
+ */
+function obiba_auth_permission() {
+  return array(
+    'administer obiba' => array(
+      'title' => t('Administer OBiBa'),
+      'description' => t('Configure OBiBa Auth server and other settings.'),
+      'restrict access' => TRUE,
+    )
+  );
+}
+
+/**
+ * Implements hook_user_logout().
+ */
+function obiba_auth_user_logout() {
+  if (!AgateClient::hasTicket()) {
+    return;
+  }
+  $agate_client = new AgateClient();
+  $agate_client->logout();
+}
+
+/**
+ * Implementation of hook_form_alter().
+ * Change the normal form login form behaviour.
+ */
+function obiba_auth_form_user_login_alter(&$form, $form_state) {
+  unset($form['links']);
+  $form['#validate'] = array(
+    'user_login_name_validate',
+    'user_login_authenticate_validate',
+    'obiba_auth_login_validate',
+    'user_login_final_validate'
+  );
+}
+
+/**
+ * Implementation of hook_form_alter().
+ * Change the normal form login block form behaviour.
+ */
+function obiba_auth_form_user_login_block_alter(&$form, $form_state) {
+  return obiba_auth_form_user_login_alter($form, $form_state);
+}
+
+/**
+ * Implement hook_user_profile_form_alter() to disable the ability to change email address and
+ * password for externally authenticated users.
+ */
+function obiba_auth_form_user_profile_form_alter(&$form, $form_state) {
+  $account = $form['#user'];
+  $authmaps = user_get_authmaps($account->name);
+  if (isset($authmaps['obiba_auth'])) {
+    drupal_set_message(t('This account settings (password, email etc.) should be changed on <a href="@agate" target="_blank">Agate</a>.', array('@agate' => variable_get_value('agate_url'))));
+    $form['account']['name']['#type'] = 'hidden';
+    $form['account']['mail']['#type'] = 'hidden';
+    $form['account']['current_pass']['#type'] = 'hidden';
+    $form['account']['pass']['#type'] = 'hidden';
+  }
+}
+
+/**
+ * The obiba_auth_auth() function attempts to authenticate a user off the external system using their e-mail address.
+ */
+function obiba_auth_login_validate($form, &$form_state) {
+  $username = $form_state['values']['name'];
+  $password = $form_state['values']['pass'];
+  // try to authenticate on Agate if not already authenticated
+  if ((!isset($form_state['uid']) || $form_state['uid'] == FALSE) && !empty($username) && !empty($password)) {
+    if (obiba_auth_check_user($username, $password)) {
+      user_external_login_register($username, 'obiba_auth');
+      $account = user_external_load($username);
+      obiba_auth_apply_subject($account);
+      $form_state['uid'] = $account->uid;
+    }
+  }
+  // else drop through to the end and return nothing - Drupal will handle the rejection for us
+}
+
+function obiba_auth_check_user($username, $password) {
+  try {
+    $agate_client = new AgateClient();
+    // authenticate
+    return $agate_client->authenticate($username, $password);
+  } catch (Exception $e) {
+    watchdog('obiba_auth', 'Error %error_message.', array('%error_message' => $e->faultstring), WATCHDOG_NOTICE);
+    return FALSE;
+  }
+}
+
+/**
+ * Merge the roles from Agate to the roles found in drupal and set some attributes.
+ * @param $account
+ */
+function obiba_auth_apply_subject($account) {
+  $roles = $account->roles;
+  $edit = array();
+  $db_roles = user_roles();
+
+  // authorize = apply groups
+  $agate_client = new AgateClient();
+  $subject = $agate_client->getSubject();
+  if (isset($subject['groups'])) {
+    // find the role id corresponding to the group name (if any)
+    foreach ($subject['groups'] as $group) {
+      foreach ($db_roles as $rid => $role) {
+        if (strcmp($group, $role) == 0 && !isset($roles[$rid])) {
+          $roles[$rid] = $role;
+          $edit['roles'] = $roles;
+        }
+      }
+    }
+  }
+
+  // set email
+  if (isset($subject['attributes'])) {
+    foreach ($subject['attributes'] as $map) {
+      if (strcmp('email', $map['key']) == 0) {
+        $edit['mail'] = $map['value'];
+      }
+    }
+  }
+
+  // apply additional role
+  $auto_roles = variable_get('obiba_auto_assigned_role', array());
+  foreach ($auto_roles as $auto_rid => $value) {
+    if ($value != 0) {
+      foreach ($db_roles as $rid => $role) {
+        if ($auto_rid == $rid && !isset($roles[$rid])) {
+          $roles[$rid] = $role;
+          $edit['roles'] = $roles;
+        }
+      }
+    }
+  }
+
+  if (count($edit) > 0) {
+    user_save($account, $edit);
+  }
+}
+
+/**
+ * Implements hook_init().
+ *
+ * Traps a page load to see if authentication is required.
+ */
+function obiba_auth_init() {
+  global $user;
+
+  // not authenticated but has a Agate token
+  if ($user->uid == 0 && isset($_COOKIE['obibaid'])) {
+    $agate_client = new AgateClient();
+    $username = $agate_client->validate($_COOKIE['obibaid']);
+    if (!is_null($username)) {
+      user_external_login_register($username, 'obiba_auth');
+      $account = user_external_load($username);
+      obiba_auth_apply_subject($account);
+    }
+  }
+}

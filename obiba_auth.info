@@ -1,0 +1,9 @@
+name = "Obiba Auth"
+description = "Obiba Auth"
+package = Obiba
+core = 7.x
+
+dependencies[] = http_client
+dependencies[] = variable
+
+files[] = includes/agate_client.inc
