@@ -30,6 +30,7 @@ function obiba_auth_variable_info($options) {
     'title' => t('Roles'),
     'description' => t('The selected roles will be automatically assigned to each OBiBa user on login. Use this to automatically give OBiBa users additional privileges or to identify OBiBa users to other modules.'),
     'type' => 'options',
+    'default' => array(),
   );
   return $variable;
 }
