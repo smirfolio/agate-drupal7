@@ -15,31 +15,34 @@ function obiba_auth_admin_settings() {
     '#collapsible' => FALSE,
   );
 
+  $info = variable_get_info('agate_url');
   $form['server']['agate_url'] = array(
     '#type' => 'textfield',
-    '#title' => t('Agate address'),
+    '#title' => $info['title'],
     '#required' => TRUE,
     '#default_value' => variable_get_value('agate_url'),
     '#maxlength' => 255,
-    '#description' => t('URL of the Agate server. Note that cross-domain is not supported. Example: https://agate.example.org:8444'),
+    '#description' => $info['description'],
   );
 
+  $info = variable_get_info('agate_application_name');
   $form['server']['agate_application_name'] = array(
     '#type' => 'textfield',
-    '#title' => t('Application name'),
+    '#title' => $info['title'],
     '#required' => TRUE,
     '#default_value' => variable_get_value('agate_application_name'),
     '#maxlength' => 255,
-    '#description' => t('The name under which the Drupal server is known by Agate.'),
+    '#description' => $info['description'],
   );
 
+  $info = variable_get_info('agate_application_key');
   $form['server']['agate_application_key'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Application key'),
+    '#type' => 'password',
+    '#title' => $info['title'],
     '#required' => TRUE,
     '#default_value' => variable_get_value('agate_application_key'),
     '#maxlength' => 255,
-    '#description' => t('The key used by the Drupal server when issuing requests to Agate.'),
+    '#description' => $info['description'],
   );
 
   $form['account'] = array(
@@ -61,10 +64,11 @@ function obiba_auth_admin_settings() {
     '#disabled' => TRUE,
   );
   unset($roles[DRUPAL_AUTHENTICATED_RID]);
+  $info = variable_get_info('obiba_auto_assigned_role');
   $form['account']['obiba_auto_assigned_role'] = array(
     '#type' => 'checkboxes',
-    '#title' => t('Roles'),
-    '#description' => t('The selected roles will be automatically assigned to each OBiBa user on login. Use this to automatically give OBiBa users additional privileges or to identify OBiBa users to other modules.'),
+    '#title' => $info['title'],
+    '#description' => $info['description'],
     '#default_value' => variable_get_value('obiba_auto_assigned_role', array()),
     '#options' => $roles,
     '#access' => user_access('administer permissions'),
