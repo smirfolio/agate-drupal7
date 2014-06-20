@@ -174,7 +174,7 @@ function obiba_auth_init() {
   global $user;
 
   // not authenticated but has a Agate token
-  if ($user->uid == 0 && isset($_COOKIE['obibaid'])) {
+  if (!user_is_logged_in() && isset($_COOKIE['obibaid'])) {
     $agate_client = new AgateClient();
     $username = $agate_client->validate($_COOKIE['obibaid']);
     if (!is_null($username)) {
