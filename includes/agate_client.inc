@@ -37,7 +37,7 @@ class AgateClient {
    * @param $application_name
    * @param $application_key
    */
-  public function __construct($agate_url = null, $application_name = null, $application_key = null) {
+  public function __construct($agate_url = NULL, $application_name = NULL, $application_key = NULL) {
     $this->agateUrl = (isset($agate_url) ? $agate_url : variable_get_value('agate_url')) . '/ws';
     $this->applicationName = (isset($application_name) ? $application_name : variable_get_value('agate_application_name'));
     $this->applicationKey = (isset($application_key) ? $application_key : variable_get_value('agate_application_key'));
@@ -56,7 +56,7 @@ class AgateClient {
    * @return array
    */
   public function getLastResponseHeaders() {
-    if ($this->lastResponse != null) {
+    if ($this->lastResponse != NULL) {
       $result = array();
       foreach (explode("\r\n", $this->lastResponse->headers) as $header) {
         $h = explode(":", $header, 2);
@@ -94,7 +94,7 @@ class AgateClient {
    * @throws Exception
    */
   public function authenticate($username, $password) {
-    $this->lastResponse = null;
+    $this->lastResponse = NULL;
     $url = $this->agateUrl . '/tickets';
     $data = 'username=' . $username . '&password=' . $password;
 
@@ -114,7 +114,8 @@ class AgateClient {
       $this->lastResponse = $client->lastResponse;
       $this->setLastResponseCookies();
       return TRUE;
-    } catch (HttpClientException $e) {
+    }
+    catch (HttpClientException $e) {
       return FALSE;
     }
   }
@@ -125,7 +126,7 @@ class AgateClient {
    * @return mixed|null
    */
   public function validate($token) {
-    $this->lastResponse = null;
+    $this->lastResponse = NULL;
     $url = $this->agateUrl . '/ticket/' . $token . '/username';
     $request = new HttpClientRequest($url, array(
       'method' => HttpClientRequest::METHOD_GET,
@@ -141,8 +142,9 @@ class AgateClient {
       $this->lastResponse = $client->lastResponse;
       $_SESSION[self::OBIBA_COOKIE] = $token;
       return $body;
-    } catch (HttpClientException $e) {
-      return null;
+    }
+    catch (HttpClientException $e) {
+      return NULL;
     }
   }
 
@@ -155,7 +157,7 @@ class AgateClient {
     if (!AgateClient::hasTicket()) {
       return array();
     }
-    $this->lastResponse = null;
+    $this->lastResponse = NULL;
     $url = $this->agateUrl . '/ticket/' . $_SESSION[self::OBIBA_COOKIE] . '/subject';
     $request = new HttpClientRequest($url, array(
       'method' => HttpClientRequest::METHOD_GET,
@@ -167,7 +169,8 @@ class AgateClient {
       $body = $client->execute($request);
       $this->lastResponse = $client->lastResponse;
       return json_decode($body, TRUE);
-    } catch (HttpClientException $e) {
+    }
+    catch (HttpClientException $e) {
       return array();
     }
   }
@@ -192,7 +195,8 @@ class AgateClient {
       $this->lastResponse = $client->lastResponse;
       $this->setLastResponseCookies();
       unset($_SESSION[self::OBIBA_COOKIE]);
-    } catch (HttpClientException $e) {
+    }
+    catch (HttpClientException $e) {
       // ignore
     }
   }
@@ -208,7 +212,7 @@ class AgateClient {
       $value = $cookie[$name];
       $expire = isset($cookie['Max-Age']) ? time() + intval($cookie['Max-Age']) : 0;
       $path = isset($cookie['Path']) ? $cookie['Path'] : '/';
-      $domain = isset($cookie['Domain']) ? $cookie['Domain'] : null;
+      $domain = isset($cookie['Domain']) ? $cookie['Domain'] : NULL;
 
       setcookie($name, $value, $expire, $path, $domain);
       $_SESSION[$name] = $value;
