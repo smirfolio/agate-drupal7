@@ -108,7 +108,8 @@ function obiba_auth_check_user($username, $password) {
     $agate_client = new AgateClient();
     // authenticate
     return $agate_client->authenticate($username, $password);
-  } catch (Exception $e) {
+  }
+  catch (Exception $e) {
     watchdog('obiba_auth', 'Error %error_message.', array('%error_message' => $e->faultstring), WATCHDOG_NOTICE);
     return FALSE;
   }

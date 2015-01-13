@@ -75,6 +75,5 @@ function obiba_auth_admin_settings() {
     DRUPAL_AUTHENTICATED_RID => $checkbox_authenticated,
   );
 
-
   return system_settings_form($form);
 }
