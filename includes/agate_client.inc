@@ -27,7 +27,7 @@ class AgateClient {
    * Check if the user was authenticated by Agate.
    * @return bool
    */
-  function hasTicket() {
+  public static function hasTicket() {
     return isset($_SESSION[self::OBIBA_COOKIE]);
   }
 
@@ -116,6 +116,8 @@ class AgateClient {
       return TRUE;
     }
     catch (HttpClientException $e) {
+      watchdog('Agate Client', 'Request failed, @code: @message',
+        array('@code' => $e->getCode(), '@message' => $e->getMessage()), WATCHDOG_WARNING);
       return FALSE;
     }
   }
@@ -144,6 +146,8 @@ class AgateClient {
       return $body;
     }
     catch (HttpClientException $e) {
+      watchdog('Agate Client', 'Request failed, @code: @message',
+        array('@code' => $e->getCode(), '@message' => $e->getMessage()), WATCHDOG_WARNING);
       return NULL;
     }
   }
@@ -171,6 +175,8 @@ class AgateClient {
       return json_decode($body, TRUE);
     }
     catch (HttpClientException $e) {
+      watchdog('Agate Client', 'Request failed, @code: @message',
+        array('@code' => $e->getCode(), '@message' => $e->getMessage()), WATCHDOG_WARNING);
       return array();
     }
   }
@@ -244,7 +250,6 @@ class AgateClient {
     }
 
     $client->options['curlopts'] += array(
-      CURLOPT_SSLVERSION => 3,
       CURLOPT_SSL_VERIFYHOST => FALSE,
       CURLOPT_SSL_VERIFYPEER => FALSE
     );
