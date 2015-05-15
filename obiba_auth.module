@@ -35,19 +35,29 @@ function obiba_auth_menu() {
   return $items;
 }
 
-function  obiba_auth_register_user_response_error($code_error, $message_error) {
+function  obiba_auth_register_user_response_error($code_error, $message_error, $form_attributes = NULL) {
   drupal_add_http_header('Status', $code_error);
-  drupal_json_output($message_error);
+  $response['errorMessage'] = $message_error;
+  $response['updatedField']['form'] = !empty($form_attributes) ? $form_attributes['form'] : NULL;
+  $response['updatedField']['schema'] = !empty($form_attributes) ? $form_attributes['schema'] : NULL;
+  drupal_json_output($response);
   die;
 }
 
 function obiba_auth_register_user() {
   $form_attributes = obiba_auth_get_agate_form_attributes();
+  $response_captcha = $_POST['captcha'];
+  unset($_POST['captcha']);
   $post_attributes = array_keys($_POST);
-
+  $solution = variable_get('captcha_response');
   //Secure the request by verify if the set of POST parameters are trusted by server
   if ($form_attributes['form'] != $post_attributes) {
-    obiba_auth_register_user_response_error('400 Bad Request', '{"code" : 400 , "message" : "Unexpected Error"}');
+    $form_attributes = obiba_auth_generate_captcha_challenge($form_attributes);
+    obiba_auth_register_user_response_error('400 Bad Request', '{"code" : 400 , "message" : "Unexpected Error"}', $form_attributes);
+  }
+  if ($response_captcha != $solution) {
+    $form_attributes = obiba_auth_generate_captcha_challenge($form_attributes);
+    obiba_auth_register_user_response_error('400 Bad Request', '{"code" : 400 , "message" : "Really !! Are you human ???"}', $form_attributes);
   }
 
   $agat = new AgateClient();
@@ -56,7 +66,8 @@ function obiba_auth_register_user() {
     drupal_json_output($response);
   }
   else {
-    obiba_auth_register_user_response_error($response['codeError'], $response['message']);
+    $form_attributes = obiba_auth_generate_captcha_challenge($form_attributes);
+    obiba_auth_register_user_response_error($response['codeError'], $response['message'], $form_attributes);
   }
 }
 
@@ -71,8 +82,10 @@ function obiba_auth_theme($existing, $type, $theme, $path) {
 
 function obiba_auth_register_form_user() {
   //override form_id value
-
+  $cpatcha_value = NULL;
   $form_attributes = obiba_auth_get_agate_form_attributes();
+
+  $form_attributes = obiba_auth_generate_captcha_challenge($form_attributes);
   //overloading the $form attributes
   obiba_auth_load_libraires_resources();
   $module_path_ = drupal_get_path('module', 'obiba_auth');
@@ -92,6 +105,29 @@ function obiba_auth_get_agate_form_attributes() {
     'form' => $form['definition'],
     'schema' => $form['schema']
   );
+  return $form_attributes;
+}
+
+/*
+ * rebuild a new captcha challenge in every bad form submission
+ * @param:$form_attributes the current server form config
+ * @return new $form_attributes with updated captcha challenge (update the placeholder + response of the challenge)
+ *
+ * */
+function obiba_auth_generate_captcha_challenge($form_attributes) {
+  $int1 = rand(0, 9);
+  $int2 = rand(0, 9);
+  $somme = $int1 + $int2;
+  variable_set('captcha_response', $somme);
+  $form = array(
+    "key" => "captcha",
+    "type" => "string",
+    "placeholder" => "Are you a robot so please respond to Math question * " . $int1 . "+" . $int2 . " = "
+  );
+  array_push($form_attributes['form'], $form);
+  array_push($form_attributes['schema']['required'], "captcha");
+  $form_attributes['schema']['properties'] = array_merge($form_attributes['schema']['properties'],
+    array('captcha' => array("type" => "string")));
   return $form_attributes;
 }
 

@@ -47,11 +47,17 @@
               })
               .error(function (data, status, headers, config) {
                 var errorParse = angular.fromJson(data);
-                console.log(errorParse);
+
                 $scope.alert = {
-                  message: Drupal.t(' Code :' + status + ' :' + errorParse.message),
+                  message: Drupal.t(' Code :' + status + ' :' + errorParse.errorMessage),
                   type: 'danger'
                 };
+                //populate captcha field with new math challenge question
+                $scope.form[5].placeholder = errorParse.updatedField.form[5].placeholder;
+
+                $scope.$broadcast('schemaFormRedraw');
+                $scope.model.captcha = ''
+
               });
           }
           $scope.closeAlert = function () {
