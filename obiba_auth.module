@@ -248,6 +248,19 @@ function obiba_auth_library() {
   return $libraries;
 }
 
+/**
+ * Implements hook_library_alter().
+ * Angular library compatible with Jquery 1.10
+ *
+ */
+function obiba_auth_library_alter(&$javascript, $module) {
+  if($module = 'obiba_auth' && current_path() == 'obiba_user/register'){
+    $path = drupal_get_path('module', 'jquery_update');
+    jquery_update_jquery_replace($javascript, NULL, $path, NULL, '1.10');
+  }
+}
+
+
 function obiba_auth_load_libraires_resources() {
   if (drupal_get_library('obiba_auth', 'angular-schema-form')) {
     drupal_add_library('obiba_auth', 'angular-schema-form');
