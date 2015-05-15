@@ -3,20 +3,20 @@
  * Implements hook_requirements().
  */
 function obiba_auth_requirements($phase) {
-    $requirements = array();
-    $t = get_t();
-    if ($phase == 'install' || $phase == 'runtime') {
+  $requirements = array();
+  $t = get_t();
+  if ($phase == 'install' || $phase == 'runtime') {
 // Check if the angular-schema-form library is available and raise an error when not.
-        if (!drupal_get_library('obiba_auth', 'angular-schema-form')) {
-            $requirements['angular-schema-form'] = array(
-                'title' => $t('Obiba Auth requires angular schema form library'),
-                'description' => $t(
-                    'The Obiba Auth module can not work properly because the <a href="!asf">Angular Schema Form</a> library is not installed , which is required to generate registration form.',
-                    array('!asf' => 'https://github.com/Textalk/angular-schema-form')
-                ),
-                'severity' => REQUIREMENT_ERROR,
-            );
-        }
+    if (!drupal_get_library('obiba_auth', 'angular-schema-form')) {
+      $requirements['angular-schema-form'] = array(
+        'title' => $t('Obiba Auth requires angular schema form library'),
+        'description' => $t(
+          'The Obiba Auth module can not work properly because the <a href="!asf">Angular Schema Form</a> library is not installed , which is required to generate registration form.',
+          array('!asf' => 'https://github.com/Textalk/angular-schema-form')
+        ),
+        'severity' => REQUIREMENT_ERROR,
+      );
     }
-    return $requirements;
+  }
+  return $requirements;
 }

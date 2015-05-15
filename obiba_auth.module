@@ -8,170 +8,170 @@
  * Implements hook_menu().
  */
 function obiba_auth_menu() {
-    global $user;
-    $items = array();
-    //cas_login_check();
-    $items['admin/config/people/obiba'] = array(
-        'title' => 'OBiBa Auth settings',
-        'description' => 'Configure OBiBa central authentication services',
-        'page callback' => 'drupal_get_form',
-        'page arguments' => array('obiba_auth_admin_settings'),
-        'access arguments' => array('administer obiba'),
-        'type' => MENU_NORMAL_ITEM,
-        'file' => 'obiba_auth.admin.inc',
-    );
-    $items['obiba_user/register'] = array(
-        'title' => 'Register Agate User',
-        'description' => 'Register Agate User Profile',
-        'page callback' => 'obiba_auth_register_form_user',
-        'access callback' => TRUE,
-    );
-    $items['agate_user_join'] = array(
-        'title' => 'Agate User',
-        'description' => 'Agate User Profile',
-        'page callback' => 'obiba_auth_register_user',
-        'access callback' => TRUE
-    );
-    return $items;
+  global $user;
+  $items = array();
+  //cas_login_check();
+  $items['admin/config/people/obiba'] = array(
+    'title' => 'OBiBa Auth settings',
+    'description' => 'Configure OBiBa central authentication services',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('obiba_auth_admin_settings'),
+    'access arguments' => array('administer obiba'),
+    'type' => MENU_NORMAL_ITEM,
+    'file' => 'obiba_auth.admin.inc',
+  );
+  $items['obiba_user/register'] = array(
+    'title' => 'Register Agate User',
+    'description' => 'Register Agate User Profile',
+    'page callback' => 'obiba_auth_register_form_user',
+    'access callback' => TRUE,
+  );
+  $items['agate_user_join'] = array(
+    'title' => 'Agate User',
+    'description' => 'Agate User Profile',
+    'page callback' => 'obiba_auth_register_user',
+    'access callback' => TRUE
+  );
+  return $items;
 }
 
 function  obiba_auth_register_user_response_error($code_error, $message_error) {
-    drupal_add_http_header('Status', $code_error);
-    drupal_json_output($message_error);
-    die;
+  drupal_add_http_header('Status', $code_error);
+  drupal_json_output($message_error);
+  die;
 }
 
 function obiba_auth_register_user() {
-    $form_attributes = obiba_auth_get_agate_form_attributes();
-    $post_attributes = array_keys($_POST);
+  $form_attributes = obiba_auth_get_agate_form_attributes();
+  $post_attributes = array_keys($_POST);
 
-    //Secure the request by verify if the set of POST parameters are trusted by server
-    if ($form_attributes['form'] != $post_attributes) {
-        obiba_auth_register_user_response_error('400 Bad Request', '{"code" : 400 , "message" : "Unexpected Error"}');
-    }
+  //Secure the request by verify if the set of POST parameters are trusted by server
+  if ($form_attributes['form'] != $post_attributes) {
+    obiba_auth_register_user_response_error('400 Bad Request', '{"code" : 400 , "message" : "Unexpected Error"}');
+  }
 
-    $agat = new AgateClient();
-    $response = $agat->add_agate_user($_POST);
-    if (!empty($response['code']) && $response['code'] == 200) {
-        drupal_json_output($response);
-    }
-    else {
-        obiba_auth_register_user_response_error($response['codeError'], $response['message']);
-    }
+  $agat = new AgateClient();
+  $response = $agat->add_agate_user($_POST);
+  if (!empty($response['code']) && $response['code'] == 200) {
+    drupal_json_output($response);
+  }
+  else {
+    obiba_auth_register_user_response_error($response['codeError'], $response['message']);
+  }
 }
 
 function obiba_auth_theme($existing, $type, $theme, $path) {
-    $path_theme = $path . '/templates';
-    return array(
+  $path_theme = $path . '/templates';
+  return array(
 //    'obiba_auth_user-login' => array('template' => 'obiba_auth_user-login', 'path' => $path_theme),
 //    'obiba_auth_user-pass' => array('template' => 'obiba_auth_user-pass', 'path' => $path_theme),
-        'obiba_auth_user-register-form' => array('template' => 'obiba_auth_user-register-form', 'path' => $path_theme),
-    );
+    'obiba_auth_user-register-form' => array('template' => 'obiba_auth_user-register-form', 'path' => $path_theme),
+  );
 }
 
 function obiba_auth_register_form_user() {
-    //override form_id value
+  //override form_id value
 
-    $form_attributes = obiba_auth_get_agate_form_attributes();
-    //overloading the $form attributes
-    obiba_auth_load_libraires_resources();
-    $module_path_ = drupal_get_path('module', 'obiba_auth');
-    drupal_add_js($module_path_ . '/js/ang/app.js', array('type' => 'file', 'scope' => 'footer'));
-    drupal_add_js(array(
-            'form' => $form_attributes['form'],
-            'schema' => $form_attributes['schema']
-        ),
-        'setting');
-    return theme('obiba_auth_user-register-form');
+  $form_attributes = obiba_auth_get_agate_form_attributes();
+  //overloading the $form attributes
+  obiba_auth_load_libraires_resources();
+  $module_path_ = drupal_get_path('module', 'obiba_auth');
+  drupal_add_js($module_path_ . '/js/ang/app.js', array('type' => 'file', 'scope' => 'footer'));
+  drupal_add_js(array(
+      'form' => $form_attributes['form'],
+      'schema' => $form_attributes['schema']
+    ),
+    'setting');
+  return theme('obiba_auth_user-register-form');
 }
 
 function obiba_auth_get_agate_form_attributes() {
-    $agate_client = new AgateClient();
-    $form = $agate_client->get_config_form_join();
-    $form_attributes = array(
-        'form' => $form['definition'],
-        'schema' => $form['schema']
-    );
-    return $form_attributes;
+  $agate_client = new AgateClient();
+  $form = $agate_client->get_config_form_join();
+  $form_attributes = array(
+    'form' => $form['definition'],
+    'schema' => $form['schema']
+  );
+  return $form_attributes;
 }
 
 /**
  * Implements hook_library().
  */
 function obiba_auth_library() {
-    $libraries = array();
-    $lib_path_schema_form = libraries_get_path('angular-schema-form');
-    // Make sure we have a valid library path before returning library load info.
-    if (!empty($lib_path_schema_form)) {
-        $libraries['angular-schema-form'] = array(
-            'title' => 'Angular Schema Form',
-            'website' => 'http://schemaform.io',
-            'version' => 'Last Version',
-            'js' => array(
+  $libraries = array();
+  $lib_path_schema_form = libraries_get_path('angular-schema-form');
+  // Make sure we have a valid library path before returning library load info.
+  if (!empty($lib_path_schema_form)) {
+    $libraries['angular-schema-form'] = array(
+      'title' => 'Angular Schema Form',
+      'website' => 'http://schemaform.io',
+      'version' => 'Last Version',
+      'js' => array(
 
-                $lib_path_schema_form . '/angular/angular.min.js' => array('type' => 'file', 'scope' => 'footer'),
-                $lib_path_schema_form . '/angular-resource/angular-resource.min.js' => array(
-                    'type' => 'file',
-                    'scope' => 'footer'
-                ),
-                $lib_path_schema_form . '/angular-bootstrap/ui-bootstrap-tpls.min.js' => array(
-                    'type' => 'file',
-                    'scope' => 'footer'
-                ),
-                $lib_path_schema_form . '/angular-sanitize/angular-sanitize.min.js' => array(
-                    'type' => 'file',
-                    'scope' => 'footer'
-                ),
-                $lib_path_schema_form . '/tv4/tv4.js' => array('type' => 'file', 'scope' => 'footer'),
-                $lib_path_schema_form . '/objectpath/lib/ObjectPath.js' => array('type' => 'file', 'scope' => 'footer'),
-                $lib_path_schema_form . '/angular-schema-form/dist/schema-form.min.js' => array(
-                    'type' => 'file',
-                    'scope' => 'footer'
-                ),
-                $lib_path_schema_form . '/angular-schema-form/dist/bootstrap-decorator.min.js' => array(
-                    'type' => 'file',
-                    'scope' => 'footer'
-                ),
-            ),
+        $lib_path_schema_form . '/angular/angular.min.js' => array('type' => 'file', 'scope' => 'footer'),
+        $lib_path_schema_form . '/angular-resource/angular-resource.min.js' => array(
+          'type' => 'file',
+          'scope' => 'footer'
+        ),
+        $lib_path_schema_form . '/angular-bootstrap/ui-bootstrap-tpls.min.js' => array(
+          'type' => 'file',
+          'scope' => 'footer'
+        ),
+        $lib_path_schema_form . '/angular-sanitize/angular-sanitize.min.js' => array(
+          'type' => 'file',
+          'scope' => 'footer'
+        ),
+        $lib_path_schema_form . '/tv4/tv4.js' => array('type' => 'file', 'scope' => 'footer'),
+        $lib_path_schema_form . '/objectpath/lib/ObjectPath.js' => array('type' => 'file', 'scope' => 'footer'),
+        $lib_path_schema_form . '/angular-schema-form/dist/schema-form.min.js' => array(
+          'type' => 'file',
+          'scope' => 'footer'
+        ),
+        $lib_path_schema_form . '/angular-schema-form/dist/bootstrap-decorator.min.js' => array(
+          'type' => 'file',
+          'scope' => 'footer'
+        ),
+      ),
 //      'css' => array(
 //        $lib_path_schema_form . '/extensions/FixedColumns/css/dataTables.fixedColumns.css' => array()
 //      )
-        );
-    }
-    return $libraries;
+    );
+  }
+  return $libraries;
 }
 
 function obiba_auth_load_libraires_resources() {
-    if (drupal_get_library('obiba_auth', 'angular-schema-form')) {
-        drupal_add_library('obiba_auth', 'angular-schema-form');
-    }
-    else {
-        watchdog('Obiba_auth', 'The library angular-schema-form not loaded', array(), WATCHDOG_WARNING);
-    }
+  if (drupal_get_library('obiba_auth', 'angular-schema-form')) {
+    drupal_add_library('obiba_auth', 'angular-schema-form');
+  }
+  else {
+    watchdog('Obiba_auth', 'The library angular-schema-form not loaded', array(), WATCHDOG_WARNING);
+  }
 }
 
 /**
  * Implements hook_permission().
  */
 function obiba_auth_permission() {
-    return array(
-        'administer obiba' => array(
-            'title' => t('Administer OBiBa'),
-            'description' => t('Configure OBiBa Auth server and other settings.'),
-            'restrict access' => TRUE,
-        )
-    );
+  return array(
+    'administer obiba' => array(
+      'title' => t('Administer OBiBa'),
+      'description' => t('Configure OBiBa Auth server and other settings.'),
+      'restrict access' => TRUE,
+    )
+  );
 }
 
 /**
  * Implements hook_user_logout().
  */
 function obiba_auth_user_logout() {
-    if (!AgateClient::hasTicket()) {
-        return;
-    }
-    $agate_client = new AgateClient();
-    $agate_client->logout();
+  if (!AgateClient::hasTicket()) {
+    return;
+  }
+  $agate_client = new AgateClient();
+  $agate_client->logout();
 }
 
 /**
@@ -179,14 +179,14 @@ function obiba_auth_user_logout() {
  * Change the normal form login form behaviour.
  */
 function obiba_auth_form_user_login_alter(&$form, $form_state) {
-    unset($form['links']);
-    $form['obiba_auth']['#value'] = 'obiba_auth_user_register_form';
-    $form['#validate'] = array(
-        'user_login_name_validate',
-        'user_login_authenticate_validate',
-        'obiba_auth_login_validate',
-        'user_login_final_validate'
-    );
+  unset($form['links']);
+  $form['obiba_auth']['#value'] = 'obiba_auth_user_register_form';
+  $form['#validate'] = array(
+    'user_login_name_validate',
+    'user_login_authenticate_validate',
+    'obiba_auth_login_validate',
+    'user_login_final_validate'
+  );
 }
 
 /**
@@ -194,7 +194,7 @@ function obiba_auth_form_user_login_alter(&$form, $form_state) {
  * Change the normal form login block form behaviour.
  */
 function obiba_auth_form_user_login_block_alter(&$form, $form_state) {
-    return obiba_auth_form_user_login_alter($form, $form_state);
+  return obiba_auth_form_user_login_alter($form, $form_state);
 }
 
 /**
@@ -202,16 +202,16 @@ function obiba_auth_form_user_login_block_alter(&$form, $form_state) {
  * password for externally authenticated users.
  */
 function obiba_auth_form_user_profile_form_alter(&$form, $form_state) {
-    $account = $form['#user'];
-    $authmaps = user_get_authmaps($account->name);
-    if (isset($authmaps['obiba_auth'])) {
-        drupal_set_message(t('This account settings (password, email etc.) should be changed on <a href="@agate" target="_blank">Agate</a>.', array('@agate' => variable_get_value('agate_url'))));
-        $form['account']['name']['#type'] = 'hidden';
-        $form['account']['mail']['#type'] = 'hidden';
-        $form['account']['current_pass']['#type'] = 'hidden';
-        $form['account']['pass']['#type'] = 'hidden';
-    }
-    return $form;
+  $account = $form['#user'];
+  $authmaps = user_get_authmaps($account->name);
+  if (isset($authmaps['obiba_auth'])) {
+    drupal_set_message(t('This account settings (password, email etc.) should be changed on <a href="@agate" target="_blank">Agate</a>.', array('@agate' => variable_get_value('agate_url'))));
+    $form['account']['name']['#type'] = 'hidden';
+    $form['account']['mail']['#type'] = 'hidden';
+    $form['account']['current_pass']['#type'] = 'hidden';
+    $form['account']['pass']['#type'] = 'hidden';
+  }
+  return $form;
 
 }
 
@@ -219,30 +219,30 @@ function obiba_auth_form_user_profile_form_alter(&$form, $form_state) {
  * The obiba_auth_auth() function attempts to authenticate a user off the external system using their e-mail address.
  */
 function obiba_auth_login_validate($form, &$form_state) {
-    $username = $form_state['values']['name'];
-    $password = $form_state['values']['pass'];
-    // try to authenticate on Agate if not already authenticated
-    if ((!isset($form_state['uid']) || $form_state['uid'] == FALSE) && !empty($username) && !empty($password)) {
-        if (obiba_auth_check_user($username, $password)) {
-            user_external_login_register($username, 'obiba_auth');
-            $account = user_external_load($username);
-            obiba_auth_apply_subject($account);
-            $form_state['uid'] = $account->uid;
-        }
+  $username = $form_state['values']['name'];
+  $password = $form_state['values']['pass'];
+  // try to authenticate on Agate if not already authenticated
+  if ((!isset($form_state['uid']) || $form_state['uid'] == FALSE) && !empty($username) && !empty($password)) {
+    if (obiba_auth_check_user($username, $password)) {
+      user_external_login_register($username, 'obiba_auth');
+      $account = user_external_load($username);
+      obiba_auth_apply_subject($account);
+      $form_state['uid'] = $account->uid;
     }
-    // else drop through to the end and return nothing - Drupal will handle the rejection for us
+  }
+  // else drop through to the end and return nothing - Drupal will handle the rejection for us
 }
 
 function obiba_auth_check_user($username, $password) {
-    try {
-        $agate_client = new AgateClient();
-        // authenticate
-        return $agate_client->authenticate($username, $password);
-    }
-    catch (Exception $e) {
-        watchdog('obiba_auth', 'Error %error_message.', array('%error_message' => $e->faultstring), WATCHDOG_NOTICE);
-        return FALSE;
-    }
+  try {
+    $agate_client = new AgateClient();
+    // authenticate
+    return $agate_client->authenticate($username, $password);
+  }
+  catch (Exception $e) {
+    watchdog('obiba_auth', 'Error %error_message.', array('%error_message' => $e->faultstring), WATCHDOG_NOTICE);
+    return FALSE;
+  }
 }
 
 /**
@@ -250,50 +250,50 @@ function obiba_auth_check_user($username, $password) {
  * @param $account
  */
 function obiba_auth_apply_subject($account) {
-    $roles = $account->roles;
-    $edit = array();
-    $db_roles = user_roles();
+  $roles = $account->roles;
+  $edit = array();
+  $db_roles = user_roles();
 
-    // authorize = apply groups
-    $agate_client = new AgateClient();
-    $subject = $agate_client->getSubject();
-    if (isset($subject['groups'])) {
-        // find the role id corresponding to the group name (if any)
-        foreach ($subject['groups'] as $group) {
-            foreach ($db_roles as $rid => $role) {
-                if (strcmp($group, $role) == 0 && !isset($roles[$rid])) {
-                    $roles[$rid] = $role;
-                    $edit['roles'] = $roles;
-                }
-            }
+  // authorize = apply groups
+  $agate_client = new AgateClient();
+  $subject = $agate_client->getSubject();
+  if (isset($subject['groups'])) {
+    // find the role id corresponding to the group name (if any)
+    foreach ($subject['groups'] as $group) {
+      foreach ($db_roles as $rid => $role) {
+        if (strcmp($group, $role) == 0 && !isset($roles[$rid])) {
+          $roles[$rid] = $role;
+          $edit['roles'] = $roles;
         }
+      }
     }
+  }
 
-    // set email
-    if (isset($subject['attributes'])) {
-        foreach ($subject['attributes'] as $map) {
-            if (strcmp('email', $map['key']) == 0) {
-                $edit['mail'] = $map['value'];
-            }
+  // set email
+  if (isset($subject['attributes'])) {
+    foreach ($subject['attributes'] as $map) {
+      if (strcmp('email', $map['key']) == 0) {
+        $edit['mail'] = $map['value'];
+      }
+    }
+  }
+
+  // apply additional role
+  $auto_roles = variable_get('obiba_auto_assigned_role', array());
+  foreach ($auto_roles as $auto_rid => $value) {
+    if ($value != 0) {
+      foreach ($db_roles as $rid => $role) {
+        if ($auto_rid == $rid && !isset($roles[$rid])) {
+          $roles[$rid] = $role;
+          $edit['roles'] = $roles;
         }
+      }
     }
+  }
 
-    // apply additional role
-    $auto_roles = variable_get('obiba_auto_assigned_role', array());
-    foreach ($auto_roles as $auto_rid => $value) {
-        if ($value != 0) {
-            foreach ($db_roles as $rid => $role) {
-                if ($auto_rid == $rid && !isset($roles[$rid])) {
-                    $roles[$rid] = $role;
-                    $edit['roles'] = $roles;
-                }
-            }
-        }
-    }
-
-    if (count($edit) > 0) {
-        user_save($account, $edit);
-    }
+  if (count($edit) > 0) {
+    user_save($account, $edit);
+  }
 }
 
 /**
@@ -302,16 +302,16 @@ function obiba_auth_apply_subject($account) {
  * Traps a page load to see if authentication is required.
  */
 function obiba_auth_init() {
-    global $user;
+  global $user;
 
-    // not authenticated but has a Agate token
-    if (!user_is_logged_in() && isset($_COOKIE['obibaid'])) {
-        $agate_client = new AgateClient();
-        $username = $agate_client->validate($_COOKIE['obibaid']);
-        if (!is_null($username)) {
-            user_external_login_register($username, 'obiba_auth');
-            $account = user_external_load($username);
-            obiba_auth_apply_subject($account);
-        }
+  // not authenticated but has a Agate token
+  if (!user_is_logged_in() && isset($_COOKIE['obibaid'])) {
+    $agate_client = new AgateClient();
+    $username = $agate_client->validate($_COOKIE['obibaid']);
+    if (!is_null($username)) {
+      user_external_login_register($username, 'obiba_auth');
+      $account = user_external_load($username);
+      obiba_auth_apply_subject($account);
     }
+  }
 }
