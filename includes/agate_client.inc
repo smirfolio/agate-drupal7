@@ -86,6 +86,137 @@ class AgateClient {
     return array();
   }
 
+
+  /**
+   * Get form registration from agate
+   * @return Json form
+   * @throws Exception
+   */
+  public function get_config_form_join() {
+    $this->lastResponse = NULL;
+    $url = $this->agateUrl . '/config/join';
+    $request = new HttpClientRequest($url, array(
+      'method' => HttpClientRequest::METHOD_GET,
+      'headers' => array(
+        'Accept' => array('application/json'),
+        'X-App-Auth' => array($this->authorizationHeader())
+      ),
+    ));
+
+    $client = $this->client();
+    try {
+      $body = $client->execute($request);
+      $this->lastResponse = $client->lastResponse;
+      return json_decode($body, TRUE);
+    }
+    catch (HttpClientException $e) {
+      watchdog('Agate Client', 'Request failed, @code: @message',
+        array('@code' => $e->getCode(), '@message' => $e->getMessage()), WATCHDOG_WARNING);
+      return array();
+    }
+  }
+
+  /**
+   * Get form registration from agate
+   * @return Json form
+   * @throws Exception
+   */
+  public function get_recaptcha_key_config_form_join() {
+    $this->lastResponse = NULL;
+    $url = $this->agateUrl . '/config/client';
+    $request = new HttpClientRequest($url, array(
+      'method' => HttpClientRequest::METHOD_GET,
+      'headers' => array(
+        'Accept' => array('application/json'),
+        'X-App-Auth' => array($this->authorizationHeader())
+      )
+    ));
+
+    $client = $this->client();
+    try {
+
+      $body = $client->execute($request);
+      $this->lastResponse = $client->lastResponse;
+      $response_google = json_decode($body);
+      return $response_google->reCaptchaKey;
+    }
+    catch (HttpClientException $e) {
+      watchdog('Agate Client', 'Request failed, @code: @message',
+        array('@code' => $e->getCode(), '@message' => $e->getMessage()), WATCHDOG_WARNING);
+      return array();
+    }
+  }
+
+
+  /**
+   * Add user to Agate
+   * @param $user_data
+   * @return TRUE
+   * @throws Exception
+   */
+  public function add_agate_user($user_data) {
+    $this->lastResponse = NULL;
+    $url = $this->agateUrl . '/users/_join';
+    $data = http_build_query($user_data);
+
+    $request = new HttpClientRequest($url, array(
+      'method' => HttpClientRequest::METHOD_POST,
+      'headers' => array(
+        'Accept' => array('application/json'),
+        'Content-Type' => array('application/x-www-form-urlencoded'),
+        'X-App-Auth' => array($this->authorizationHeader())
+      ),
+      'data' => $data,
+    ));
+
+    $client = $this->client();
+    try {
+      $body = $client->execute($request);
+      $this->lastResponse = $client->lastResponse;
+      $this->setLastResponseCookies();
+      return TRUE;
+    }
+    catch (HttpClientException $e) {
+      watchdog('Agate Client', 'Request failed, @code: @message',
+        array('@code' => $e->getCode(), '@message' => $e->getMessage()), WATCHDOG_WARNING);
+      return array('codeError' => $e->getCode(), 'message' => $e->getResponse()->body);
+    }
+  }
+
+  /**
+   * Get form registration from agate
+   * @return Json form
+   * @throws Exception
+   */
+  public function password_request($data) {
+    $data = http_build_query($data);
+    $this->lastResponse = NULL;
+    $url = $this->agateUrl . '/users/_forgot_password';
+    $request = new HttpClientRequest($url, array(
+      'method' => HttpClientRequest::METHOD_POST,
+      'headers' => array(
+        'Accept' => array('application/json'),
+        'Content-Type' => array('application/x-www-form-urlencoded'),
+        'X-App-Auth' => array($this->authorizationHeader())
+      ),
+      'data' => $data,
+    ));
+    $client = $this->client();
+    try {
+      $body = $client->execute($request);
+      if (!empty($body)) {
+        $this->lastResponse = $client->lastResponse;
+      }
+      return json_decode($body, TRUE);
+    }
+    catch (HttpClientException $e) {
+      watchdog('Agate Client', 'Request failed, @code: @message',
+        array('@code' => $e->getCode(), '@message' => $e->getMessage()), WATCHDOG_WARNING);
+      return array();
+    }
+  }
+
+
   /**
    * Perform authentication by user name and forwards any cookie from Agate to the drupal client.
    * @param $username
@@ -97,7 +228,6 @@ class AgateClient {
     $this->lastResponse = NULL;
     $url = $this->agateUrl . '/tickets';
     $data = 'username=' . $username . '&password=' . $password;
-
     $request = new HttpClientRequest($url, array(
       'method' => HttpClientRequest::METHOD_POST,
       'headers' => array(
@@ -165,7 +295,10 @@ class AgateClient {
     $url = $this->agateUrl . '/ticket/' . $_SESSION[self::OBIBA_COOKIE] . '/subject';
     $request = new HttpClientRequest($url, array(
       'method' => HttpClientRequest::METHOD_GET,
-      'headers' => array('Accept' => array('application/json'), 'X-App-Auth' => array($this->authorizationHeader())),
+      'headers' => array(
+        'Accept' => array('application/json'),
+        'X-App-Auth' => array($this->authorizationHeader())
+      ),
     ));
 
     $client = $this->client();
@@ -192,7 +325,10 @@ class AgateClient {
     $url = $this->agateUrl . '/ticket/' . $_SESSION[self::OBIBA_COOKIE];
     $request = new HttpClientRequest($url, array(
       'method' => HttpClientRequest::METHOD_DELETE,
-      'headers' => array('Accept' => array('application/json'), 'X-App-Auth' => array($this->authorizationHeader())),
+      'headers' => array(
+        'Accept' => array('application/json'),
+        'X-App-Auth' => array($this->authorizationHeader())
+      ),
     ));
 
     $client = $this->client();
