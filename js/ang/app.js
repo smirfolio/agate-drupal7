@@ -8,34 +8,41 @@
       'use strict';
       /* App Module */
       var obibaAth = angular.module('ObibaAuth', [
-//        'ngAnimate',
-//        'ngCookies',
         'ngResource',
         'ngSanitize',
         'ui.bootstrap',
-//        'ngRoute',
-        'schemaForm'
+        'schemaForm',
+        'vcRecaptcha'
       ]);
 
-      obibaAth.controller('RegisterFormController', ['$scope', '$log', 'UserResource', function ($scope, $log, UserResource) {
 
-        settings.form.push(
-          {
-            type: "submit",
-            title: Drupal.t('Join')
-          }
-        );
+      obibaAth.controller('RegisterFormController', ['$scope', '$log', 'UserResource', 'vcRecaptchaService', function ($scope, $log, UserResource, vcRecaptchaService) {
 
         $scope.form = angular.fromJson(settings.form);
         $scope.schema = angular.fromJson(settings.schema);
+        $scope.config = {
+          key: settings.recaptchaKey
+        };
+        $scope.response = null;
+        $scope.widgetId = null;
         $scope.model = {};
 
+        $scope.setWidgetId = function (widgetId) {
+          $scope.widgetId = widgetId;
+        };
+        $scope.setResponse = function (response) {
+          $scope.response = response;
+        };
+
+        $scope.setWidgetId = function (widgetId) {
+          $scope.widgetId = widgetId;
+        };
         $scope.onSubmit = function (form) {
           // First we broadcast an event so all fields validate themselves
           $scope.$broadcast('schemaFormValidate');
           // Then we check if the form is valid
           if (form.$valid) {
-            UserResource.post($scope.model).
+            UserResource.post(angular.extend({}, $scope.model, {reCaptchaResponse: $scope.response})).
               success(function (data, status, headers, config) {
                 $scope.alert = {
                   message: Drupal.t('You will receive an email to confirm your registration.'),
@@ -52,11 +59,8 @@
                   message: Drupal.t(' Code :' + status + ' :' + errorParse.errorMessage),
                   type: 'danger'
                 };
-                //populate captcha field with new math challenge question
-                $scope.form[5].placeholder = errorParse.updatedField.form[5].placeholder;
-
-                $scope.$broadcast('schemaFormRedraw');
-                $scope.model.captcha = ''
+                //re-load ReCaptcha field
+                vcRecaptchaService.reload($scope.widgetId);
 
               });
           }

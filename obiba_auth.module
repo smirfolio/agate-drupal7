@@ -35,6 +35,24 @@ function obiba_auth_menu() {
   return $items;
 }
 
+/**
+ * Implements hook_theme().
+ */
+function obiba_auth_theme($existing, $type, $theme, $path) {
+  $path_theme = $path . '/templates';
+  return array(
+    'obiba_auth_user-register-form' => array('template' => 'obiba_auth_user-register-form', 'path' => $path_theme),
+    'obiba_auth_user-pass-request-form' => array(
+      'template' => 'obiba_auth_user-pass-request-form',
+      'path' => $path_theme
+    ),
+  );
+}
+
+/*
+ * parse and return an formatted error message
+ *
+ * */
 function  obiba_auth_register_user_response_error($code_error, $message_error, $form_attributes = NULL) {
   drupal_add_http_header('Status', $code_error);
   $response['errorMessage'] = $message_error;
@@ -44,60 +62,66 @@ function  obiba_auth_register_user_response_error($code_error, $message_error, $
   die;
 }
 
+/*
+ * Register action (Ajax resource)
+ *
+ * */
 function obiba_auth_register_user() {
+
   $form_attributes = obiba_auth_get_agate_form_attributes();
-  $response_captcha = $_POST['captcha'];
-  unset($_POST['captcha']);
-  $post_attributes = array_keys($_POST);
-  $solution = variable_get('captcha_response');
+
   //Secure the request by verify if the set of POST parameters are trusted by server
+  $response_captcha = $_POST['reCaptchaResponse'];
+  unset($_POST['reCaptchaResponse']);
+  $post_attributes = array_keys($_POST);
   if ($form_attributes['form'] != $post_attributes) {
-    $form_attributes = obiba_auth_generate_captcha_challenge($form_attributes);
-    obiba_auth_register_user_response_error('400 Bad Request', '{"code" : 400 , "message" : "Unexpected Error"}', $form_attributes);
-  }
-  if ($response_captcha != $solution) {
-    $form_attributes = obiba_auth_generate_captcha_challenge($form_attributes);
-    obiba_auth_register_user_response_error('400 Bad Request', '{"code" : 400 , "message" : "Really !! Are you human ???"}', $form_attributes);
+    obiba_auth_register_user_response_error('400 Bad Request', '{"message" : "Unexpected Error"}', $form_attributes);
   }
 
+  //perform the register request
+  $_POST['reCaptchaResponse'] = $response_captcha;
   $agat = new AgateClient();
   $response = $agat->add_agate_user($_POST);
   if (!empty($response['code']) && $response['code'] == 200) {
     drupal_json_output($response);
   }
   else {
-    $form_attributes = obiba_auth_generate_captcha_challenge($form_attributes);
-    obiba_auth_register_user_response_error($response['codeError'], $response['message'], $form_attributes);
+    if (!empty($response['codeError'])) {
+      $message_serv_array = json_decode($response['message']);
+      obiba_auth_register_user_response_error($response['codeError'],
+        json_encode(array("message" => $message_serv_array->message)),
+        $form_attributes);
+    }
   }
+
 }
 
-function obiba_auth_theme($existing, $type, $theme, $path) {
-  $path_theme = $path . '/templates';
-  return array(
-//    'obiba_auth_user-login' => array('template' => 'obiba_auth_user-login', 'path' => $path_theme),
-//    'obiba_auth_user-pass' => array('template' => 'obiba_auth_user-pass', 'path' => $path_theme),
-    'obiba_auth_user-register-form' => array('template' => 'obiba_auth_user-register-form', 'path' => $path_theme),
-  );
-}
-
+/*
+ * Display the form page
+ * */
 function obiba_auth_register_form_user() {
   //override form_id value
   $cpatcha_value = NULL;
   $form_attributes = obiba_auth_get_agate_form_attributes();
-
-  $form_attributes = obiba_auth_generate_captcha_challenge($form_attributes);
+  $recaptcha_key = obiba_auth_get_agate_recaptch_key();
   //overloading the $form attributes
   obiba_auth_load_libraires_resources();
   $module_path_ = drupal_get_path('module', 'obiba_auth');
   drupal_add_js($module_path_ . '/js/ang/app.js', array('type' => 'file', 'scope' => 'footer'));
   drupal_add_js(array(
       'form' => $form_attributes['form'],
-      'schema' => $form_attributes['schema']
+      'schema' => $form_attributes['schema'],
+      'recaptchaKey' => $recaptcha_key
     ),
     'setting');
   return theme('obiba_auth_user-register-form');
 }
 
+/*
+ * Get the join form parameters from Agate server
+ * @return : formatted Json parameter form
+ *
+ * */
 function obiba_auth_get_agate_form_attributes() {
   $agate_client = new AgateClient();
   $form = $agate_client->get_config_form_join();
@@ -109,26 +133,69 @@ function obiba_auth_get_agate_form_attributes() {
 }
 
 /*
- * rebuild a new captcha challenge in every bad form submission
- * @param:$form_attributes the current server form config
- * @return new $form_attributes with updated captcha challenge (update the placeholder + response of the challenge)
+ * Get the join form parameters from Agate server
+ * @return : formatted Json parameter form
  *
  * */
-function obiba_auth_generate_captcha_challenge($form_attributes) {
-  $int1 = rand(0, 9);
-  $int2 = rand(0, 9);
-  $somme = $int1 + $int2;
-  variable_set('captcha_response', $somme);
-  $form = array(
-    "key" => "captcha",
-    "type" => "string",
-    "placeholder" => "Are you a robot so please respond to Math question * " . $int1 . "+" . $int2 . " = "
+function obiba_auth_get_agate_recaptch_key() {
+  $agate_client = new AgateClient();
+
+  return $agate_client->get_recaptcha_key_config_form_join();
+}
+
+function obiba_auth_user_pass_validate($form, &$form_state) {
+  $name_email = $form_state['values']['name'];
+  if ((!isset($form_state['uid']) || $form_state['uid'] == FALSE) && !empty($name_email)) {
+    obiba_auth_send_password_request(array('username' => $name_email));
+  }
+}
+
+function obiba_auth_send_password_request($name_email) {
+  $agate_client = new AgateClient();
+  $response = $agate_client->password_request($name_email);
+  if (!empty($response['code']) && $response['code'] == 200) {
+    drupal_set_message(t('Check your email to complete your login recovery.'), 'status');
+    return TRUE;
+  }
+  else {
+    if (!empty($response['codeError'])) {
+      $message_serv_array = json_decode($response['message']);
+      drupal_set_message(t('Password request error, server respond with: ') . $message_serv_array->message, 'error');
+    }
+    return FALSE;
+  }
+}
+
+/**
+ * Implements hook_form_user_register_form_alter().
+ */
+function obiba_auth_form_user_register_form_alter(&$form, &$form_state, $form_id) {
+  $form['obiba_auth']['#value'] = 'obiba_auth_user_register_form';
+}
+
+/**
+ * Implements hook_form_user_pass_alter().
+ */
+function obiba_auth_form_user_pass_alter(&$form, $form_state) {
+  $form['#validate'] = array(
+    'obiba_auth_user_pass_validate',
+    'user_pass_validate',
   );
-  array_push($form_attributes['form'], $form);
-  array_push($form_attributes['schema']['required'], "captcha");
-  $form_attributes['schema']['properties'] = array_merge($form_attributes['schema']['properties'],
-    array('captcha' => array("type" => "string")));
-  return $form_attributes;
+}
+
+/**
+ * Implementation of hook_form_alter().
+ * Change the normal form login form behaviour.
+ */
+function obiba_auth_form_user_login_alter(&$form, $form_state) {
+  unset($form['links']);
+  $form['obiba_auth']['#value'] = 'obiba_auth_user_register_form';
+  $form['#validate'] = array(
+    'user_login_name_validate',
+    'user_login_authenticate_validate',
+    'obiba_auth_login_validate',
+    'user_login_final_validate'
+  );
 }
 
 /**
@@ -165,6 +232,10 @@ function obiba_auth_library() {
           'scope' => 'footer'
         ),
         $lib_path_schema_form . '/angular-schema-form/dist/bootstrap-decorator.min.js' => array(
+          'type' => 'file',
+          'scope' => 'footer'
+        ),
+        $lib_path_schema_form . '/angular-recaptcha/release/angular-recaptcha.min.js' => array(
           'type' => 'file',
           'scope' => 'footer'
         ),
@@ -208,21 +279,6 @@ function obiba_auth_user_logout() {
   }
   $agate_client = new AgateClient();
   $agate_client->logout();
-}
-
-/**
- * Implementation of hook_form_alter().
- * Change the normal form login form behaviour.
- */
-function obiba_auth_form_user_login_alter(&$form, $form_state) {
-  unset($form['links']);
-  $form['obiba_auth']['#value'] = 'obiba_auth_user_register_form';
-  $form['#validate'] = array(
-    'user_login_name_validate',
-    'user_login_authenticate_validate',
-    'obiba_auth_login_validate',
-    'user_login_final_validate'
-  );
 }
 
 /**
