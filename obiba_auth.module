@@ -191,7 +191,7 @@ function obiba_auth_form_user_pass_alter(&$form, $form_state) {
 function obiba_auth_form_user_login_alter(&$form, $form_state) {
 	unset($form['links']);
 	$form['obiba_auth']['#value'] = 'obiba_auth_user_register_form';
-  $form['name']['#title'] = t('Username or Email');
+	$form['name']['#title'] = t('Username or Email');
 	$form['#validate'] = array(
 		'obiba_auth_mail_user_login_validate',
 		'user_login_name_validate',
@@ -210,7 +210,8 @@ function obiba_auth_mail_user_login_validate($form, &$form_state) {
 	if (isset($form_state['values']['name']) && $form_state['values']['name']) {
 		if ($name = db_query("SELECT name FROM {users} WHERE LOWER(mail) = LOWER(:name)", array(
 			':name' => $form_state['values']['name'],
-		))->fetchField()) {
+		))->fetchField()
+		) {
 			form_set_value($form['name'], $name, $form_state);
 		}
 	}
@@ -290,7 +291,7 @@ function obiba_auth_library() {
  *
  */
 function obiba_auth_library_alter(&$javascript, $module) {
-	if($module = 'obiba_auth' && current_path() == 'obiba_user/register'){
+	if ($module = 'obiba_auth' && current_path() == 'obiba_user/register') {
 		$path = drupal_get_path('module', 'jquery_update');
 		jquery_update_jquery_replace($javascript, NULL, $path, NULL, '1.10');
 	}
@@ -415,7 +416,6 @@ function obiba_auth_login_validate($form, &$form_state) {
 	}
 	// else drop through to the end and return nothing - Drupal will handle the rejection for us
 }
-
 
 function obiba_auth_check_user($username, $password) {
 	try {
