@@ -49,6 +49,25 @@ function obiba_auth_theme($existing, $type, $theme, $path) {
   );
 }
 
+/**
+ * Implements hook_library().
+ */
+function obiba_auth_library() {
+  return obiba_mica_load_angular_library();
+}
+
+/**
+ * Implements hook_library_alter().
+ * Angular library compatible with Jquery 1.10
+ *
+ */
+function obiba_auth_library_alter(&$javascript, $module) {
+  if ($module == 'obiba_auth' && current_path() == 'obiba_user/register') {
+    $path = drupal_get_path('module', 'jquery_update');
+    jquery_update_jquery_replace($javascript, NULL, $path, NULL, '1.10');
+  }
+}
+
 /*
  * parse and return an formatted error message
  *
@@ -105,7 +124,7 @@ function obiba_auth_register_form_user() {
   $form_attributes = obiba_auth_get_agate_form_attributes();
   $recaptcha_key = obiba_auth_get_agate_recaptch_key();
   //overloading the $form attributes
-  obiba_auth_load_libraires_resources();
+  obiba_mica_load_libraires_resources('obiba_auth');
   $module_path_ = drupal_get_path('module', 'obiba_auth');
   drupal_add_js($module_path_ . '/js/ang/app.js', array('type' => 'file', 'scope' => 'footer'));
   drupal_add_js(array(
@@ -181,6 +200,7 @@ function obiba_auth_form_user_pass_alter(&$form, $form_state) {
   $form['#validate'] = array(
     'obiba_auth_user_pass_validate',
     'user_pass_validate',
+    obiba_auth_register_user
   );
 }
 
@@ -236,77 +256,6 @@ function obiba_auth_form_user_profile_form_alter(&$form, $form_state) {
 }
 
 /**
- * Implements hook_library().
- */
-function obiba_auth_library() {
-  $libraries = array();
-  $lib_path_schema_form = libraries_get_path('angular-schema-form');
-  // Make sure we have a valid library path before returning library load info.
-  if (!empty($lib_path_schema_form)) {
-    $libraries['angular-schema-form'] = array(
-      'title' => 'Angular Schema Form',
-      'website' => 'http://schemaform.io',
-      'version' => 'Last Version',
-      'js' => array(
-
-        $lib_path_schema_form . '/angular/angular.min.js' => array('type' => 'file', 'scope' => 'footer'),
-        $lib_path_schema_form . '/angular-resource/angular-resource.min.js' => array(
-          'type' => 'file',
-          'scope' => 'footer'
-        ),
-        $lib_path_schema_form . '/angular-bootstrap/ui-bootstrap-tpls.min.js' => array(
-          'type' => 'file',
-          'scope' => 'footer'
-        ),
-        $lib_path_schema_form . '/angular-sanitize/angular-sanitize.min.js' => array(
-          'type' => 'file',
-          'scope' => 'footer'
-        ),
-        $lib_path_schema_form . '/tv4/tv4.js' => array('type' => 'file', 'scope' => 'footer'),
-        $lib_path_schema_form . '/objectpath/lib/ObjectPath.js' => array('type' => 'file', 'scope' => 'footer'),
-        $lib_path_schema_form . '/angular-schema-form/dist/schema-form.min.js' => array(
-          'type' => 'file',
-          'scope' => 'footer'
-        ),
-        $lib_path_schema_form . '/angular-schema-form/dist/bootstrap-decorator.min.js' => array(
-          'type' => 'file',
-          'scope' => 'footer'
-        ),
-        $lib_path_schema_form . '/angular-recaptcha/release/angular-recaptcha.min.js' => array(
-          'type' => 'file',
-          'scope' => 'footer'
-        ),
-      ),
-//      'css' => array(
-//        $lib_path_schema_form . '/extensions/FixedColumns/css/dataTables.fixedColumns.css' => array()
-//      )
-    );
-  }
-  return $libraries;
-}
-
-/**
- * Implements hook_library_alter().
- * Angular library compatible with Jquery 1.10
- *
- */
-function obiba_auth_library_alter(&$javascript, $module) {
-  if ($module = 'obiba_auth' && current_path() == 'obiba_user/register') {
-    $path = drupal_get_path('module', 'jquery_update');
-    jquery_update_jquery_replace($javascript, NULL, $path, NULL, '1.10');
-  }
-}
-
-function obiba_auth_load_libraires_resources() {
-  if (drupal_get_library('obiba_auth', 'angular-schema-form')) {
-    drupal_add_library('obiba_auth', 'angular-schema-form');
-  }
-  else {
-    watchdog('Obiba_auth', 'The library angular-schema-form not loaded', array(), WATCHDOG_WARNING);
-  }
-}
-
-/**
  * Implements hook_permission().
  */
 function obiba_auth_permission() {
@@ -354,51 +303,96 @@ function obiba_auth_get_from_attribute($attribute, $user_info) {
 function obiba_auth_save_drupal_new_user() {
   $client = new AgateClient();
   $user_info = $client->getSubject();
-  $user_edit = array();
   $username = $user_info['username'];
   $mail = obiba_auth_get_from_attribute('email', $user_info);
   $username = valid_email_address($username) ? '' : $username;
-  $db_roles = user_roles();
+  $user_edit_object = new stdClass();
+  //always update/create an  registered drupal user with agate user info
+  $user_edit = array(
+    'name' => $username,
+    'mail' => $mail,
+    'pass' => user_password(),
+    'init' => $username,
+    'status' => 1,
+    'access' => REQUEST_TIME
+  );
 
   $account = user_external_load($username);
   if ($account) {
     $roles = $account->roles;
-    foreach ($user_info['groups'] as $group) {
-      foreach ($db_roles as $rid => $role) {
-        if (strcmp($group, $role) == 0 && !isset($roles[$rid])) {
-          $roles[$rid] = $role;
-          $user_edit['roles'] = $roles;
-        }
-      }
-    }
+    $user_edit_object = (object) array('uid' => $account->uid);
+    $roles_to_add = obiba_auth_role_update($user_info['groups'], $roles, NULL);
+    $user_edit['roles'] = $roles_to_add;
+
   }
   if (!$account) {
-    $user_edit = array(
-      'name' => $username,
-      'mail' => $mail,
-      'pass' => user_password(),
-      'init' => $username,
-      'status' => 1,
-      'access' => REQUEST_TIME
-    );
-
+    $user_edit_object = drupal_anonymous_user();
     // apply additional role
     $auto_roles = variable_get('obiba_auto_assigned_role', array());
-    foreach ($auto_roles as $auto_rid => $value) {
-      if ($value != 0) {
-        foreach ($db_roles as $rid => $role) {
-          if ($auto_rid == $rid && !isset($roles[$rid])) {
-            $roles[$rid] = $role;
-            $user_edit['roles'] = array_merge($user_edit['roles'], $roles);
-          }
-        }
+    $roles_to_add = obiba_auth_role_update($user_info['groups'], NULL, $auto_roles);
+    $user_edit['roles'] = $roles_to_add;
+  }
+
+  $account = user_save($user_edit_object, $user_edit);
+  user_set_authmaps($account, array("authname_" . "'obiba_auth'" => $username));
+  return $account;
+}
+
+/**
+ * Update roles of the user
+ * @param null $user_groups
+ * @param $current_roles
+ * @return array roles
+ */
+function obiba_auth_role_update($user_groups = NULL, $current_roles = NULL, $auto_roles = NULL) {
+  $roles_to_add = array();
+  $db_roles = user_roles();
+  if (!empty($auto_roles)) {
+    foreach ($db_roles as $rid => $role) {
+      if (!empty($auto_roles[$rid])) {
+        $current_roles[$rid] = $auto_roles[$rid];
       }
     }
 
-    $account = user_save(drupal_anonymous_user(), $user_edit);
-    user_set_authmaps($account, array("authname_" . "'obiba_auth'" => $username));
   }
-  return $account;
+  //affect roles from db_roles
+  if (!empty($user_groups)) {
+    foreach ($user_groups as $group) {
+      foreach ($db_roles as $rid => $role) {
+        if (strcmp($group, $role) == 0) {
+          $roles_to_add[$rid] = $role;
+        }
+      }
+
+      //update current roles
+      foreach ($current_roles as $rid => $current_user) {
+        if (strstr($current_user, 'mica')) {
+          if (strcmp($group, $current_user) == 0) {
+            $roles_to_add[$rid] = $current_user;
+          }
+
+        }
+        //don't modify non agate roles
+        else {
+          $roles_to_add[$rid] = $current_user;
+        }
+      }
+    }
+    //create new roles from Agate user
+    $roles_to_create = array_diff($user_groups, $db_roles);
+
+    if (!empty($roles_to_create)) {
+      foreach ($roles_to_create as $role_to_create) {
+        $new_role = new stdClass();
+        $new_role->name = $role_to_create;
+        user_role_save($new_role);
+        $role = user_role_load_by_name($role_to_create);
+        $roles_to_add[$role->rid] = $role_to_create;
+      }
+
+    }
+  }
+  return $roles_to_add;
 }
 
 /**
