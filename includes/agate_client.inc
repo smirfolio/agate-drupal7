@@ -216,6 +216,41 @@ class AgateClient {
     }
   }
 
+  /**
+   * Confirm registration
+   * @return Json form
+   * @throws Exception
+   */
+  public function confirm_registration($data, $request_type= 'confirm') {
+    $data = http_build_query($data);
+    $this->lastResponse = NULL;
+    $url = $this->agateUrl . '/users/_'.$request_type;
+    $request = new HttpClientRequest($url, array(
+      'method' => HttpClientRequest::METHOD_POST,
+      'headers' => array(
+        'Accept' => array('application/json'),
+        'Content-Type' => array('application/x-www-form-urlencoded'),
+        'X-App-Auth' => array($this->authorizationHeader())
+      ),
+      'data' => $data,
+    ));
+    $client = $this->client();
+    try {
+      $body = $client->execute($request);
+      if (!empty($body)) {
+        $this->lastResponse = $client->lastResponse;
+      }
+      return json_decode($body, TRUE);
+    }
+    catch (HttpClientException $e) {
+      $body_response_message = json_decode($e->getResponse()->body);
+      watchdog('Agate Client', 'Request failed, @code: @message',
+        array('@code' => $body_response_message->code, '@message' => $body_response_message->message), WATCHDOG_WARNING);
+      return array('code' => $body_response_message->code, 'message' => $body_response_message->message);
+    }
+  }
+
+
 
   /**
    * Perform authentication by user name and forwards any cookie from Agate to the drupal client.
