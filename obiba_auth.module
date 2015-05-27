@@ -26,6 +26,20 @@ function obiba_auth_menu() {
     'page callback' => 'obiba_auth_register_form_user',
     'access callback' => TRUE,
   );
+  $items['obiba_user/confirmation'] = array(
+    'title' => 'Confirm registration Agate User',
+    'description' => 'Confirm registration Agate User Profile',
+    'page callback' => 'obiba_auth_confirm_registration_user',
+    'access callback' => TRUE,
+    'file' => 'obiba_auth.confirmation.inc',
+  );
+  $items['obiba_user/send_confirmation'] = array(
+    'title' => 'Send the confirmation registration Agate User',
+    'description' => 'Send the confirmation registration Agate User Profile',
+    'page callback' => 'obiba_auth_send_confirmation_registration_user',
+    'access callback' => TRUE,
+    'file' => 'obiba_auth.confirmation.inc',
+  );
   $items['agate_user_join'] = array(
     'title' => 'Agate User',
     'description' => 'Agate User Profile',
@@ -44,6 +58,10 @@ function obiba_auth_theme($existing, $type, $theme, $path) {
     'obiba_auth_user-register-form' => array('template' => 'obiba_auth_user-register-form', 'path' => $path_theme),
     'obiba_auth_user-pass-request-form' => array(
       'template' => 'obiba_auth_user-pass-request-form',
+      'path' => $path_theme
+    ),
+    'obiba_auth_user-confirm-registration-password' => array(
+      'template' => 'obiba_auth_user-confirm-registration-password',
       'path' => $path_theme
     ),
   );
@@ -126,7 +144,7 @@ function obiba_auth_register_form_user() {
   //overloading the $form attributes
   obiba_mica_load_libraires_resources('obiba_auth');
   $module_path_ = drupal_get_path('module', 'obiba_auth');
-  drupal_add_js($module_path_ . '/js/ang/app.js', array('type' => 'file', 'scope' => 'footer'));
+  drupal_add_js($module_path_ . '/js/ang/app-register.js', array('type' => 'file', 'scope' => 'footer'));
   drupal_add_js(array(
       'form' => $form_attributes['form'],
       'schema' => $form_attributes['schema'],
@@ -174,14 +192,14 @@ function obiba_auth_send_password_request($name_email) {
   $response = $agate_client->password_request($name_email);
   if (!empty($response['code']) && $response['code'] == 200) {
     drupal_set_message(t('Check your email to complete your login recovery.'), 'status');
-    return TRUE;
+
   }
   else {
     if (!empty($response['codeError'])) {
       $message_serv_array = json_decode($response['message']);
       drupal_set_message(t('Password request error, server respond with: ') . $message_serv_array->message, 'error');
     }
-    return FALSE;
+
   }
 }
 
@@ -198,9 +216,8 @@ function obiba_auth_form_obiba_user_register_form_alter(&$form, &$form_state, $f
 function obiba_auth_form_user_pass_alter(&$form, $form_state) {
   $form['obiba_auth']['#value'] = 'obiba_auth_user_register_form';
   $form['#validate'] = array(
-    'obiba_auth_user_pass_validate',
     'user_pass_validate',
-    obiba_auth_register_user
+    'obiba_auth_user_pass_validate'
   );
 }
 
