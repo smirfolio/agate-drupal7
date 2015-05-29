@@ -147,6 +147,32 @@ class AgateClient {
     }
   }
 
+  /**
+   * Append defaults user role
+   * @return string
+   */
+  public function append_auto_roles($username) {
+    $groups = '';
+    $account = user_external_load($username);
+    if (!empty($account->roles)) {
+      foreach ($account->roles as $role) {
+        if (!empty($role) && strstr($role, 'mica')) {
+          $groups .= '&group=' . $role;
+        }
+      }
+      if (!empty($groups) && $groups != '') {
+        return $groups;
+      }
+
+    }
+    $db_roles = user_roles();
+    foreach (variable_get('obiba_auto_assigned_role', array('mica-user')) as $group) {
+      if (!empty($group) && strstr($db_roles[$group], 'mica')) {
+        $groups .= '&group=' . $db_roles[$group];
+      }
+    }
+    return $groups;
+  }
 
   /**
    * Add user to Agate
@@ -158,7 +184,7 @@ class AgateClient {
     $this->lastResponse = NULL;
     $url = $this->agateUrl . '/users/_join';
     $data = http_build_query($user_data);
-
+    $roles = $this->append_auto_roles($user_data['username']);
     $request = new HttpClientRequest($url, array(
       'method' => HttpClientRequest::METHOD_POST,
       'headers' => array(
@@ -166,9 +192,8 @@ class AgateClient {
         'Content-Type' => array('application/x-www-form-urlencoded'),
         'X-App-Auth' => array($this->authorizationHeader())
       ),
-      'data' => $data,
+      'data' => $data . $roles,
     ));
-
     $client = $this->client();
     try {
       $body = $client->execute($request);
@@ -221,10 +246,10 @@ class AgateClient {
    * @return Json form
    * @throws Exception
    */
-  public function confirm_registration($data, $request_type= 'confirm') {
+  public function confirm_registration($data, $request_type = 'confirm') {
     $data = http_build_query($data);
     $this->lastResponse = NULL;
-    $url = $this->agateUrl . '/users/_'.$request_type;
+    $url = $this->agateUrl . '/users/_' . $request_type;
     $request = new HttpClientRequest($url, array(
       'method' => HttpClientRequest::METHOD_POST,
       'headers' => array(
@@ -245,11 +270,13 @@ class AgateClient {
     catch (HttpClientException $e) {
       $body_response_message = json_decode($e->getResponse()->body);
       watchdog('Agate Client', 'Request failed, @code: @message',
-        array('@code' => $body_response_message->code, '@message' => $body_response_message->message), WATCHDOG_WARNING);
+        array(
+          '@code' => $body_response_message->code,
+          '@message' => $body_response_message->message
+        ), WATCHDOG_WARNING);
       return array('code' => $body_response_message->code, 'message' => $body_response_message->message);
     }
   }
-
 
 
   /**
