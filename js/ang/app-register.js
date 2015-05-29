@@ -68,6 +68,10 @@
             $scope.alert = [];
           };
         };
+        $scope.onCancel = function (form) {
+          window.location = Drupal.settings.basePath;
+        }
+
 
       }]);
 

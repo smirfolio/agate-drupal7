@@ -80,7 +80,7 @@ function obiba_auth_library() {
  *
  */
 function obiba_auth_library_alter(&$javascript, $module) {
-  if ($module == 'obiba_auth' && current_path() == 'obiba_user/register') {
+  if (current_path() == 'obiba_user/register') {
     $path = drupal_get_path('module', 'jquery_update');
     jquery_update_jquery_replace($javascript, NULL, $path, NULL, '1.10');
   }
@@ -345,7 +345,7 @@ function obiba_auth_save_drupal_new_user() {
   if (!$account) {
     $user_edit_object = drupal_anonymous_user();
     // apply additional role
-    $auto_roles = variable_get('obiba_auto_assigned_role', array());
+    $auto_roles = variable_get('obiba_auto_assigned_role', array('mica-user'));
     $roles_to_add = obiba_auth_role_update($user_info['groups'], NULL, $auto_roles);
     $user_edit['roles'] = $roles_to_add;
   }
@@ -474,7 +474,7 @@ function obiba_auth_apply_subject($account) {
   }
 
   // apply additional role
-  $auto_roles = variable_get('obiba_auto_assigned_role', array());
+  $auto_roles = variable_get('obiba_auto_assigned_role', array('mica-user'));
   foreach ($auto_roles as $auto_rid => $value) {
     if ($value != 0) {
       foreach ($db_roles as $rid => $role) {
@@ -497,8 +497,6 @@ function obiba_auth_apply_subject($account) {
  * Traps a page load to see if authentication is required.
  */
 function obiba_auth_init() {
-  global $user;
-
   // not authenticated but has a Agate token
   if (!user_is_logged_in() && isset($_COOKIE['obibaid'])) {
     $agate_client = new AgateClient();

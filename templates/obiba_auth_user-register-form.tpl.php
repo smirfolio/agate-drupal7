@@ -26,7 +26,7 @@
             <span translate><?php print t('Join') ?></span>
           </button>
 
-          <a href="#/" type="button" class="btn btn-default">
+          <a href="#/" type="button" class="btn btn-default" ng-click="onCancel(theForm)">
             <span translate><?php print t('Cancel') ?></span>
           </a>
         </form>

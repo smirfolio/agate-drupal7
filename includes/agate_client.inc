@@ -147,6 +147,20 @@ class AgateClient {
     }
   }
 
+  /**
+   * Append defaults user role
+   * @return string
+   */
+  public function append_auto_roles(){
+   $db_roles = user_roles();
+   $groups ='';
+   foreach (variable_get('obiba_auto_assigned_role', array('mica-user')) as $group) {
+     if (!empty($group) && strstr($db_roles[$group], 'mica')) {
+       $groups .='&group='. $db_roles[$group];
+     }
+   }
+   return $groups;
+ }
 
   /**
    * Add user to Agate
@@ -158,7 +172,7 @@ class AgateClient {
     $this->lastResponse = NULL;
     $url = $this->agateUrl . '/users/_join';
     $data = http_build_query($user_data);
-
+    $roles = $this->append_auto_roles();
     $request = new HttpClientRequest($url, array(
       'method' => HttpClientRequest::METHOD_POST,
       'headers' => array(
@@ -166,9 +180,8 @@ class AgateClient {
         'Content-Type' => array('application/x-www-form-urlencoded'),
         'X-App-Auth' => array($this->authorizationHeader())
       ),
-      'data' => $data,
+      'data' => $data.$roles,
     ));
-
     $client = $this->client();
     try {
       $body = $client->execute($request);
