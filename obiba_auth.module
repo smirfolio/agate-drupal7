@@ -382,16 +382,18 @@ function obiba_auth_role_update($user_groups = NULL, $current_roles = NULL, $aut
       }
 
       //update current roles
-      foreach ($current_roles as $rid => $current_user) {
-        if (strstr($current_user, 'mica')) {
-          if (strcmp($group, $current_user) == 0) {
-            $roles_to_add[$rid] = $current_user;
-          }
+      if (!empty($user_roles)) {
+        foreach ($current_roles as $rid => $current_role) {
+          if (strstr($current_role, 'mica')) {
+            if (strcmp($group, $current_role) == 0) {
+              $roles_to_add[$rid] = $current_role;
+            }
 
-        }
-        //don't modify non agate roles
-        else {
-          $roles_to_add[$rid] = $current_user;
+          }
+          //don't modify non agate roles
+          else {
+            $roles_to_add[$rid] = $current_role;
+          }
         }
       }
     }
