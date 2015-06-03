@@ -167,8 +167,12 @@ class AgateClient {
     }
     $db_roles = user_roles();
     foreach (variable_get('obiba_auto_assigned_role', array('mica-user')) as $group) {
-      if (!empty($group) && strstr($db_roles[$group], 'mica')) {
+      if (!empty($group) && !empty($db_roles[$group]) && strstr($db_roles[$group], 'mica')) {
         $groups .= '&group=' . $db_roles[$group];
+      }
+      //default group user mica-user
+      else{
+        $groups .= '&group=' . 'mica-user';
       }
     }
     return $groups;
@@ -305,6 +309,7 @@ class AgateClient {
       $body = $client->execute($request);
       $this->lastResponse = $client->lastResponse;
       $this->setLastResponseCookies();
+
       return TRUE;
     }
     catch (HttpClientException $e) {

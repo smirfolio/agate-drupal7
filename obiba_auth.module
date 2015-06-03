@@ -71,7 +71,7 @@ function obiba_auth_theme($existing, $type, $theme, $path) {
  * Implements hook_library().
  */
 function obiba_auth_library() {
-  return obiba_mica_load_angular_library();
+  return obiba_main_app_angular_load_angular_library();
 }
 
 /**
@@ -142,7 +142,7 @@ function obiba_auth_register_form_user() {
   $form_attributes = obiba_auth_get_agate_form_attributes();
   $recaptcha_key = obiba_auth_get_agate_recaptch_key();
   //overloading the $form attributes
-  obiba_mica_load_libraires_resources('obiba_auth');
+  obiba_main_app_angular_load_libraires_resources('obiba_auth');
   $module_path_ = drupal_get_path('module', 'obiba_auth');
   drupal_add_js($module_path_ . '/js/ang/app-register.js', array('type' => 'file', 'scope' => 'footer'));
   drupal_add_js(array(
@@ -337,20 +337,21 @@ function obiba_auth_save_drupal_new_user() {
   $account = user_external_load($username);
   if ($account) {
     $roles = $account->roles;
-    $user_edit_object = (object) array('uid' => $account->uid);
+    //$user_edit_object = (object) array('uid' => $account->uid);
     $roles_to_add = obiba_auth_role_update($user_info['groups'], $roles, NULL);
     $user_edit['roles'] = $roles_to_add;
 
   }
-  if (!$account) {
+  if (empty($account)) {
     $user_edit_object = drupal_anonymous_user();
     // apply additional role
     $auto_roles = variable_get('obiba_auto_assigned_role', array('mica-user'));
     $roles_to_add = obiba_auth_role_update($user_info['groups'], NULL, $auto_roles);
     $user_edit['roles'] = $roles_to_add;
+    $account = user_save($user_edit_object, $user_edit);
   }
 
-  $account = user_save($user_edit_object, $user_edit);
+
   user_set_authmaps($account, array("authname_" . "'obiba_auth'" => $username));
   return $account;
 }
