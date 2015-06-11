@@ -346,8 +346,7 @@ function obiba_auth_save_drupal_new_user() {
     $user_edit_object = drupal_anonymous_user();
     // apply additional role
     $auto_roles = variable_get('obiba_auto_assigned_role', array('mica-user'));
-    $roles_to_add = obiba_auth_role_update($user_info['groups'], NULL, $auto_roles);
-    $user_edit['roles'] = $roles_to_add;
+    $user_edit['roles'] =  obiba_auth_role_update($user_info['groups'], NULL, $auto_roles);;
     $account = user_save($user_edit_object, $user_edit);
   }
 
@@ -467,31 +466,28 @@ function obiba_auth_apply_subject($account) {
     }
   }
 
-  // set email
-  if (isset($subject['attributes'])) {
-    foreach ($subject['attributes'] as $key => $map) {
-      if ($key == 'email') {
-        $edit['mail'] = $map;
-      }
-    }
-  }
-
+  $edit['mail'] =  obiba_auth_get_from_attribute('email', $subject);
   // apply additional role
   $auto_roles = variable_get('obiba_auto_assigned_role', array('mica-user'));
-  foreach ($auto_roles as $auto_rid => $value) {
-    if ($value != 0) {
-      foreach ($db_roles as $rid => $role) {
-        if ($auto_rid == $rid && !isset($roles[$rid])) {
-          $roles[$rid] = $role;
-          $edit['roles'] = $roles;
-        }
-      }
-    }
-  }
-
+  $edit['roles'] = obiba_auth_role_update($subject['groups'],  NULL, $auto_roles) ;
   if (count($edit) > 0) {
     user_save($account, $edit);
+    //Reset the authmaps tab
+    obiba_auth_unset_authmaps($subject['username']);
+    //Set the new authmaps entries for this user
+    user_set_authmaps($account, array("authname_" . "'obiba_auth'" => $subject['username']));
   }
+}
+
+/**
+ * Reset the authmap tab
+ * @param $user_name
+ */
+function obiba_auth_unset_authmaps($user_name){
+     db_delete('authmap')
+       ->condition('authname', $user_name)
+       ->condition('module', 'obiba_auth')
+       ->execute();
 }
 
 /**
