@@ -12,7 +12,7 @@ function obiba_auth_menu() {
   $items = array();
   //cas_login_check();
   $items['admin/config/people/obiba'] = array(
-    'title' => 'OBiBa Auth settings',
+    'title' => 'OBiBa Agate settings',
     'description' => 'Configure OBiBa central authentication services',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('obiba_auth_admin_settings'),
@@ -21,20 +21,20 @@ function obiba_auth_menu() {
     'file' => 'obiba_auth.admin.inc',
   );
   $items['obiba_user/register'] = array(
-    'title' => 'Register Agate User',
+    'title' => 'User registration',
     'description' => 'Register Agate User Profile',
     'page callback' => 'obiba_auth_register_form_user',
     'access callback' => TRUE,
   );
   $items['obiba_user/confirmation'] = array(
-    'title' => 'Confirm registration Agate User',
+    'title' => 'Confirm user registration',
     'description' => 'Confirm registration Agate User Profile',
     'page callback' => 'obiba_auth_confirm_registration_user',
     'access callback' => TRUE,
     'file' => 'obiba_auth.confirmation.inc',
   );
   $items['obiba_user/send_confirmation'] = array(
-    'title' => 'Send the confirmation registration Agate User',
+    'title' => 'Send the confirmation registration',
     'description' => 'Send the confirmation registration Agate User Profile',
     'page callback' => 'obiba_auth_send_confirmation_registration_user',
     'access callback' => TRUE,

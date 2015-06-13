@@ -45,7 +45,7 @@
             UserResource.post(angular.extend({}, $scope.model, {reCaptchaResponse: $scope.response})).
               success(function (data, status, headers, config) {
                 $scope.alert = {
-                  message: Drupal.t('You will receive an email to confirm your registration.'),
+                  message: Drupal.t('You will receive an email to confirm your registration with the instructions to set your password.'),
                   type: 'success'
                 };
                 var elem = document.getElementById("obiba-user-register");

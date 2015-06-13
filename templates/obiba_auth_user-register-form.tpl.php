@@ -2,13 +2,9 @@
 // dpm($variables);
 ?>
 <script src="https://www.google.com/recaptcha/api.js?onload=vcRecaptchaApiLoaded&render=explicit" async defer></script>
-<div class="outer">
-  <div class="innerdivs">
-    <div class="row">
-      <div class="col-md-6 text-center "><?php print l('Sign In', 'user/login') ?></div>
-      <div class="col-md-6 text-center bg-primary"><?php print t('Sign Up') ?></div>
-    </div>
 
+<div class="row">
+  <div class="col-md-6">
     <div class="obiba-bootstrap-user-register-form-wrapper">
 
       <div ng-app="ObibaAuth" ng-controller="RegisterFormController">
@@ -18,10 +14,10 @@
           <div sf-schema="schema" sf-form="form" sf-model="model"></div>
 
           <div vc-recaptcha
-            theme="'light'"
-            key="config.key"
-            on-create="setWidgetId(widgetId)"
-            on-success="setResponse(response)"></div>
+               theme="'light'"
+               key="config.key"
+               on-create="setWidgetId(widgetId)"
+               on-success="setResponse(response)"></div>
 
           <div class="md-top-margin">
             <button type="submit" class="btn btn-primary" ng-click="onSubmit(theForm)">
@@ -32,12 +28,10 @@
               <span translate><?php print t('Cancel') ?></span>
             </a>
           </div>
-
         </form>
-
       </div>
-
     </div>
-
   </div>
 </div>
+
+
