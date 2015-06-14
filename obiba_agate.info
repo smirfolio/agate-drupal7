@@ -1,5 +1,5 @@
 name = "Obiba Agate"
-description = "Obiba Agate"
+description = "Agate Client"
 package = Obiba
 core = 7.x
 
