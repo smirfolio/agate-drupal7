@@ -419,12 +419,13 @@ class AgateClient {
       $keys = array_keys($cookie);
       $name = $keys[0];
       $value = $cookie[$name];
-      $expire = isset($cookie['Max-Age']) ? time() + intval($cookie['Max-Age']) : 0;
-      $path = isset($cookie['Path']) ? $cookie['Path'] : '/';
-      $domain = isset($cookie['Domain']) ? $cookie['Domain'] : NULL;
-
-      setcookie($name, $value, $expire, $path, $domain);
-      $_SESSION[$name] = $value;
+      watchdog('Agate Client', 'Cookie: name=@name, value=@value',
+        array('@name' => $name, '@value' => $value), WATCHDOG_DEBUG);
+      if(empty($value)) {
+        unset($_SESSION[$name]);
+      } else {
+        $_SESSION[$name] = $value;
+      }
     }
   }
 
