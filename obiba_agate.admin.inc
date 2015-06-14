@@ -2,16 +2,16 @@
 
 /**
  * @file
- * Obiba Auth module settings UI.
+ * Obiba Agate module settings UI.
  */
 
 /**
  * Provides settings pages.
  */
-function obiba_auth_admin_settings() {
+function obiba_agate_admin_settings() {
   $form['server'] = array(
     '#type' => 'fieldset',
-    '#title' => t('OBiBa authentication server (Agate)'),
+    '#title' => t('OBiBa central authentication server (Agate)'),
     '#collapsible' => FALSE,
   );
 

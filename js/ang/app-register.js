@@ -3,11 +3,11 @@
  * JavaScript ajax helper for Statistics variables retrieving
  */
 (function ($) {
-  Drupal.behaviors.obiba_auth = {
+  Drupal.behaviors.obiba_agate = {
     attach: function (context, settings) {
       'use strict';
       /* App Module */
-      var obibaAth = angular.module('ObibaAuth', [
+      var obibaAth = angular.module('ObibaAgate', [
         'ngResource',
         'ngSanitize',
         'ui.bootstrap',

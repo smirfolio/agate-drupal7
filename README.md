@@ -1,4 +1,4 @@
-drupal7-auth
-============
+agate-drupal7-client
+====================
 
-Drupal7 obiba_auth module
+Drupal7 obiba_agate module

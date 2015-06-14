@@ -3,7 +3,7 @@
  * JavaScript ajax helper for Statistics variables retrieving
  */
 (function ($) {
-  Drupal.behaviors.obiba_auth_confirm_register = {
+  Drupal.behaviors.obiba_agate_confirm_register = {
     attach: function (context, settings) {
 
       var query = location.href.split('=');

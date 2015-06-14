@@ -1,0 +1,43 @@
+<?php
+/**
+ * Implements hook_requirements().
+ */
+function obiba_agate_requirements($phase) {
+  $requirements = array();
+  $t = get_t();
+  if ($phase == 'install' || $phase == 'runtime') {
+    // Check if the angular-schema-form library is available and raise an error when not.
+    // commented because does not always work (docker)
+//    if (!drupal_get_library('obiba_agate', 'angular-schema-form')) {
+//      $requirements['angular-schema-form'] = array(
+//        'title' => $t('Obiba Agate requires angular schema form library'),
+//        'description' => $t(
+//          'The Obiba Agate module can not work properly because the <a href="!asf">Angular Schema Form</a> library is not installed , which is required to generate registration form.',
+//          array('!asf' => 'https://github.com/Textalk/angular-schema-form')
+//        ),
+//        'severity' => REQUIREMENT_ERROR,
+//      );
+//    }
+  }
+  return $requirements;
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function obiba_agate_uninstall() {
+  variable_del('user_mail_password_reset_notify');
+//  variable_del('user_mail_register_admin_created_notify');
+//  variable_del('user_mail_register_pending_approval_notify');
+//  variable_del('user_mail_register_no_approval_required_notify');
+//  variable_del('user_mail_password_reset_notify');
+//  variable_del('user_mail_cancel_confirm_notify');
+}
+
+/**
+ * Implements hook_install().
+ */
+function obiba_agate_install() {
+  // unset Drupal mail reset mail notification
+  variable_set('user_mail_password_reset_notify', 0);
+}

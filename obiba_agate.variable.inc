@@ -1,13 +1,13 @@
 <?php
 /**
  * @file
- * Obiba Auth file
+ * Obiba Agate file
  */
 
 /**
  * Implements hook_variable_info().
  */
-function obiba_auth_variable_info($options) {
+function obiba_agate_variable_info($options) {
   $variable['agate_url'] = array(
     'title' => t('Agate address'),
     'description' => t('URL of the Agate server. Note that cross-domain is not supported. Example: https://agate.example.org:8444'),

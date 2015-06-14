@@ -1,5 +1,5 @@
-name = "Obiba Auth"
-description = "Obiba Auth"
+name = "Obiba Agate"
+description = "Obiba Agate"
 package = Obiba
 core = 7.x
 

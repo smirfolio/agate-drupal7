@@ -1,10 +1,10 @@
 <?php
 /**
  * @file
- * Obiba Auth file
+ * Obiba Agate file
  */
 
-function obiba_auth_password_form($form, &$form_state) {
+function obiba_agate_password_form($form, &$form_state) {
   $form['#action'] = '';
   $form['name']['password'] = array(
     '#type' => 'password',
@@ -55,17 +55,17 @@ function obiba_auth_password_form($form, &$form_state) {
   return $form;
 }
 
-function obiba_auth_confirm_registration_user() {
-  $module_path_ = drupal_get_path('module', 'obiba_auth');
+function obiba_agate_confirm_registration_user() {
+  $module_path_ = drupal_get_path('module', 'obiba_agate');
   drupal_add_js($module_path_ . '/js/ang/app-confirm-register.js', array('type' => 'file', 'scope' => 'footer'));
 
-  return theme('obiba_auth_user-confirm-registration-password',
+  return theme('obiba_agate_user-confirm-registration-password',
     array(
-      'form_password_registration' => drupal_get_form('obiba_auth_password_form')
+      'form_password_registration' => drupal_get_form('obiba_agate_password_form')
     ));
 }
 
-function obiba_auth_send_confirmation_registration_user() {
+function obiba_agate_send_confirmation_registration_user() {
   $parameters = drupal_get_query_parameters();
   if (!empty($parameters)) {
     $agate_client = new AgateClient();

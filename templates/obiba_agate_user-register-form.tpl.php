@@ -7,7 +7,7 @@
   <div class="col-md-6">
     <div class="obiba-bootstrap-user-register-form-wrapper">
 
-      <div ng-app="ObibaAuth" ng-controller="RegisterFormController">
+      <div ng-app="ObibaAgate" ng-controller="RegisterFormController">
         <alert ng-if="alert.message" type="{{alert.type}}" close="closeAlert($index)">{{alert.message}}</alert>
 
         <form id="obiba-user-register" name="theForm" ng-submit="submit(form)">
