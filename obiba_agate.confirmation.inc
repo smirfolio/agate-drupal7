@@ -73,11 +73,10 @@ function obiba_agate_send_confirmation_registration_user() {
       array(
         'key' => $parameters['key'],
         'password' => $parameters['password']
-      ),
-      $parameters['request_type']
+      )
     );
     if (empty($response['code'])) {
-      drupal_set_message('You can login');
+      drupal_set_message('You can now sign in.');
       drupal_json_output($response);
       die;
     }

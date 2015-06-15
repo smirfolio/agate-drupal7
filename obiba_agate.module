@@ -20,20 +20,20 @@ function obiba_agate_menu() {
     'type' => MENU_NORMAL_ITEM,
     'file' => 'obiba_agate.admin.inc',
   );
-  $items['obiba_user/register'] = array(
+  $items['agate/register'] = array(
     'title' => 'User registration',
     'description' => 'Register Agate User Profile',
     'page callback' => 'obiba_agate_register_form_user',
     'access callback' => TRUE,
   );
-  $items['obiba_user/confirmation'] = array(
+  $items['agate/confirmation'] = array(
     'title' => 'Confirm user registration',
     'description' => 'Confirm registration Agate User Profile',
     'page callback' => 'obiba_agate_confirm_registration_user',
     'access callback' => TRUE,
     'file' => 'obiba_agate.confirmation.inc',
   );
-  $items['obiba_user/send_confirmation'] = array(
+  $items['agate/send_confirmation'] = array(
     'title' => 'Send the confirmation registration',
     'description' => 'Send the confirmation registration Agate User Profile',
     'page callback' => 'obiba_agate_send_confirmation_registration_user',
@@ -80,7 +80,7 @@ function obiba_agate_library() {
  *
  */
 function obiba_agate_library_alter(&$javascript, $module) {
-  if (current_path() == 'obiba_user/register') {
+  if (current_path() == 'agate/register') {
     $path = drupal_get_path('module', 'jquery_update');
     jquery_update_jquery_replace($javascript, NULL, $path, NULL, '1.10');
   }
@@ -206,7 +206,7 @@ function obiba_agate_send_password_request($name_email) {
 /**
  * Implements hook_form_user_register_form_alter().
  */
-function obiba_agate_form_obiba_user_register_form_alter(&$form, &$form_state, $form_id) {
+function obiba_agate_form_agate_register_form_alter(&$form, &$form_state, $form_id) {
   $form['obiba_agate']['#value'] = 'obiba_agate_user_register_form';
 }
 

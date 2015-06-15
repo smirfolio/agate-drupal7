@@ -213,7 +213,8 @@ class AgateClient {
   }
 
   /**
-   * Get form registration from agate
+   * Get form registration from agate.
+   *
    * @return Json form
    * @throws Exception
    */
@@ -246,14 +247,15 @@ class AgateClient {
   }
 
   /**
-   * Confirm registration
+   * Confirm user registration.
+   *
    * @return Json form
    * @throws Exception
    */
-  public function confirm_registration($data, $request_type = 'confirm') {
+  public function confirm_registration($data) {
     $data = http_build_query($data);
     $this->lastResponse = NULL;
-    $url = $this->agateUrl . '/users/_' . $request_type;
+    $url = $this->agateUrl . '/users/_confirm';
     $request = new HttpClientRequest($url, array(
       'method' => HttpClientRequest::METHOD_POST,
       'headers' => array(
@@ -422,7 +424,7 @@ class AgateClient {
       watchdog('Agate Client', 'Cookie: name=@name, value=@value',
         array('@name' => $name, '@value' => $value), WATCHDOG_DEBUG);
       if(empty($value)) {
-        unset($_SESSION[$name]);
+        if (!empty($_SESSION[$name])) unset($_SESSION[$name]);
       } else {
         $_SESSION[$name] = $value;
       }

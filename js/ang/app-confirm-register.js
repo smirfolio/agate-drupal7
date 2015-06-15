@@ -8,8 +8,6 @@
 
       var query = location.href.split('=');
       $('#key').val(query[1]);
-      var regExp = /\#\/([^\?]+)\?/;
-      var requestType = regExp.exec(query[0]);
       $('#verif-password').keyup(function(){
 
         if($('#type-password').val() != $('#verif-password').val()) {
@@ -30,11 +28,11 @@
         else{
           $.ajax({
             method: "POST",
-            url: Drupal.settings.basePath + "obiba_user/send_confirmation",
-            data: { key: query[1], password:$('#type-password').val(), request_type: requestType[1]}
+            url: Drupal.settings.basePath + "agate/send_confirmation",
+            data: { key: query[1], password:$('#type-password').val() }
           })
             .done(function( msg ) {
-              window.location = Drupal.settings.basePath  +'user/login';
+              window.location = Drupal.settings.basePath + 'user/login';
               return false;
             })
             .fail(function(){
