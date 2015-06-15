@@ -26,17 +26,18 @@ function obiba_agate_menu() {
     'page callback' => 'obiba_agate_register_form_user',
     'access callback' => TRUE,
   );
-  $items['agate/confirmation'] = array(
-    'title' => 'Confirm user registration',
-    'description' => 'Confirm registration Agate User Profile',
-    'page callback' => 'obiba_agate_confirm_registration_user',
+  $items['agate/password-form'] = array(
+    'title' => 'Password form reset/confirmation',
+    'description' => 'Password form reset/confirmation',
+    'page callback' => 'obiba_agate_password_form_process',
     'access callback' => TRUE,
     'file' => 'obiba_agate.confirmation.inc',
   );
-  $items['agate/send_confirmation'] = array(
-    'title' => 'Send the confirmation registration',
-    'description' => 'Send the confirmation registration Agate User Profile',
-    'page callback' => 'obiba_agate_send_confirmation_registration_user',
+  $items['agate/send_password/%'] = array(
+    'title' => 'Send reset/confirmation password',
+    'description' => 'Send the reset/confirmation registration Agate User',
+    'page callback' => 'obiba_agate_send_password_user',
+    'page arguments' => array(2),
     'access callback' => TRUE,
     'file' => 'obiba_agate.confirmation.inc',
   );
@@ -234,9 +235,9 @@ function obiba_agate_form_user_login_alter(&$form, $form_state) {
     'user_login_name_validate',
     'user_login_authenticate_validate',
     'obiba_agate_login_validate',
-    'user_login_final_validate',
-
+    'user_login_final_validate'
   );
+  $form['#action'] = url($_GET['q'], array('query' => array('destination' => current_path())));
 }
 
 /**
