@@ -78,7 +78,7 @@
 
       obibaAth.factory('UserResource', ['$http',
         function ($http) {
-          var drupalPathResource = Drupal.settings.basePath + '/agate_user_join';
+          var drupalPathResource = Drupal.settings.basePath + 'agate_user_join';
           return {
             post: function (data) {
               return $http.post(drupalPathResource, $.param(data), {
