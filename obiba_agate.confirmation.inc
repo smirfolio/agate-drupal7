@@ -51,30 +51,38 @@ function obiba_agate_password_form($form, &$form_state) {
     '#type' => 'submit',
     '#value' => 'Submit',
   );
-
   return $form;
 }
 
-function obiba_agate_confirm_registration_user() {
+function obiba_agate_password_form_process() {
   $module_path_ = drupal_get_path('module', 'obiba_agate');
   drupal_add_js($module_path_ . '/js/ang/app-confirm-register.js', array('type' => 'file', 'scope' => 'footer'));
-
-  return theme('obiba_agate_user-confirm-registration-password',
+  if(strstr(current_path(), 'confirm')){
+    drupal_set_title('Password registration confirmation');
+  return theme('obiba_agate_user-form-password-confirm',
     array(
       'form_password_registration' => drupal_get_form('obiba_agate_password_form')
     ));
+  }
+  elseif(strstr(current_path(), 'reset')){
+    drupal_set_title('Password Reset');
+    return theme('obiba_agate_user-form-password-reset',
+      array(
+        'form_password_registration' => drupal_get_form('obiba_agate_password_form')
+      ));
+  }
 }
 
-function obiba_agate_send_confirmation_registration_user() {
+function obiba_agate_send_password_user($resource='confirm') {
   $parameters = drupal_get_query_parameters();
   if (!empty($parameters)) {
-    $agate_client = new AgateClient();
-    $response = $agate_client->confirm_registration(
-      array(
-        'key' => $parameters['key'],
-        'password' => $parameters['password']
-      )
-    );
+      $agate_client = new AgateClient();
+      $response = $agate_client->send_password(
+        array(
+          'key' => $parameters['key'],
+          'password' => $parameters['password']
+        ), $resource
+      );
     if (empty($response['code'])) {
       drupal_set_message('You can now sign in.');
       drupal_json_output($response);

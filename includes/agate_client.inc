@@ -252,10 +252,10 @@ class AgateClient {
    * @return Json form
    * @throws Exception
    */
-  public function confirm_registration($data) {
+  public function send_password($data, $request_resource='confirm') {
     $data = http_build_query($data);
     $this->lastResponse = NULL;
-    $url = $this->agateUrl . '/users/_confirm';
+    $url = $this->agateUrl . '/users/_'.$request_resource;
     $request = new HttpClientRequest($url, array(
       'method' => HttpClientRequest::METHOD_POST,
       'headers' => array(
