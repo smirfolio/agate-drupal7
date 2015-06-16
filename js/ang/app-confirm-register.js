@@ -6,10 +6,10 @@
   Drupal.behaviors.obiba_agate_confirm_register = {
     attach: function (context, settings) {
 
-      var resource = location.href.split('#');
+
       var query = location.href.split('=');
-      //extract the resource (confirm/reset_password) between {/} and the {?key}  exemple : xxxx/confirm?keyxxxxxx
-      var resourceAction = /\/(.*?)\?key/i.exec(resource[1]);
+      //extract the resource (confirm/reset_password) between {agate/} and the {?key}  exemple : xxxxagate/confirm?keyxxxxxx
+      var resourceAction = /agate\/(.*?)\?key/i.exec(query[0]);
       $('#key').val(query[1]);
       $('#verif-password').keyup(function(){
         if($('#type-password').val() != $('#verif-password').val()) {
@@ -21,6 +21,7 @@
           $('#password').val($('#verif-password').val());
         }
       });
+
       $('#edit-submit').click(function(e){
         e.preventDefault();
         if($('#type-password').val() != $('#verif-password').val() || !$('#type-password').val()) {

@@ -26,14 +26,14 @@ function obiba_agate_menu() {
     'page callback' => 'obiba_agate_register_form_user',
     'access callback' => TRUE,
   );
-  $items['agate/password-form-confirm'] = array(
+  $items['agate/confirm'] = array(
     'title' => 'Password form reset/confirmation',
     'description' => 'Password form reset/confirmation',
     'page callback' => 'obiba_agate_password_form_process',
     'access callback' => TRUE,
     'file' => 'obiba_agate.confirmation.inc',
   );
-  $items['agate/password-form-reset'] = array(
+  $items['agate/reset_password'] = array(
     'title' => 'Password form reset',
     'description' => 'Password form reset',
     'page callback' => 'obiba_agate_password_form_process',
