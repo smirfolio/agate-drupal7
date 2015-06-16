@@ -8,6 +8,7 @@
 
       var resource = location.href.split('#');
       var query = location.href.split('=');
+      //extract the resource (confirm/reset_password) between {/} and the {?key}  exemple : xxxx/confirm?keyxxxxxx
       var resourceAction = /\/(.*?)\?key/i.exec(resource[1]);
       $('#key').val(query[1]);
       $('#verif-password').keyup(function(){

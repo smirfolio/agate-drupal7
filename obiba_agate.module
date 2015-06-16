@@ -26,9 +26,16 @@ function obiba_agate_menu() {
     'page callback' => 'obiba_agate_register_form_user',
     'access callback' => TRUE,
   );
-  $items['agate/password-form'] = array(
+  $items['agate/password-form-confirm'] = array(
     'title' => 'Password form reset/confirmation',
     'description' => 'Password form reset/confirmation',
+    'page callback' => 'obiba_agate_password_form_process',
+    'access callback' => TRUE,
+    'file' => 'obiba_agate.confirmation.inc',
+  );
+  $items['agate/password-form-reset'] = array(
+    'title' => 'Password form reset',
+    'description' => 'Password form reset',
     'page callback' => 'obiba_agate_password_form_process',
     'access callback' => TRUE,
     'file' => 'obiba_agate.confirmation.inc',
@@ -61,8 +68,11 @@ function obiba_agate_theme($existing, $type, $theme, $path) {
       'template' => 'obiba_agate_user-pass-request-form',
       'path' => $path_theme
     ),
-    'obiba_agate_user-confirm-registration-password' => array(
-      'template' => 'obiba_agate_user-confirm-registration-password',
+    'obiba_agate_user-form-password-confirm' => array(
+      'template' => 'obiba_agate_user-form-password-confirm',
+      'path' => $path_theme
+    ),'obiba_agate_user-form-password-reset' => array(
+      'template' => 'obiba_agate_user-form-password-reset',
       'path' => $path_theme
     ),
   );

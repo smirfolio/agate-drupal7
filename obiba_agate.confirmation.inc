@@ -57,11 +57,20 @@ function obiba_agate_password_form($form, &$form_state) {
 function obiba_agate_password_form_process() {
   $module_path_ = drupal_get_path('module', 'obiba_agate');
   drupal_add_js($module_path_ . '/js/ang/app-confirm-register.js', array('type' => 'file', 'scope' => 'footer'));
-
-  return theme('obiba_agate_user-confirm-registration-password',
+  if(strstr(current_path(), 'confirm')){
+    drupal_set_title('Password registration confirmation');
+  return theme('obiba_agate_user-form-password-confirm',
     array(
       'form_password_registration' => drupal_get_form('obiba_agate_password_form')
     ));
+  }
+  elseif(strstr(current_path(), 'reset')){
+    drupal_set_title('Password initializing');
+    return theme('obiba_agate_user-form-password-reset',
+      array(
+        'form_password_registration' => drupal_get_form('obiba_agate_password_form')
+      ));
+  }
 }
 
 function obiba_agate_send_password_user($resource='confirm') {
