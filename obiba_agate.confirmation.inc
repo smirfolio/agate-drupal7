@@ -65,7 +65,7 @@ function obiba_agate_password_form_process() {
     ));
   }
   elseif(strstr(current_path(), 'reset')){
-    drupal_set_title('Password initializing');
+    drupal_set_title('Password Reset');
     return theme('obiba_agate_user-form-password-reset',
       array(
         'form_password_registration' => drupal_get_form('obiba_agate_password_form')
