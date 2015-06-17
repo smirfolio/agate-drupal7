@@ -153,17 +153,18 @@ class AgateClient {
    */
   public function append_auto_roles($username) {
     $groups = '';
-    $account = user_external_load($username);
-    if (!empty($account->roles)) {
-      foreach ($account->roles as $role) {
-        if (!empty($role) && strstr($role, 'mica')) {
-          $groups .= '&group=' . $role;
+    if (!empty($username)) {
+      $account = user_external_load($username);
+      if (!empty($account->roles)) {
+        foreach ($account->roles as $role) {
+          if (!empty($role) && strstr($role, 'mica')) {
+            $groups .= '&group=' . $role;
+          }
+        }
+        if (!empty($groups) && $groups != '') {
+          return $groups;
         }
       }
-      if (!empty($groups) && $groups != '') {
-        return $groups;
-      }
-
     }
     $db_roles = user_roles();
     foreach (variable_get('obiba_auto_assigned_role', array('mica-user')) as $group) {
@@ -188,7 +189,7 @@ class AgateClient {
     $this->lastResponse = NULL;
     $url = $this->agateUrl . '/users/_join';
     $data = http_build_query($user_data);
-    $roles = $this->append_auto_roles($user_data['username']);
+    $roles = $this->append_auto_roles(empty($user_data['username']) ? null : $user_data['username']);
     $request = new HttpClientRequest($url, array(
       'method' => HttpClientRequest::METHOD_POST,
       'headers' => array(

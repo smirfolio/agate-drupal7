@@ -129,20 +129,17 @@ function obiba_agate_register_user() {
 
   //perform the register request
   $_POST['reCaptchaResponse'] = $response_captcha;
-  $agat = new AgateClient();
-  $response = $agat->add_agate_user($_POST);
+  $agate = new AgateClient();
+  $response = $agate->add_agate_user($_POST);
   if (!empty($response['code']) && $response['code'] == 200) {
     drupal_json_output($response);
   }
-  else {
-    if (!empty($response['codeError'])) {
+  else if (!empty($response['codeError'])) {
       $message_serv_array = json_decode($response['message']);
       obiba_agate_register_user_response_error($response['codeError'],
         json_encode(array("message" => $message_serv_array->message)),
         $form_attributes);
-    }
   }
-
 }
 
 /*
@@ -365,7 +362,7 @@ function obiba_agate_save_drupal_new_user() {
   }
 
 
-  user_set_authmaps($account, array("authname_" . "'obiba_agate'" => $username));
+  user_set_authmaps($account, array("authname_" . "obiba_agate" => $username));
   return $account;
 }
 
@@ -489,7 +486,7 @@ function obiba_agate_apply_subject($account) {
     //Reset the authmaps tab
     obiba_agate_unset_authmaps($subject['username']);
     //Set the new authmaps entries for this user
-    user_set_authmaps($account, array("authname_" . "'obiba_agate'" => $subject['username']));
+    user_set_authmaps($account, array("authname_" . "obiba_agate" => $subject['username']));
   }
 }
 
