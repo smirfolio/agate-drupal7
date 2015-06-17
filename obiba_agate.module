@@ -273,7 +273,7 @@ function obiba_agate_form_user_profile_form_alter(&$form, $form_state) {
   global $user;
   $account = $form['#user'];
   $authmaps = user_get_authmaps($account->name);
-  if (isset($authmaps['obiba_agate'])) {
+  if (array_key_exists('obiba_agate', $authmaps)) {
     $form['account']['name']['#type'] = 'hidden';
     $form['account']['mail']['#type'] = 'hidden';
     $form['account']['current_pass']['#type'] = 'hidden';
@@ -345,7 +345,6 @@ function obiba_agate_save_drupal_new_user() {
   $username = $user_info['username'];
   $mail = obiba_agate_get_from_attribute('email', $user_info);
   $username = valid_email_address($username) ? '' : $username;
-  $user_edit_object = new stdClass();
   //always update/create an  registered drupal user with agate user info
   $user_edit = array(
     'name' => $username,
@@ -362,7 +361,6 @@ function obiba_agate_save_drupal_new_user() {
     //$user_edit_object = (object) array('uid' => $account->uid);
     $roles_to_add = obiba_agate_role_update($user_info['groups'], $roles, NULL);
     $user_edit['roles'] = $roles_to_add;
-
   }
   if (empty($account)) {
     $user_edit_object = drupal_anonymous_user();
@@ -370,10 +368,9 @@ function obiba_agate_save_drupal_new_user() {
     $auto_roles = variable_get('obiba_auto_assigned_role', array('mica-user'));
     $user_edit['roles'] = obiba_agate_role_update($user_info['groups'], NULL, $auto_roles);;
     $account = user_save($user_edit_object, $user_edit);
+    user_set_authmaps($account, array("authname_" . "obiba_agate" => $username));
   }
 
-
-  user_set_authmaps($account, array("authname_" . "obiba_agate" => $username));
   return $account;
 }
 
