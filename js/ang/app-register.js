@@ -54,9 +54,9 @@
               })
               .error(function (data, status, headers, config) {
                 var errorParse = angular.fromJson(data);
-
+                console.log('Error Server Code:'+status);
                 $scope.alert = {
-                  message: Drupal.t(' Code :' + status + ' :' + errorParse.errorMessage),
+                  message: Drupal.t(angular.fromJson(errorParse.errorMessage).message),
                   type: 'danger'
                 };
                 //re-load ReCaptcha field

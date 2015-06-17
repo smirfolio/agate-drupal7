@@ -122,11 +122,6 @@ function obiba_agate_register_user() {
   //Secure the request by verify if the set of POST parameters are trusted by server
   $response_captcha = $_POST['reCaptchaResponse'];
   unset($_POST['reCaptchaResponse']);
-  $post_attributes = array_keys($_POST);
-  $compare_form = array_diff($post_attributes, $form_attributes['form']);
-  if (!empty($compare_form)) {
-    obiba_agate_register_user_response_error('400 Bad Request', '{"message" : "Unexpected Error"}', $form_attributes);
-  }
 
   //perform the register request
   $_POST['reCaptchaResponse'] = $response_captcha;
