@@ -290,7 +290,6 @@ function obiba_agate_form_user_profile_form_alter(&$form, $form_state) {
         . l('Reset password', 'user/password', array('attributes' => array('class' => 'btn btn-default')))
     );
   }
-  dpm($form);
   return $form;
 
 }
