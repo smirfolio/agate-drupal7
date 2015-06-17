@@ -362,7 +362,7 @@ function obiba_agate_save_drupal_new_user() {
   }
 
 
-  user_set_authmaps($account, array("authname_" . "'obiba_agate'" => $username));
+  user_set_authmaps($account, array("authname_" . "obiba_agate" => $username));
   return $account;
 }
 
@@ -486,7 +486,7 @@ function obiba_agate_apply_subject($account) {
     //Reset the authmaps tab
     obiba_agate_unset_authmaps($subject['username']);
     //Set the new authmaps entries for this user
-    user_set_authmaps($account, array("authname_" . "'obiba_agate'" => $subject['username']));
+    user_set_authmaps($account, array("authname_" . "obiba_agate" => $subject['username']));
   }
 }
 
