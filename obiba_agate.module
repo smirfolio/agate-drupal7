@@ -234,8 +234,9 @@ function obiba_agate_form_user_pass_alter(&$form, $form_state) {
  */
 function obiba_agate_form_user_login_alter(&$form, $form_state) {
   unset($form['links']);
+  drupal_set_title(t(variable_get_value('obiba_login_page_title')));
   $form['obiba_agate']['#value'] = 'obiba_agate_user_register_form';
-  $form['name']['#title'] = t('Username or Email');
+  $form['name']['#title'] = t(variable_get_value('obiba_login_username_label'));
   $form['#validate'] = array(
     'obiba_agate_mail_user_login_validate',
     'user_login_name_validate',

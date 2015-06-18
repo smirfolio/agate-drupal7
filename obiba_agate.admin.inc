@@ -75,5 +75,30 @@ function obiba_agate_admin_settings() {
     DRUPAL_AUTHENTICATED_RID => $checkbox_authenticated,
   );
 
+  // Login page
+  $form['login'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('OBiBa Login Page'),
+    '#collapsible' => FALSE,
+  );
+  $info = variable_get_info('obiba_login_page_title');
+  $form['login']['obiba_login_page_title'] = array(
+    '#type' => 'textfield',
+    '#title' => $info['title'],
+    '#default_value' => variable_get_value('obiba_login_page_title'),
+    '#maxlength' => 255,
+    '#description' => $info['description'],
+  );
+  $info = variable_get_info('obiba_login_username_label');
+  $form['login']['obiba_login_username_label'] = array(
+    '#type' => 'textfield',
+    '#title' => $info['title'],
+    '#default_value' => variable_get_value('obiba_login_username_label'),
+    '#maxlength' => 255,
+    '#description' => $info['description'],
+  );
+
+
+
   return system_settings_form($form);
 }
