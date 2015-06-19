@@ -8,7 +8,7 @@ mica_client_folder=projects/mica-drupal7-client
 #
 dev-deploy:
 	echo $(mica_client_folder) && \
-	rm -rf $(mica_client_folder)target/drupal/sites/all/modules/obiba_agate && \
+	rm -rf ~/$(mica_client_folder)/target/drupal/sites/all/modules/obiba_agate && \
 	ln -s  $(CURDIR) ~/$(mica_client_folder)/target/drupal/sites/all/modules/obiba_agate
 
 #

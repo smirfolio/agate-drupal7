@@ -32,5 +32,18 @@ function obiba_agate_variable_info($options) {
     'type' => 'options',
     'default' => array(),
   );
+  $variable['obiba_login_page_title'] = array(
+    'title' => t('Page title'),
+    'description' => t('User Login page title.'),
+    'type' => 'string',
+    'default' => 'User account',
+  );
+  $variable['obiba_login_username_label'] = array(
+    'title' => t('Username label'),
+    'description' => t('Username/password input label.'),
+    'type' => 'string',
+    'default' => 'Username or E-mail',
+  );
+
   return $variable;
 }
