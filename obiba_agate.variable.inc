@@ -44,6 +44,11 @@ function obiba_agate_variable_info($options) {
     'type' => 'string',
     'default' => 'Username or E-mail',
   );
-
+  $variable['obiba_register_page_title'] = array(
+    'title' => t('Page title'),
+    'description' => t('User registration page title.'),
+    'type' => 'string',
+    'default' => 'User registration',
+  );
   return $variable;
 }
