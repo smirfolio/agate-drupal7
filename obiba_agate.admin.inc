@@ -97,6 +97,20 @@ function obiba_agate_admin_settings() {
     '#maxlength' => 255,
     '#description' => $info['description'],
   );
+  // Registration page
+  $form['register'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('OBiBa Registration Page'),
+    '#collapsible' => FALSE,
+  );
+  $info = variable_get_info('obiba_register_page_title');
+  $form['register']['obiba_register_page_title'] = array(
+    '#type' => 'textfield',
+    '#title' => $info['title'],
+    '#default_value' => variable_get_value('obiba_register_page_title'),
+    '#maxlength' => 255,
+    '#description' => $info['description'],
+  );
 
 
 

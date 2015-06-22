@@ -145,6 +145,7 @@ function obiba_agate_register_user() {
  * */
 function obiba_agate_register_form_user() {
   //override form_id value
+  drupal_set_title(t(variable_get_value('obiba_register_page_title')));
   $cpatcha_value = NULL;
   $form_attributes = obiba_agate_get_agate_form_attributes();
   $recaptcha_key = obiba_agate_get_agate_recaptch_key();
