@@ -44,11 +44,23 @@ function obiba_agate_variable_info($options) {
     'type' => 'string',
     'default' => 'Username or E-mail',
   );
+  $variable['obiba_login_button_caption'] = array(
+    'title' => t('Log in button'),
+    'description' => t('Log in button caption'),
+    'type' => 'string',
+    'default' => 'Log in',
+  );
   $variable['obiba_register_page_title'] = array(
     'title' => t('Page title'),
     'description' => t('User registration page title.'),
     'type' => 'string',
     'default' => 'User registration',
+  );
+  $variable['obiba_reset_password_button_caption'] = array(
+    'title' => t('Email button'),
+    'description' => t('Email button caption.'),
+    'type' => 'string',
+    'default' => 'E-mail new password',
   );
   return $variable;
 }
