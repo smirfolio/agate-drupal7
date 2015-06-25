@@ -97,6 +97,14 @@ function obiba_agate_admin_settings() {
     '#maxlength' => 255,
     '#description' => $info['description'],
   );
+  $info = variable_get_info('obiba_login_button_caption');
+  $form['login']['obiba_login_button_caption'] = array(
+    '#type' => 'textfield',
+    '#title' => $info['title'],
+    '#default_value' => variable_get_value('obiba_login_button_caption'),
+    '#maxlength' => 255,
+    '#description' => $info['description'],
+  );
   // Registration page
   $form['register'] = array(
     '#type' => 'fieldset',
@@ -111,8 +119,19 @@ function obiba_agate_admin_settings() {
     '#maxlength' => 255,
     '#description' => $info['description'],
   );
-
-
-
+  // Reset password page
+  $form['reset'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('OBiBa Reset Password Page'),
+    '#collapsible' => FALSE,
+  );
+  $info = variable_get_info('obiba_reset_password_button_caption');
+  $form['reset']['obiba_reset_password_button_caption'] = array(
+    '#type' => 'textfield',
+    '#title' => $info['title'],
+    '#default_value' => variable_get_value('obiba_reset_password_button_caption'),
+    '#maxlength' => 255,
+    '#description' => $info['description'],
+  );
   return system_settings_form($form);
 }
