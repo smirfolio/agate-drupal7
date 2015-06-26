@@ -44,6 +44,12 @@ function obiba_agate_variable_info($options) {
     'type' => 'string',
     'default' => 'Username or E-mail',
   );
+  $variable['enable_form_tooltips'] = array(
+    'title' => t('Enable / Disable tooltips forms'),
+    'description' => t('Enable / Disable tooltips forms'),
+    'type' => 'options',
+    'default' => array(),
+  );
   $variable['obiba_login_button_caption'] = array(
     'title' => t('Log in button'),
     'description' => t('Log in button caption'),

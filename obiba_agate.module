@@ -63,7 +63,10 @@ function obiba_agate_menu() {
 function obiba_agate_theme($existing, $type, $theme, $path) {
   $path_theme = $path . '/templates';
   return array(
-    'obiba_agate_user-register-form' => array('template' => 'obiba_agate_user-register-form', 'path' => $path_theme),
+    'obiba_agate_user-register-form' => array(
+      'template' => 'obiba_agate_user-register-form',
+      'path' => $path_theme
+    ),
     'obiba_agate_user-pass-request-form' => array(
       'template' => 'obiba_agate_user-pass-request-form',
       'path' => $path_theme
@@ -152,12 +155,15 @@ function obiba_agate_register_form_user() {
   //overloading the $form attributes
   obiba_main_app_angular_load_libraires_resources('obiba_agate');
   $module_path_ = drupal_get_path('module', 'obiba_agate');
-  drupal_add_js($module_path_ . '/js/ang/app-register.js', array('type' => 'file', 'scope' => 'footer'));
+  drupal_add_js($module_path_ . '/js/ang/app-register.js', array(
+    'type' => 'file',
+    'scope' => 'footer'
+  ));
   drupal_add_js(array(
-      'form' => $form_attributes['form'],
-      'schema' => $form_attributes['schema'],
-      'recaptchaKey' => $recaptcha_key
-    ),
+    'form' => $form_attributes['form'],
+    'schema' => $form_attributes['schema'],
+    'recaptchaKey' => $recaptcha_key
+  ),
     'setting');
   return theme('obiba_agate_user-register-form');
 }
@@ -237,6 +243,11 @@ function obiba_agate_form_user_pass_alter(&$form, $form_state) {
 function obiba_agate_form_user_login_alter(&$form, $form_state) {
   unset($form['links']);
   drupal_set_title(t(variable_get_value('obiba_login_page_title')));
+  $enable_form_tooltips = variable_get_value('enable_form_tooltips');
+  if (empty($enable_form_tooltips)) {
+    unset($form['name']['#description']);
+    unset($form['pass']['#description']);
+  }
   $form['obiba_agate']['#value'] = 'obiba_agate_user_register_form';
   $form['name']['#title'] = t(variable_get_value('obiba_login_username_label'));
   $form['actions']['submit']['#value'] = t(variable_get_value('obiba_login_button_caption'));
@@ -252,6 +263,7 @@ function obiba_agate_form_user_login_alter(&$form, $form_state) {
     'query' =>
       array('destination' => !empty($parameters['destination']) ? $parameters['destination'] : current_path())
   ));
+
 }
 
 /**
@@ -290,7 +302,7 @@ function obiba_agate_form_user_profile_form_alter(&$form, $form_state) {
     $form['agate'] = array(
       '#type' => 'fieldset',
       '#title' => t('Password'),
-      '#description' => t('You can request for your password to be reset.') .'<br/><br/>'
+      '#description' => t('You can request for your password to be reset.') . '<br/><br/>'
         . l('Reset password', 'user/password', array('attributes' => array('class' => 'btn btn-default')))
     );
   }
@@ -458,7 +470,8 @@ function obiba_agate_check_user($username, $password) {
     $agate_client = new AgateClient();
     // authenticate
     return $agate_client->authenticate($username, $password);
-  } catch (Exception $e) {
+  }
+  catch (Exception $e) {
     watchdog('obiba_agate', 'Error %error_message.', array('%error_message' => $e->faultstring), WATCHDOG_NOTICE);
     return FALSE;
   }

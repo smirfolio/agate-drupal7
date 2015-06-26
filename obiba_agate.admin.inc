@@ -105,6 +105,16 @@ function obiba_agate_admin_settings() {
     '#maxlength' => 255,
     '#description' => $info['description'],
   );
+
+  $info = variable_get_info('enable_form_tooltips');
+  $form['login']['enable_form_tooltips'] = array(
+    '#type' => 'radios',
+    '#title' => $info['title'],
+    '#default_value' => variable_get_value('enable_form_tooltips'),
+    '#options' => array(1 => t('Yes'), 0 => t('No')),
+    '#description' => $info['description'],
+  );
+
   // Registration page
   $form['register'] = array(
     '#type' => 'fieldset',
