@@ -84,7 +84,7 @@ function obiba_agate_send_password_user($resource='confirm') {
         ), $resource
       );
     if (empty($response['code'])) {
-      drupal_set_message('You can now sign in.');
+      drupal_set_message('You can now log in.');
       drupal_json_output($response);
       die;
     }
