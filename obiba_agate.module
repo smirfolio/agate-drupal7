@@ -260,12 +260,13 @@ function obiba_agate_form_user_login_alter(&$form, $form_state) {
     'obiba_agate_login_validate',
     'user_login_final_validate'
   );
+
   $parameters = drupal_get_query_parameters();
   $form['#action'] = url($_GET['q'], array(
     'query' =>
-      array('destination' => !empty($parameters['destination']) ? $parameters['destination'] : current_path())
+      array('destination' => !empty($parameters['destination']) ?
+        $parameters['destination'] : (strstr(current_path(), 'user')?base_path():current_path()))
   ));
-
 }
 
 /**
