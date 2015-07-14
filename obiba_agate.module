@@ -16,7 +16,7 @@ function obiba_agate_menu() {
     'description' => 'Configure OBiBa central authentication services',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('obiba_agate_admin_settings'),
-    'access arguments' => array('administer obiba'),
+    'access arguments' => array('administer obiba agate'),
     'type' => MENU_NORMAL_ITEM,
     'file' => 'obiba_agate.admin.inc',
   );
@@ -318,8 +318,8 @@ function obiba_agate_form_user_profile_form_alter(&$form, $form_state) {
  */
 function obiba_agate_permission() {
   return array(
-    'administer obiba' => array(
-      'title' => t('Administer OBiBa'),
+    'administer obiba agate' => array(
+      'title' => t('Administer OBiBa Agate'),
       'description' => t('Configure OBiBa Agate server and other settings.'),
       'restrict access' => TRUE,
     )
