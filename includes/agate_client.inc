@@ -15,13 +15,21 @@ class AgateClient {
 
   const OBIBA_COOKIE = 'obibaid';
 
-  private $agateUrl;
+  const HEADER_JSON = 'application/json';
 
-  private $applicationName;
+  const AUTHORIZATION_HEADER = 'Authorization';
+  const AUTHORIZATION_HEADER_AGATE = 'X-App-Auth';
 
-  private $applicationKey;
+  const COOKIE_HEADER = 'Cookie';
 
-  private $lastResponse;
+  protected $agateUrl;
+
+  protected $applicationName;
+
+  protected $applicationKey;
+
+  protected $lastResponse;
+
 
   /**
    * Check if the user was authenticated by Agate.
@@ -97,10 +105,9 @@ class AgateClient {
     $url = $this->agateUrl . '/config/join';
     $request = new HttpClientRequest($url, array(
       'method' => HttpClientRequest::METHOD_GET,
-      'headers' => array(
-        'Accept' => array('application/json'),
-        'X-App-Auth' => array($this->authorizationHeader())
-      ),
+      'headers' => array( 'Accept' => array('application/json'),
+        AgateClient::AUTHORIZATION_HEADER_AGATE => array($this->authorizationHeader())
+      )
     ));
 
     $client = $this->client();
@@ -128,7 +135,7 @@ class AgateClient {
       'method' => HttpClientRequest::METHOD_GET,
       'headers' => array(
         'Accept' => array('application/json'),
-        'X-App-Auth' => array($this->authorizationHeader())
+        AgateClient::AUTHORIZATION_HEADER_AGATE => array($this->authorizationHeader())
       )
     ));
 
@@ -195,7 +202,7 @@ class AgateClient {
       'headers' => array(
         'Accept' => array('application/json'),
         'Content-Type' => array('application/x-www-form-urlencoded'),
-        'X-App-Auth' => array($this->authorizationHeader())
+        AgateClient::AUTHORIZATION_HEADER_AGATE => array($this->authorizationHeader())
       ),
       'data' => $data . $roles,
     ));
@@ -228,7 +235,7 @@ class AgateClient {
       'headers' => array(
         'Accept' => array('application/json'),
         'Content-Type' => array('application/x-www-form-urlencoded'),
-        'X-App-Auth' => array($this->authorizationHeader())
+        AgateClient::AUTHORIZATION_HEADER_AGATE => array($this->authorizationHeader())
       ),
       'data' => $data,
     ));
@@ -262,7 +269,7 @@ class AgateClient {
       'headers' => array(
         'Accept' => array('application/json'),
         'Content-Type' => array('application/x-www-form-urlencoded'),
-        'X-App-Auth' => array($this->authorizationHeader())
+        AgateClient::AUTHORIZATION_HEADER_AGATE => array($this->authorizationHeader())
       ),
       'data' => $data,
     ));
@@ -302,7 +309,7 @@ class AgateClient {
       'headers' => array(
         'Accept' => array('application/json'),
         'Content-Type' => array('application/x-www-form-urlencoded'),
-        'X-App-Auth' => array($this->authorizationHeader())
+        AgateClient::AUTHORIZATION_HEADER_AGATE => array($this->authorizationHeader())
       ),
       'data' => $data,
     ));
@@ -334,7 +341,7 @@ class AgateClient {
       'method' => HttpClientRequest::METHOD_GET,
       'headers' => array(
         'Accept' => array('text/plain', 'application/json'),
-        'X-App-Auth' => array($this->authorizationHeader())
+        AgateClient::AUTHORIZATION_HEADER_AGATE => array($this->authorizationHeader())
       ),
     ));
 
@@ -367,7 +374,7 @@ class AgateClient {
       'method' => HttpClientRequest::METHOD_GET,
       'headers' => array(
         'Accept' => array('application/json'),
-        'X-App-Auth' => array($this->authorizationHeader())
+        AgateClient::AUTHORIZATION_HEADER_AGATE => array($this->authorizationHeader())
       ),
     ));
 
@@ -397,7 +404,7 @@ class AgateClient {
       'method' => HttpClientRequest::METHOD_DELETE,
       'headers' => array(
         'Accept' => array('application/json'),
-        'X-App-Auth' => array($this->authorizationHeader())
+        AgateClient::AUTHORIZATION_HEADER_AGATE => array($this->authorizationHeader())
       ),
     ));
 
@@ -416,7 +423,7 @@ class AgateClient {
   /**
    * Forwards the 'Set-Cookie' directive to the drupal client.
    */
-  private function setLastResponseCookies() {
+  protected function setLastResponseCookies() {
     foreach ($this->getLastResponseHeader(self::SET_COOKIE_HEADER) as $cookie_str) {
       $cookie = $this->parseCookie($cookie_str);
       $keys = array_keys($cookie);
@@ -437,7 +444,7 @@ class AgateClient {
    * @param $cookie_str
    * @return array
    */
-  private function parseCookie($cookie_str) {
+  protected function parseCookie($cookie_str) {
     $cookie = array();
     foreach (explode(';', $cookie_str) as $entry_str) {
       $entry = explode('=', $entry_str);
@@ -449,7 +456,7 @@ class AgateClient {
   /**
    * @return HttpClient
    */
-  private function client() {
+  protected function client() {
     $client = new HttpClient($formatter = FALSE);
 
     if (!isset($client->options['curlopts'])) {
@@ -464,7 +471,7 @@ class AgateClient {
     return $client;
   }
 
-  private function authorizationHeader() {
+  protected function authorizationHeader(array $headers = NULL) {
     return 'Basic ' . base64_encode($this->applicationName . ':' . $this->applicationKey);
   }
 }
