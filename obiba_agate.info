@@ -7,6 +7,7 @@ dependencies[] = http_client
 dependencies[] = variable
 
 files[] = includes/agate_client.inc
+files[] = includes/agate_client_user_profile.inc
 
 version = 7.x-1.0-dev
 project = obiba_agate
