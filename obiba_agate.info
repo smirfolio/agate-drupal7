@@ -8,5 +8,5 @@ dependencies[] = variable
 
 files[] = includes/agate_client.inc
 
-version = 7.x-1.0-dev
+version = 7.x-1.0.1
 project = obiba_agate
