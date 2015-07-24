@@ -64,5 +64,17 @@ function obiba_agate_user_profile() {
       }
       break;
   }
+}
 
+function obiba_agate_user_profile_update_password($id) {
+  switch ($_SERVER['REQUEST_METHOD']) {
+    case 'PUT' :
+      $agate = new UserProfile();
+      $user_password = drupal_json_decode(file_get_contents('php://input'));
+      $response = $agate->update_user_password($id, $user_password['currentPassword'], $user_password['newPassword']);
+      if (!empty($response['errorServer'])) {
+        drupal_json_output($response);
+      }
+      break;
+  }
 }
