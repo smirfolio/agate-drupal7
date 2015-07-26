@@ -20,6 +20,10 @@
       <i class="glyphicon glyphicon-edit"></i>
       <?php print t('Edit'); ?>
     </a>
+    <a ng-click="updatePasswordUser()"
+      class="btn btn-info" title="<?php print t('Update Password'); ?> ">
+      <?php print t('Update Password'); ?>
+    </a>
   </div>
 
 </div>

@@ -8,17 +8,7 @@
   Drupal.behaviors.obiba_agate_profile_services = {
     attach: function (context, settings) {
 
-      mica.agateProfile.factory('UserResourceJoin', ['$http',
-        function ($http) {
-          var drupalPathResource = Drupal.settings.basePath + 'agate/agate_user_join/ws';
-          return {
-            post: function (data) {
-              return $http.post(drupalPathResource, $.param(data), {
-                headers: {'Content-Type': 'application/x-www-form-urlencoded'}
-              });
-            }
-          };
-        }])
+      mica.agateProfile
         .factory('AgateFormResource', ['$resource',
           function ($resource) {
             return $resource(Drupal.settings.basePath + 'agate/agate-form/ws', {}, {
@@ -27,10 +17,15 @@
               }
             });
           }])
-        .factory('AgateUserProfile', ['$resource', function($resource){
+        .factory('AgateUserProfile', ['$resource', function ($resource) {
           return $resource(Drupal.settings.basePath + 'agate/agate-user-profile/ws', {}, {
             'save': {method: 'PUT', errorHandler: true},
             'get': {method: 'GET', errorHandler: true}
+          });
+        }])
+        .factory('AgateUserPassword', ['$resource', function ($resource) {
+          return $resource(Drupal.settings.basePath + 'agate/agate-user-update-password/:id/ws', {}, {
+            'save': {method: 'PUT', params: {id: '@id'}, errorHandler: true}
           });
         }])
       ;

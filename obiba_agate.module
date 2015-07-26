@@ -75,6 +75,12 @@ function obiba_agate_menu() {
     'access callback' => TRUE,
     'file' => 'obiba_agate_services.inc'
   );
+  $items['agate/agate-user-update-password/%/ws'] = array(
+    'page callback' => 'obiba_agate_user_profile_update_password',
+    'page arguments' => array(2),
+    'access callback' => TRUE,
+    'file' => 'obiba_agate_services.inc'
+  );
 
   return $items;
 }
@@ -168,6 +174,10 @@ function obiba_agate_theme($existing, $type, $theme, $path) {
     ),
     'obiba_agate-user-profile-form' => array(
       'template' => 'obiba_agate-user-profile-form',
+      'path' => $path_views_theme
+    ),
+    'obiba-agate-user-update-password-modal' => array(
+      'template' => 'obiba-agate-user-update-password-modal',
       'path' => $path_views_theme
     ),
     'obiba_agate_user-pass-request-form' => array(
@@ -348,7 +358,7 @@ function obiba_agate_mail_user_login_validate($form, &$form_state) {
 function obiba_agate_form_user_profile_form_alter(&$form, $form_state) {
   $account = $form['#user'];
   $authmaps = user_get_authmaps($account->name);
-  if (array_key_exists('obiba_agate', $authmaps)) {
+  if (is_array($authmaps) &&array_key_exists('obiba_agate', $authmaps)) {
     $form['account']['name']['#type'] = 'hidden';
     $form['account']['mail']['#type'] = 'hidden';
     $form['account']['current_pass']['#type'] = 'hidden';
