@@ -8,17 +8,38 @@
  * Implements hook_menu().
  */
 function obiba_agate_menu() {
-  global $user;
   $items = array();
-  //cas_login_check();
-  $items['admin/config/people/obiba'] = array(
-    'title' => 'OBiBa Agate settings',
+  $items['admin/config/obiba-agate'] = array(
+    'title' => t('OBiBa Agate'),
+    'description' => t('Configure Agate'),
+    'weight' => -99,
+    'page callback' => 'system_admin_menu_block_page',
+    'access arguments' => array('access administration pages'),
+    'file' => 'system.admin.inc',
+    'file path' => drupal_get_path('module', 'system'),
+    'position' => 'right',
+  );
+
+  $items['admin/config/obiba-agate/agate-settings'] = array(
+    'title' => 'Settings',
     'description' => 'Configure OBiBa central authentication services',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('obiba_agate_admin_settings'),
     'access arguments' => array('administer obiba agate'),
     'type' => MENU_NORMAL_ITEM,
     'file' => 'obiba_agate.admin.inc',
+    'weight' => 0,
+  );
+
+  $items['admin/config/obiba-agate/agate-pages'] = array(
+    'title' => 'Pages settings',
+    'description' => 'Configure Agate pages content',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('obiba_agate_admin_pages_settings'),
+    'access arguments' => array('administer obiba agate'),
+    'type' => MENU_NORMAL_ITEM,
+    'file' => 'obiba_agate_pages.admin.inc',
+    'weight' => 1,
   );
 
   $items['agate/confirm'] = array(
@@ -87,7 +108,7 @@ function obiba_agate_menu() {
 
 function obiba_agate_angular_register_page() {
   $app_block = obiba_main_app_angular_load_template_app();
-  drupal_set_title('User Join');
+  drupal_set_title(variable_get_value('obiba_register_page_title'));
   return theme('obiba_agate_user-main-app', array('main_app' => $app_block));
 }
 
@@ -352,13 +373,13 @@ function obiba_agate_mail_user_login_validate($form, &$form_state) {
 }
 
 /**
- * Implement hook_user_profile_form_alter() to disable the ability to change email address and
- * password for externally authenticated users.
+ * Implement hook_user_profile_form_alter() to disable the ability to change
+ * email address and password for externally authenticated users.
  */
 function obiba_agate_form_user_profile_form_alter(&$form, $form_state) {
   $account = $form['#user'];
   $authmaps = user_get_authmaps($account->name);
-  if (is_array($authmaps) &&array_key_exists('obiba_agate', $authmaps)) {
+  if (is_array($authmaps) && array_key_exists('obiba_agate', $authmaps)) {
     $form['account']['name']['#type'] = 'hidden';
     $form['account']['mail']['#type'] = 'hidden';
     $form['account']['current_pass']['#type'] = 'hidden';
@@ -384,7 +405,10 @@ function obiba_agate_user_profile_form_submit($form, &$form_state) {
   if (isset($_GET['destination'])) {
     unset($_GET['destination']);
   }
-  $form_state['redirect'] = array(MicaClientPathProvider::AGATE_PROFILE, array('fragment' => 'view'));
+  $form_state['redirect'] = array(
+    MicaClientPathProvider::AGATE_PROFILE,
+    array('fragment' => 'view')
+  );
 }
 
 /**
@@ -469,8 +493,10 @@ function obiba_agate_save_drupal_new_user() {
 
 /**
  * Update roles of the user
+ *
  * @param null $user_groups
  * @param $current_roles
+ *
  * @return array roles
  */
 function obiba_agate_role_update($user_groups = NULL, $current_roles = NULL, $auto_roles = NULL) {
@@ -527,7 +553,8 @@ function obiba_agate_role_update($user_groups = NULL, $current_roles = NULL, $au
 }
 
 /**
- * The obiba_agate_auth() function attempts to authenticate a user off the external system using their e-mail address.
+ * The obiba_agate_auth() function attempts to authenticate a user off the
+ * external system using their e-mail address.
  */
 function obiba_agate_login_validate($form, &$form_state) {
   $username = $form_state['values']['name'];
@@ -555,7 +582,9 @@ function obiba_agate_check_user($username, $password) {
 }
 
 /**
- * Merge the roles from Agate to the roles found in drupal and set some attributes.
+ * Merge the roles from Agate to the roles found in drupal and set some
+ * attributes.
+ *
  * @param $account
  */
 function obiba_agate_apply_subject($account) {
@@ -593,6 +622,7 @@ function obiba_agate_apply_subject($account) {
 
 /**
  * Reset the authmap tab
+ *
  * @param $user_name
  */
 function obiba_agate_unset_authmaps($user_name) {
