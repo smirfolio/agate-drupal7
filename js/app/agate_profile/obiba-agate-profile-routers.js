@@ -8,7 +8,6 @@
   Drupal.behaviors.obiba_agate_profile_routes = {
     attach: function (context, settings) {
 
-
       mica.agateProfile.config(['$routeProvider', '$locationProvider',
         function ($routeProvider, $locationProvider) {
           $routeProvider
@@ -23,13 +22,9 @@
             .otherwise({
               templateUrl: Drupal.settings.basePath + 'obiba_main_app_angular/obiba_gate/obiba_agate-user-profile-view',
               controller: 'UserViewProfileController'
-            })
-          ;
+            });
         }]);
-
 
     }
   }
 }(jQuery));
-
-

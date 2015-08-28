@@ -6,8 +6,6 @@
 (function ($) {
   Drupal.behaviors.obiba_agate_confirm_register = {
     attach: function (context, settings) {
-
-
       var query = location.href.split('=');
 
       //Extract the resource (confirm/reset_password) between {agate/} and the {?key}  example : xxxxagate/confirm?keyxxxxxx
