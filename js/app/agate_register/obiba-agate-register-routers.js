@@ -15,12 +15,9 @@
             .when('/join', {
               templateUrl: Drupal.settings.basePath + 'obiba_main_app_angular/obiba_gate/obiba_agate-user-profile-register-form',
               controller: 'RegisterFormController'
-            })
-          ;
+            });
         }]);
 
     }
   }
 }(jQuery));
-
-

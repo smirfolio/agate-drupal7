@@ -1,7 +1,13 @@
 <?php
 /**
  * @file
- * ObibaAgateClient class.
+ * Obiba Agate Mdule.
+ *
+ * Copyright (c) 2015 OBiBa. All rights reserved.
+ * This program and the accompanying materials
+ * are made available under the terms of the GNU Public License v3.0.
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 /**
@@ -113,8 +119,8 @@ class ObibaAgateClient {
   /**
    * Get form registration from agate.
    *
-   * @return string form
-   *    A json of the form configuration.
+   * @return string
+   *   A json of the form configuration.
    */
   public function getConfigFormJoin() {
     $this->lastResponse = NULL;
@@ -146,7 +152,7 @@ class ObibaAgateClient {
   /**
    * Get form registration from agate.
    *
-   * @return string form
+   * @return string
    *   The google key of ReCaptcha configuration sorted on the agate server.
    */
   public function getReCaptchaKeyConfigFormJoin() {
@@ -298,7 +304,7 @@ class ObibaAgateClient {
   /**
    * Confirm user registration.
    *
-   * @return array errors
+   * @return array
    *   The server errors message.
    */
   public function sendPassword($data, $request_resource = 'confirm') {
@@ -530,7 +536,7 @@ class ObibaAgateClient {
   /**
    * The override of the  client method.
    *
-   * @return object HttpClient
+   * @return object
    *   The returned object of the client method.
    */
   protected function client() {

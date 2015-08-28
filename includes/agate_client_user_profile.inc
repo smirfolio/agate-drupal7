@@ -1,8 +1,13 @@
 <?php
-
 /**
  * @file
- * UserProfile class.
+ * Obiba Agate Mdule.
+ *
+ * Copyright (c) 2015 OBiBa. All rights reserved.
+ * This program and the accompanying materials
+ * are made available under the terms of the GNU Public License v3.0.
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 /**
@@ -50,10 +55,10 @@ class ObibaAgateUserProfile extends ObibaAgateClient {
    * Update the user profile.
    *
    * @param string $user_data
-   *    The user detail to save on Agate server.
+   *   The user detail to save on Agate server.
    *
    * @return array|bool
-   *    An array errors or true if user updated.
+   *   An array errors or true if user updated.
    */
   public function updateUserProfile($user_data) {
     $this->lastResponse = NULL;
@@ -90,7 +95,7 @@ class ObibaAgateUserProfile extends ObibaAgateClient {
    *   The new password.
    *
    * @return array|bool
-   *    An array of error message or TRUE if password updated.
+   *   An array of error message or TRUE if password updated.
    */
   public function updateUserPassword($current_password, $new_password) {
     global $user;

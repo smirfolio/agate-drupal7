@@ -8,4 +8,3 @@ dependencies[] = variable
 
 files[] = includes/agate_client.inc
 files[] = includes/agate_client_user_profile.inc
-

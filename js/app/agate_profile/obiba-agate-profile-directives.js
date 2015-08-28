@@ -12,19 +12,16 @@
         return {
           replace: true,
           restrict: 'E',
-          template: '<div id="strength">' +
-          '<small>' + Drupal.t('Password strength:') + '</small>' +
-          '<ul id="strengthBar" style="padding-left:10px;">' +
-          '<li class="point"></li><li class="point"></li><li class="point"></li><li class="point"></li><li class="point"></li>' +
-          '</ul>' +
-          '</div>',
+          template: '<div id="strength"><small>' + Drupal.t('Password strength:') +
+          '</small><ul id="strengthBar" style="padding-left:10px;"><li class="point">' +
+          '</li><li class="point"></li><li class="point"></li><li class="point"></li><li class="point"></li></ul></div>',
           link: function (scope, iElement, attr) {
             var strength = {
               colors: ['#F00', '#F90', '#FF0', '#9F0', '#0F0'],
               mesureStrength: function (p) {
 
                 var _force = 0;
-                var _regex = /[$-/:-?{-~!"^_`\[\]]/g; // "
+                var _regex = /[$-/:-?{-~!"^_`\[\]]/g;
 
                 var _lowerLetters = /[a-z]+/.test(p);
                 var _upperLetters = /[A-Z]+/.test(p);
