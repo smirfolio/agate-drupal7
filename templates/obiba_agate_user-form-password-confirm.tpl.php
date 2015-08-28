@@ -1,3 +1,10 @@
+<?php
+/**
+ * @file
+ * Obiba Agate file.
+ */
+?>
+
 <p><?php print t('Please enter your password to activate your account.'); ?></p>
 
 <div class="row">

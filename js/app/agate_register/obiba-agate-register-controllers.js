@@ -1,13 +1,13 @@
 /**
  * @file
- * JavaScript ajax helper for Statistics variables retrieving
+ * Obiba Agate Module AngularJs App Controller.
  */
+
 (function ($) {
   Drupal.behaviors.obiba_agate_register_controllers = {
     attach: function (context, settings) {
 
       'use strict';
-
       mica.agateRegister.controller('RegisterFormController',
         ['$scope',
           '$log',
@@ -18,8 +18,7 @@
                     $log,
                     UserResourceJoin,
                     vcRecaptchaService,
-                    AgateJoinFormResource
-          ) {
+                    AgateJoinFormResource) {
             AgateJoinFormResource.get(
               function onSuccess(AgateProfileForm) {
                 $scope.form = AgateProfileForm.form;
@@ -58,7 +57,7 @@
                       })
                       .error(function (data, status, headers, config) {
                         var errorParse = angular.fromJson(data);
-                        console.log('Error Server Code:'+status);
+                        console.log('Error Server Code:' + status);
                         $scope.alert = {
                           message: Drupal.t(angular.fromJson(errorParse.errorMessage).message),
                           type: 'danger'
@@ -80,8 +79,7 @@
             );
 
 
-      }]);
-
+          }]);
 
     }
   }

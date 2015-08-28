@@ -8,9 +8,8 @@
 /**
  * Provides settings pages.
  */
-
 function obiba_agate_admin_pages_settings() {
-// Login page
+  // Login page.
   $form['login'] = array(
     '#type' => 'fieldset',
     '#title' => t('OBiBa Login Page'),
@@ -50,7 +49,7 @@ function obiba_agate_admin_pages_settings() {
     '#description' => $info['description'],
   );
 
-// Registration page
+  // Registration page.
   $form['register'] = array(
     '#type' => 'fieldset',
     '#title' => t('OBiBa Registration Page'),
@@ -64,7 +63,7 @@ function obiba_agate_admin_pages_settings() {
     '#maxlength' => 255,
     '#description' => $info['description'],
   );
-// Reset password page
+  // Reset password page.
   $form['reset'] = array(
     '#type' => 'fieldset',
     '#title' => t('OBiBa Reset Password Page'),

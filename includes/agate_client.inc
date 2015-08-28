@@ -1,15 +1,13 @@
 <?php
-
 /**
  * @file
- * AgateClient class
+ * ObibaAgateClient class.
  */
-
 
 /**
- * Class AgateClient
+ * Class ObibaAgateClient.
  */
-class AgateClient {
+class ObibaAgateClient {
 
   const SET_COOKIE_HEADER = 'Set-Cookie';
 
@@ -33,17 +31,26 @@ class AgateClient {
 
   /**
    * Check if the user was authenticated by Agate.
+   *
    * @return bool
+   *   Return the stored Obiba Cookie.
    */
   public static function hasTicket() {
     return isset($_SESSION[self::OBIBA_COOKIE]);
   }
 
   /**
-   * AgateClient constructor: if no parameters are provided, default are extracted from Drupal variables.
-   * @param $agate_url
-   * @param $application_name
-   * @param $application_key
+   * ObibaAgateClient constructor.
+   *
+   * If no parameters are provided, default are extracted from Drupal variables.
+   *
+   * @param string $agate_url
+   *   The url of the Agate server.
+   * @param string $application_name
+   *   The application name also defined in agate (drupal).
+   * @param string $application_key
+   *   The key credential to allow the application(drupal) to connect
+   *   to Agate server.
    */
   public function __construct($agate_url = NULL, $application_name = NULL, $application_key = NULL) {
     $this->agateUrl = (isset($agate_url) ? $agate_url : variable_get_value('agate_url')) . '/ws';
@@ -53,7 +60,9 @@ class AgateClient {
 
   /**
    * Get the last response (if any).
+   *
    * @return mixed
+   *   The last server response.
    */
   public function getLastResponse() {
     return $this->lastResponse;
@@ -61,7 +70,9 @@ class AgateClient {
 
   /**
    * Get the last response headers (if any).
+   *
    * @return array
+   *   Parse and format the last response.
    */
   public function getLastResponseHeaders() {
     if ($this->lastResponse != NULL) {
@@ -82,8 +93,12 @@ class AgateClient {
 
   /**
    * Get the header value(s) from the last response.
-   * @param $header_name
+   *
+   * @param string $header_name
+   *   The header name.
+   *
    * @return array
+   *   The value of the header'
    */
   public function getLastResponseHeader($header_name) {
     $headers = $this->getLastResponseHeaders();
@@ -96,18 +111,20 @@ class AgateClient {
 
 
   /**
-   * Get form registration from agate
-   * @return Json form
-   * @throws Exception
+   * Get form registration from agate.
+   *
+   * @return string form
+   *    A json of the form configuration.
    */
-  public function get_config_form_join() {
+  public function getConfigFormJoin() {
     $this->lastResponse = NULL;
     $url = $this->agateUrl . '/config/join';
     $request = new HttpClientRequest($url, array(
       'method' => HttpClientRequest::METHOD_GET,
-      'headers' => array( 'Accept' => array('application/json'),
-        AgateClient::AUTHORIZATION_HEADER_AGATE => array($this->authorizationHeader())
-      )
+      'headers' => array(
+        'Accept' => array('application/json'),
+        ObibaAgateClient::AUTHORIZATION_HEADER_AGATE => array($this->authorizationHeader()),
+      ),
     ));
 
     $client = $this->client();
@@ -118,25 +135,29 @@ class AgateClient {
     }
     catch (HttpClientException $e) {
       watchdog('Agate Client', 'Request failed, @code: @message',
-        array('@code' => $e->getCode(), '@message' => $e->getMessage()), WATCHDOG_WARNING);
+        array(
+          '@code' => $e->getCode(),
+          '@message' => $e->getMessage(),
+        ), WATCHDOG_WARNING);
       return array();
     }
   }
 
   /**
-   * Get form registration from agate
-   * @return Json form
-   * @throws Exception
+   * Get form registration from agate.
+   *
+   * @return string form
+   *   The google key of ReCaptcha configuration sorted on the agate server.
    */
-  public function get_recaptcha_key_config_form_join() {
+  public function getReCaptchaKeyConfigFormJoin() {
     $this->lastResponse = NULL;
     $url = $this->agateUrl . '/config/client';
     $request = new HttpClientRequest($url, array(
       'method' => HttpClientRequest::METHOD_GET,
       'headers' => array(
         'Accept' => array('application/json'),
-        AgateClient::AUTHORIZATION_HEADER_AGATE => array($this->authorizationHeader())
-      )
+        ObibaAgateClient::AUTHORIZATION_HEADER_AGATE => array($this->authorizationHeader()),
+      ),
     ));
 
     $client = $this->client();
@@ -149,16 +170,21 @@ class AgateClient {
     }
     catch (HttpClientException $e) {
       watchdog('Agate Client', 'Request failed, @code: @message',
-        array('@code' => $e->getCode(), '@message' => $e->getMessage()), WATCHDOG_WARNING);
+        array(
+          '@code' => $e->getCode(),
+          '@message' => $e->getMessage(),
+        ), WATCHDOG_WARNING);
       return array();
     }
   }
 
   /**
-   * Append defaults user role
+   * Append defaults user role.
+   *
    * @return string
+   *   The roles configuration in auto-roles parameters, to add to user.
    */
-  public function append_auto_roles($username) {
+  public function appendAutoRoles($username) {
     $groups = '';
     if (!empty($username)) {
       $account = user_external_load($username);
@@ -178,55 +204,67 @@ class AgateClient {
       if (!empty($group) && !empty($db_roles[$group]) && strstr($db_roles[$group], 'mica')) {
         $groups .= '&group=' . $db_roles[$group];
       }
-      //default group user mica-user
-      else{
-        $groups .= '&group=' . 'mica-user';
+      // Default group user mica-user.
+      else {
+        $groups .= '&group=mica-user';
       }
     }
     return $groups;
   }
 
   /**
-   * Add user to Agate
-   * @param $user_data
+   * Add user to Agate.
+   *
+   * @param array $user_data
+   *   The user profile to register in Agate.
+   *
    * @return TRUE
-   * @throws Exception
+   *   An error if user not added or true if OK.
    */
-  public function add_agate_user($user_data) {
+  public function addAgateUser(array $user_data) {
     $this->lastResponse = NULL;
     $url = $this->agateUrl . '/users/_join';
     $data = http_build_query($user_data);
-    $roles = $this->append_auto_roles(empty($user_data['username']) ? null : $user_data['username']);
+    $roles = $this->appendAutoRoles(empty($user_data['username']) ? NULL : $user_data['username']);
     $request = new HttpClientRequest($url, array(
       'method' => HttpClientRequest::METHOD_POST,
       'headers' => array(
         'Accept' => array('application/json'),
         'Content-Type' => array('application/x-www-form-urlencoded'),
-        AgateClient::AUTHORIZATION_HEADER_AGATE => array($this->authorizationHeader())
+        ObibaAgateClient::AUTHORIZATION_HEADER_AGATE => array($this->authorizationHeader()),
       ),
       'data' => $data . $roles,
     ));
     $client = $this->client();
     try {
-      $body = $client->execute($request);
+      $client->execute($request);
       $this->lastResponse = $client->lastResponse;
       $this->setLastResponseCookies();
       return TRUE;
     }
     catch (HttpClientException $e) {
       watchdog('Agate Client', 'Request failed, @code: @message',
-        array('@code' => $e->getCode(), '@message' => $e->getMessage()), WATCHDOG_WARNING);
-      return array('codeError' => $e->getCode(), 'message' => $e->getResponse()->body);
+        array(
+          '@code' => $e->getCode(),
+          '@message' => $e->getMessage(),
+        ), WATCHDOG_WARNING);
+      return array(
+        'codeError' => $e->getCode(),
+        'message' => $e->getResponse()->body,
+      );
     }
   }
 
   /**
    * Get form registration from agate.
    *
-   * @return Json form
-   * @throws Exception
+   * @param array $data
+   *   An array key/value username/email to recover.
+   *
+   * @return array
+   *   Server response.
    */
-  public function password_request($data) {
+  public function passwordRequest(array $data) {
     $data = http_build_query($data);
     $this->lastResponse = NULL;
     $url = $this->agateUrl . '/users/_forgot_password';
@@ -235,7 +273,7 @@ class AgateClient {
       'headers' => array(
         'Accept' => array('application/json'),
         'Content-Type' => array('application/x-www-form-urlencoded'),
-        AgateClient::AUTHORIZATION_HEADER_AGATE => array($this->authorizationHeader())
+        ObibaAgateClient::AUTHORIZATION_HEADER_AGATE => array($this->authorizationHeader()),
       ),
       'data' => $data,
     ));
@@ -249,7 +287,10 @@ class AgateClient {
     }
     catch (HttpClientException $e) {
       watchdog('Agate Client', 'Request failed, @code: @message',
-        array('@code' => $e->getCode(), '@message' => $e->getMessage()), WATCHDOG_WARNING);
+        array(
+          '@code' => $e->getCode(),
+          '@message' => $e->getMessage(),
+        ), WATCHDOG_WARNING);
       return array();
     }
   }
@@ -257,19 +298,19 @@ class AgateClient {
   /**
    * Confirm user registration.
    *
-   * @return Json form
-   * @throws Exception
+   * @return array errors
+   *   The server errors message.
    */
-  public function send_password($data, $request_resource='confirm') {
+  public function sendPassword($data, $request_resource = 'confirm') {
     $data = http_build_query($data);
     $this->lastResponse = NULL;
-    $url = $this->agateUrl . '/users/_'.$request_resource;
+    $url = $this->agateUrl . '/users/_' . $request_resource;
     $request = new HttpClientRequest($url, array(
       'method' => HttpClientRequest::METHOD_POST,
       'headers' => array(
         'Accept' => array('application/json'),
         'Content-Type' => array('application/x-www-form-urlencoded'),
-        AgateClient::AUTHORIZATION_HEADER_AGATE => array($this->authorizationHeader())
+        ObibaAgateClient::AUTHORIZATION_HEADER_AGATE => array($this->authorizationHeader()),
       ),
       'data' => $data,
     ));
@@ -286,19 +327,29 @@ class AgateClient {
       watchdog('Agate Client', 'Request failed, @code: @message',
         array(
           '@code' => $body_response_message->code,
-          '@message' => $body_response_message->message
+          '@message' => $body_response_message->message,
         ), WATCHDOG_WARNING);
-      return array('code' => $body_response_message->code, 'message' => $body_response_message->message);
+      return array(
+        'code' => $body_response_message->code,
+        'message' => $body_response_message->message,
+      );
     }
   }
 
 
   /**
-   * Perform authentication by user name and forwards any cookie from Agate to the drupal client.
-   * @param $username
-   * @param $password
+   * Perform authentication.
+   *
+   * Authentication by user name and forwards any cookie from Agate
+   * to the drupal client.
+   *
+   * @param string $username
+   *   The user name.
+   * @param string $password
+   *   The password.
+   *
    * @return bool
-   * @throws Exception
+   *   TRUE/FALSE authentication
    */
   public function authenticate($username, $password) {
     $this->lastResponse = NULL;
@@ -309,14 +360,14 @@ class AgateClient {
       'headers' => array(
         'Accept' => array('application/json'),
         'Content-Type' => array('application/x-www-form-urlencoded'),
-        AgateClient::AUTHORIZATION_HEADER_AGATE => array($this->authorizationHeader())
+        ObibaAgateClient::AUTHORIZATION_HEADER_AGATE => array($this->authorizationHeader()),
       ),
       'data' => $data,
     ));
 
     $client = $this->client();
     try {
-      $body = $client->execute($request);
+      $client->execute($request);
       $this->lastResponse = $client->lastResponse;
       $this->setLastResponseCookies();
 
@@ -324,15 +375,22 @@ class AgateClient {
     }
     catch (HttpClientException $e) {
       watchdog('Agate Client', 'Request failed, @code: @message',
-        array('@code' => $e->getCode(), '@message' => $e->getMessage()), WATCHDOG_WARNING);
+        array(
+          '@code' => $e->getCode(),
+          '@message' => $e->getMessage(),
+        ), WATCHDOG_WARNING);
       return FALSE;
     }
   }
 
   /**
    * Get the user name matching the Agate token.
-   * @param $token
+   *
+   * @param string $token
+   *   The stored id token.
+   *
    * @return mixed|null
+   *   The server response.
    */
   public function validate($token) {
     $this->lastResponse = NULL;
@@ -341,7 +399,7 @@ class AgateClient {
       'method' => HttpClientRequest::METHOD_GET,
       'headers' => array(
         'Accept' => array('text/plain', 'application/json'),
-        AgateClient::AUTHORIZATION_HEADER_AGATE => array($this->authorizationHeader())
+        ObibaAgateClient::AUTHORIZATION_HEADER_AGATE => array($this->authorizationHeader()),
       ),
     ));
 
@@ -354,18 +412,24 @@ class AgateClient {
     }
     catch (HttpClientException $e) {
       watchdog('Agate Client', 'Request failed, @code: @message',
-        array('@code' => $e->getCode(), '@message' => $e->getMessage()), WATCHDOG_WARNING);
+        array(
+          '@code' => $e->getCode(),
+          '@message' => $e->getMessage(),
+        ), WATCHDOG_WARNING);
       return NULL;
     }
   }
 
   /**
-   * Get the subject from the current Agate ticket (user needs to have been authenticated first).
+   * Get the subject from the current Agate ticket.
+   *
+   * User needs to have been authenticated first.
+   *
    * @return array
-   * @throws Exception
+   *   The Subject of the current ticket.
    */
   public function getSubject() {
-    if (!AgateClient::hasTicket()) {
+    if (!ObibaAgateClient::hasTicket()) {
       return array();
     }
     $this->lastResponse = NULL;
@@ -374,7 +438,7 @@ class AgateClient {
       'method' => HttpClientRequest::METHOD_GET,
       'headers' => array(
         'Accept' => array('application/json'),
-        AgateClient::AUTHORIZATION_HEADER_AGATE => array($this->authorizationHeader())
+        ObibaAgateClient::AUTHORIZATION_HEADER_AGATE => array($this->authorizationHeader()),
       ),
     ));
 
@@ -386,7 +450,10 @@ class AgateClient {
     }
     catch (HttpClientException $e) {
       watchdog('Agate Client', 'Request failed, @code: @message',
-        array('@code' => $e->getCode(), '@message' => $e->getMessage()), WATCHDOG_WARNING);
+        array(
+          '@code' => $e->getCode(),
+          '@message' => $e->getMessage(),
+        ), WATCHDOG_WARNING);
       return array();
     }
   }
@@ -395,7 +462,7 @@ class AgateClient {
    * Send a logout request to Agate and clean drupal client cookies.
    */
   public function logout() {
-    if (!AgateClient::hasTicket()) {
+    if (!ObibaAgateClient::hasTicket()) {
       return;
     }
 
@@ -404,19 +471,19 @@ class AgateClient {
       'method' => HttpClientRequest::METHOD_DELETE,
       'headers' => array(
         'Accept' => array('application/json'),
-        AgateClient::AUTHORIZATION_HEADER_AGATE => array($this->authorizationHeader())
+        ObibaAgateClient::AUTHORIZATION_HEADER_AGATE => array($this->authorizationHeader()),
       ),
     ));
 
     $client = $this->client();
     try {
-      $body = $client->execute($request);
+      $client->execute($request);
       $this->lastResponse = $client->lastResponse;
       $this->setLastResponseCookies();
       unset($_SESSION[self::OBIBA_COOKIE]);
     }
     catch (HttpClientException $e) {
-      // ignore
+      // Ignore.
     }
   }
 
@@ -431,9 +498,12 @@ class AgateClient {
       $value = $cookie[$name];
       watchdog('Agate Client', 'Cookie: name=@name, value=@value',
         array('@name' => $name, '@value' => $value), WATCHDOG_DEBUG);
-      if(empty($value)) {
-        if (!empty($_SESSION[$name])) unset($_SESSION[$name]);
-      } else {
+      if (empty($value)) {
+        if (!empty($_SESSION[$name])) {
+          unset($_SESSION[$name]);
+        }
+      }
+      else {
         $_SESSION[$name] = $value;
       }
     }
@@ -441,8 +511,12 @@ class AgateClient {
 
   /**
    * Explode a cookie string in a array.
-   * @param $cookie_str
+   *
+   * @param string $cookie_str
+   *   The stored in a string format cookie.
+   *
    * @return array
+   *   The cookies on a array format.
    */
   protected function parseCookie($cookie_str) {
     $cookie = array();
@@ -454,10 +528,13 @@ class AgateClient {
   }
 
   /**
-   * @return HttpClient
+   * The override of the  client method.
+   *
+   * @return object HttpClient
+   *   The returned object of the client method.
    */
   protected function client() {
-    $client = new HttpClient($formatter = FALSE);
+    $client = new HttpClient();
 
     if (!isset($client->options['curlopts'])) {
       $client->options['curlopts'] = array();
@@ -465,13 +542,21 @@ class AgateClient {
 
     $client->options['curlopts'] += array(
       CURLOPT_SSL_VERIFYHOST => FALSE,
-      CURLOPT_SSL_VERIFYPEER => FALSE
+      CURLOPT_SSL_VERIFYPEER => FALSE,
     );
 
     return $client;
   }
 
-  protected function authorizationHeader(array $headers = NULL) {
+
+  /**
+   * The Header  authorization constructor.
+   *
+   * @return string
+   *   The encrypted authorization header.
+   */
+  protected function authorizationHeader() {
     return 'Basic ' . base64_encode($this->applicationName . ':' . $this->applicationKey);
   }
+
 }
