@@ -24,8 +24,8 @@
           });
         }])
         .factory('AgateUserPassword', ['$resource', function ($resource) {
-          return $resource(Drupal.settings.basePath + 'agate/agate-user-update-password/:id/ws', {}, {
-            'save': {method: 'PUT', params: {id: '@id'}, errorHandler: true}
+          return $resource(Drupal.settings.basePath + 'agate/agate-user-update-password/ws', {}, {
+            'save': {method: 'PUT', errorHandler: true}
           });
         }])
       ;

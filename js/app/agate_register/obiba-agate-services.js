@@ -1,7 +1,8 @@
 /**
  * @file
- * JavaScript ajax helper for Statistics variables retrieving
+ * Obiba Agate Module AngularJs App Service.
  */
+
 'use strict';
 
 (function ($) {
@@ -26,10 +27,8 @@
                 method: 'GET', errorHandler: true
               }
             });
-          }])
-      ;
+          }]);
+
     }
   }
 }(jQuery));
-
-

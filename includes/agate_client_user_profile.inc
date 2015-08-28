@@ -2,34 +2,34 @@
 
 /**
  * @file
- * UserProfile class
+ * UserProfile class.
  */
 
 /**
- * Class UserProfile
+ * Class UserProfile.
  */
-class UserProfile extends AgateClient {
+class ObibaAgateUserProfile extends ObibaAgateClient {
 
 
   /**
-   * UserProfile constructor
+   * UserProfile constructor.
    */
   public function __construct() {
     parent::__construct();
   }
 
   /**
-   * get user profile details
+   * Get user profile details.
    */
-  public function get_user_profile() {
+  public function getUserProfile() {
     $this->lastResponse = NULL;
     $url = $this->agateUrl . '/ticket/' . $_SESSION[self::OBIBA_COOKIE] . '/profile';
     $request = new HttpClientRequest($url, array(
       'method' => HttpClientRequest::METHOD_GET,
       'headers' => array(
         'Accept' => array('application/json'),
-        AgateClient::AUTHORIZATION_HEADER_AGATE => array($this->authorizationHeader())
-      )
+        ObibaAgateClient::AUTHORIZATION_HEADER_AGATE => array($this->authorizationHeader()),
+      ),
     ));
     $client = $this->client();
     try {
@@ -38,7 +38,7 @@ class UserProfile extends AgateClient {
       return json_decode($body);
     }
     catch (HttpClientException $e) {
-      dpm('error_profile ' . $e->getMessage());
+      drupal_set_message('Error get profile, server message : ' . $e->getMessage());
       watchdog('Agate Client', 'Request failed, @code: @message',
         array('@code' => $e->getCode(), '@message' => $e->getMessage()), WATCHDOG_WARNING);
       return array();
@@ -46,7 +46,16 @@ class UserProfile extends AgateClient {
 
   }
 
-  public function update_user_profile($user_data) {
+  /**
+   * Update the user profile.
+   *
+   * @param string $user_data
+   *    The user detail to save on Agate server.
+   *
+   * @return array|bool
+   *    An array errors or true if user updated.
+   */
+  public function updateUserProfile($user_data) {
     $this->lastResponse = NULL;
     $url = $this->agateUrl . '/ticket/' . $_SESSION[self::OBIBA_COOKIE] . '/profile';
     $request = new HttpClientRequest($url, array(
@@ -54,9 +63,9 @@ class UserProfile extends AgateClient {
       'headers' => array(
         'Accept' => array(parent::HEADER_JSON),
         'Content-Type' => array(parent::HEADER_JSON),
-        AgateClient::AUTHORIZATION_HEADER_AGATE => array($this->authorizationHeader())
+        ObibaAgateClient::AUTHORIZATION_HEADER_AGATE => array($this->authorizationHeader()),
       ),
-      'data' => $user_data
+      'data' => $user_data,
 
     ));
     $client = $this->client();
@@ -68,11 +77,23 @@ class UserProfile extends AgateClient {
     catch (HttpClientException $e) {
       watchdog('Agate Client', 'Request failed, @code: @message',
         array('@code' => $e->getCode(), '@message' => $e->getMessage()), WATCHDOG_WARNING);
-      return array('errorServer' => t('Server error : ') . $e->getMessage());
+      return array('errorServer' => t('Server error :') . $e->getMessage());
     }
   }
 
-  public function update_user_password($login, $current_password, $new_password) {
+  /**
+   * Update the user password.
+   *
+   * @param string $current_password
+   *   Current password.
+   * @param string $new_password
+   *   The new password.
+   *
+   * @return array|bool
+   *    An array of error message or TRUE if password updated.
+   */
+  public function updateUserPassword($current_password, $new_password) {
+    global $user;
     $this->lastResponse = NULL;
     $url = $this->agateUrl . '/user/_current/password';
     $request = new HttpClientRequest($url, array(
@@ -80,9 +101,9 @@ class UserProfile extends AgateClient {
       'headers' => array(
         'Content-Type' => array('application/x-www-form-urlencoded'),
         'Accept' => array('application/json'),
-        AgateClient::AUTHORIZATION_HEADER => array('Basic ' . base64_encode($login . ':' . $current_password))
+        ObibaAgateClient::AUTHORIZATION_HEADER => array('Basic ' . base64_encode($user->name . ':' . $current_password)),
       ),
-      'data' => 'password=' . $new_password
+      'data' => 'password=' . $new_password,
     ));
 
     $client = $this->client();
@@ -92,18 +113,18 @@ class UserProfile extends AgateClient {
       return TRUE;
     }
     catch (HttpClientException $e) {
-      $errorMessage = NULL;
+      $error_message = NULL;
       $error_response = $e->getResponse();
       if ($e->getCode() != 403) {
-        $errorMessage = t(drupal_json_decode($error_response->body)['message']);
+        $error_message = drupal_json_decode($error_response->body)['message'];
       }
       else {
-        $errorMessage = t('Forbidden');
+        $error_message = t('Forbidden');
       }
 
       watchdog('Agate Client update password', 'Request failed, @code: @message',
-        array('@code' => $e->getCode(), '@message' => $errorMessage), WATCHDOG_WARNING);
-      return array('errorServer' => $errorMessage);
+        array('@code' => $e->getCode(), '@message' => $error_message), WATCHDOG_WARNING);
+      return array('errorServer' => $error_message);
     }
 
   }

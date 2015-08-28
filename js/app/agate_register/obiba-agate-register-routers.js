@@ -1,13 +1,13 @@
 /**
  * @file
- * JavaScript ajax helper for Statistics variables retrieving
+ * Obiba Agate Module AngularJs App Routers config.
  */
+
 'use strict';
 
 (function ($) {
   Drupal.behaviors.obiba_agate_register_routes = {
     attach: function (context, settings) {
-
 
       mica.agateRegister.config(['$routeProvider', '$locationProvider',
         function ($routeProvider, $locationProvider) {
@@ -18,7 +18,6 @@
             })
           ;
         }]);
-
 
     }
   }

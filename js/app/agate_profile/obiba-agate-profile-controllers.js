@@ -28,7 +28,7 @@
                   msg: Drupal.t('The password and its confirmation do not match!')
                 });
               } else {
-                AgateUserPassword.save({id: userId}, {
+                AgateUserPassword.save('', {
                     currentPassword: $scope.profile.password,
                     newPassword: $scope.profile.NewPassword
                   }, function (response) {
