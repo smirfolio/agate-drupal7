@@ -118,7 +118,7 @@ function obiba_agate_menu() {
  *   The html template of the registration page.
  */
 function obiba_agate_angular_register_page() {
-  $app_block = obiba_main_app_angular_load_template_app();
+  $app_block = obiba_mica_app_angular_load_template_app();
   drupal_set_title(variable_get_value('obiba_register_page_title'));
   return theme('obiba_agate_user-main-app', array('main_app' => $app_block));
 }
@@ -131,7 +131,7 @@ function obiba_agate_angular_register_page() {
  */
 function obiba_agate_angular_profile_page() {
   global $user;
-  $app_block = obiba_main_app_angular_load_template_app();
+  $app_block = obiba_mica_app_angular_load_template_app();
   // @ToDo mya be add the user profile name here to set the title of the page
   drupal_set_title('Profile - ' . $user->name);
   return theme('obiba_agate_user-main-app', array('main_app' => $app_block));
@@ -244,7 +244,7 @@ function obiba_agate_theme($existing, $type, $theme, $path) {
  * Implements hook_library().
  */
 function obiba_agate_library() {
-  return obiba_main_app_angular_load_angular_library();
+  return obiba_mica_app_angular_load_angular_library();
 }
 
 /**
