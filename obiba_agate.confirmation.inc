@@ -99,7 +99,7 @@ function obiba_agate_password_form_process() {
  *   Resource can be reset/confirm.
  */
 function obiba_agate_send_password_user($resource = 'confirm') {
-  $parameters = drupal_get_query_parameters();
+  $parameters = drupal_get_query_parameters($_POST);
   if (!empty($parameters)) {
     $agate_client = new ObibaAgateClient();
     $response = $agate_client->sendPassword(
