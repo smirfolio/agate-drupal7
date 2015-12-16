@@ -3,9 +3,6 @@
  * Obiba Agate Module AngularJs App Controller.
  */
 
-(function ($) {
-  Drupal.behaviors.obiba_agate_register_controllers = {
-    attach: function (context, settings) {
 
       'use strict';
       mica.agateRegister.controller('RegisterFormController',
@@ -79,6 +76,3 @@
             );
           }]);
 
-    }
-  }
-}(jQuery));

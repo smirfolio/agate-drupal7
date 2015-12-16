@@ -5,9 +5,7 @@
 
 'use strict';
 
-(function ($) {
-  Drupal.behaviors.obiba_agate_register_routes = {
-    attach: function (context, settings) {
+
 
       mica.agateRegister.config(['$routeProvider', '$locationProvider',
         function ($routeProvider, $locationProvider) {
@@ -18,6 +16,4 @@
             });
         }]);
 
-    }
-  }
-}(jQuery));
+

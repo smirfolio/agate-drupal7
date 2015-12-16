@@ -3,9 +3,6 @@
  * Obiba Agate Module AngularJs App.
  */
 
-(function ($) {
-  Drupal.behaviors.obiba_agate_register = {
-    attach: function (context, settings) {
 
       'use strict';
       /* App Module */
@@ -15,6 +12,4 @@
         'vcRecaptcha'
       ]);
 
-    }
-  }
-}(jQuery));
+

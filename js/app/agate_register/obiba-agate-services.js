@@ -5,10 +5,6 @@
 
 'use strict';
 
-(function ($) {
-  Drupal.behaviors.obiba_agate_register_services = {
-    attach: function (context, settings) {
-
       mica.agateRegister.factory('UserResourceJoin', ['$http',
         function ($http) {
           var drupalPathResource = Drupal.settings.basePath + 'agate/agate_user_join/ws';
@@ -28,6 +24,4 @@
               }
             });
           }]);
-    }
-  }
-}(jQuery));
+
