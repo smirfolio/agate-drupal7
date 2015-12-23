@@ -2,7 +2,7 @@
  * @file
  * Obiba Agate Module AngularJs App Service.
  */
-
+(function ($) {
 'use strict';
 
       mica.agateRegister.factory('UserResourceJoin', ['$http',
@@ -25,3 +25,4 @@
             });
           }]);
 
+}(jQuery));

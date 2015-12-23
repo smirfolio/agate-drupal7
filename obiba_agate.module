@@ -148,10 +148,10 @@ function obiba_agate_angular_register_page() {
  */
 function obiba_agate_angular_profile_page() {
   global $user;
-  $app_block = obiba_mica_app_angular_load_template_app('obiba_agate');
+  obiba_mica_app_angular_load_template_app('obiba_agate');
   // @ToDo mya be add the user profile name here to set the title of the page
   drupal_set_title('Profile - ' . $user->name);
-  return theme('obiba_agate_user-main-app', array('main_app' => $app_block));
+  return theme('obiba_agate_user-main-app');
 }
 
 /**
