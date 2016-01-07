@@ -527,8 +527,12 @@ class ObibaAgateClient {
   protected function parseCookie($cookie_str) {
     $cookie = array();
     foreach (explode(';', $cookie_str) as $entry_str) {
-      $entry = explode('=', $entry_str);
-      $cookie[$entry[0]] = $entry[1];
+      if (strpos($entry_str,'=')) {
+        $entry = explode('=', $entry_str);
+        $cookie[$entry[0]] = $entry[1];
+      } else {
+        $cookie[$entry_str] = TRUE;
+      }
     }
     return $cookie;
   }
