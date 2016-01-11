@@ -19,6 +19,8 @@ class ObibaAgateClient {
 
   const OBIBA_COOKIE = 'obibaid';
 
+  const OBIBA_COOKIE_OBJECT = 'obibaid_object';
+
   const HEADER_JSON = 'application/json';
 
   const AUTHORIZATION_HEADER = 'Authorization';
@@ -42,7 +44,7 @@ class ObibaAgateClient {
    *   Return the stored Obiba Cookie.
    */
   public static function hasTicket() {
-    return isset($_SESSION[self::OBIBA_COOKIE]);
+    return isset($_SESSION[self::OBIBA_COOKIE]) && isset($_SESSION[self::OBIBA_COOKIE_OBJECT]);
   }
 
   /**
@@ -507,10 +509,16 @@ class ObibaAgateClient {
       if (empty($value)) {
         if (!empty($_SESSION[$name])) {
           unset($_SESSION[$name]);
+          if ($name === self::OBIBA_COOKIE) {
+            unset($_SESSION[self::OBIBA_COOKIE_OBJECT]);
+          }
         }
       }
       else {
         $_SESSION[$name] = $value;
+        if ($name === self::OBIBA_COOKIE) {
+          $_SESSION[self::OBIBA_COOKIE_OBJECT] = $cookie;
+        }
       }
     }
   }

@@ -112,6 +112,20 @@ function obiba_agate_menu() {
 }
 
 /**
+ * Apply Obiba cookie for single sign-on in other Obiba applications.
+ *
+ * Implements hook_preprocess_page().
+ */
+function obiba_agate_preprocess_page(&$variables) {
+  if (ObibaAgateClient::hasTicket()) {
+    $cookie = $_SESSION[ObibaAgateClient::OBIBA_COOKIE_OBJECT];
+    // The obiba cookie will expire with the drupal session
+    setcookie(ObibaAgateClient::OBIBA_COOKIE, $cookie[ObibaAgateClient::OBIBA_COOKIE], 0,
+      $cookie['Path'], $cookie['Domain'], empty($cookie['Secure']) ? FALSE : $cookie['Secure']);
+  }
+}
+
+/**
  * The page of the user registration, it load the angularJs resources.
  *
  * @return string
@@ -662,8 +676,7 @@ function obiba_agate_check_user($username, $password) {
     $agate_client = new ObibaAgateClient();
     // Authenticate.
     return $agate_client->authenticate($username, $password);
-  }
-  catch (Exception $e) {
+  } catch (Exception $e) {
     watchdog('obiba_agate', 'Error %error_message.', array('%error_message' => $e->faultstring), WATCHDOG_NOTICE);
     return FALSE;
   }
