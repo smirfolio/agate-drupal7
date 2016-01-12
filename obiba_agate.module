@@ -120,8 +120,11 @@ function obiba_agate_preprocess_page(&$variables) {
   if (ObibaAgateClient::hasTicket()) {
     $cookie = $_SESSION[ObibaAgateClient::OBIBA_COOKIE_OBJECT];
     // The obiba cookie will expire with the drupal session
-    setcookie(ObibaAgateClient::OBIBA_COOKIE, $cookie[ObibaAgateClient::OBIBA_COOKIE], 0,
-      $cookie['Path'], $cookie['Domain'], empty($cookie['Secure']) ? FALSE : $cookie['Secure']);
+    $expire = 0; // expires with drupal session
+    $path = empty($cookie['Path']) ? '/' : $cookie['Path'];
+    $domain = empty($cookie['Domain']) ? NULL : $cookie['Domain'];
+    $secure = empty($cookie['Secure']) ? FALSE : $cookie['Secure'];
+    setcookie(ObibaAgateClient::OBIBA_COOKIE, $cookie[ObibaAgateClient::OBIBA_COOKIE], $expire, $path, $domain, $secure);
   }
 }
 
