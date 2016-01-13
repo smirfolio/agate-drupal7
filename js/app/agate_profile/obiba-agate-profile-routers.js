@@ -12,15 +12,15 @@
         function ($routeProvider, $locationProvider) {
           $routeProvider
            .when('/view', {
-              templateUrl: Drupal.settings.basePath + 'obiba_mica_app_angular/obiba_gate/obiba_agate-user-profile-view',
+              templateUrl: Drupal.settings.basePath + 'obiba_mica_app_angular_view_template/obiba_agate-user-profile-view',
               controller: 'UserViewProfileController'
             }).
             when('/edit', {
-              templateUrl: Drupal.settings.basePath + 'obiba_mica_app_angular/obiba_gate/obiba_agate-user-profile-form',
+              templateUrl: Drupal.settings.basePath + 'obiba_mica_app_angular_view_template/obiba_agate-user-profile-form',
               controller: 'UserEditProfileController'
             })
             .otherwise({
-              templateUrl: Drupal.settings.basePath + 'obiba_mica_app_angular/obiba_gate/obiba_agate-user-profile-view',
+              templateUrl: Drupal.settings.basePath + 'obiba_mica_app_angular_view_template/obiba_agate-user-profile-view',
               controller: 'UserViewProfileController'
             });
         }]);
