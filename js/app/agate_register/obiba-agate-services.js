@@ -2,12 +2,8 @@
  * @file
  * Obiba Agate Module AngularJs App Service.
  */
-
-'use strict';
-
 (function ($) {
-  Drupal.behaviors.obiba_agate_register_services = {
-    attach: function (context, settings) {
+'use strict';
 
       mica.agateRegister.factory('UserResourceJoin', ['$http',
         function ($http) {
@@ -28,6 +24,5 @@
               }
             });
           }]);
-    }
-  }
+
 }(jQuery));
