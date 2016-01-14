@@ -12,5 +12,4 @@
 
 ?>
 
-<?php print render($main_app); ?>
 <div ng-view=""></div>

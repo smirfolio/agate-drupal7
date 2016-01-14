@@ -11,7 +11,7 @@
         function ($routeProvider, $locationProvider) {
           $routeProvider
             .when('/join', {
-              templateUrl: Drupal.settings.basePath + 'obiba_mica_app_angular/obiba_gate/obiba_agate-user-profile-register-form',
+              templateUrl: Drupal.settings.basePath + 'obiba_mica_app_angular_view_template/obiba_agate-user-profile-register-form',
               controller: 'RegisterFormController'
             });
         }]);
