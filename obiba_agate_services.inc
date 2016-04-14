@@ -71,6 +71,16 @@ function obiba_agate_user_profile() {
           drupal_json_output(array_merge(array('locationRedirection' => 'edit'), $profile));
         }
       }
+      // Update email Drupal user. add last name first name in drupal data field
+      $updated_profile = $agate->getUserProfile();
+      $account = user_external_load($updated_profile->username);
+      $edit = array(
+        'mail' => $updated_profile->email,
+        'data' => array(
+          'real_name' => $updated_profile->firstname . ' ' .  $updated_profile->lastname
+        )
+      );
+      user_save($account, $edit);
       break;
   }
 }
