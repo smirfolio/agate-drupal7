@@ -48,5 +48,5 @@
   </tab>
 
   <tab
-    heading="<?php print t('User'); ?>"><?php print obiba_agate_get_drupal_profile_form(); ?></tab>
+    heading="<?php print t('User'); ?>"><span ng-bind-html="ClientProfileEditForm"></span></tab>
 </tabset>

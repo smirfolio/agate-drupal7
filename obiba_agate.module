@@ -149,8 +149,8 @@ function obiba_agate_angular_register_page() {
 function obiba_agate_angular_profile_page() {
   global $user;
   obiba_mica_app_angular_load_template_app('obiba_agate');
-  // @ToDo mya be add the user profile name here to set the title of the page
-  drupal_set_title('Profile - ' . $user->name);
+  $profile_name = !empty($user->data['real_name'])?$user->data['real_name']:$user->name;
+  drupal_set_title('Profile - ' . $profile_name);
   return theme('obiba_agate_user-main-app');
 }
 
@@ -211,6 +211,7 @@ function obiba_agate_get_js($weight_js) {
   $js_params = array(
     'agateParam' => array(
       'userId' => !empty($user->name) ? $user->name : NULL,
+      'ClientProfileEditForm' => obiba_agate_get_drupal_profile_form(),
     ),
   );
   drupal_add_js($js_params, 'setting');
@@ -452,7 +453,7 @@ function obiba_agate_form_user_profile_form_alter(&$form, $form_state) {
   $authmaps = user_get_authmaps($account->name);
   if (is_array($authmaps) && array_key_exists('obiba_agate', $authmaps)) {
     $form['account']['name']['#type'] = 'hidden';
-    $form['account']['mail']['#type'] = 'hidden';
+  //  $form['account']['mail']['#type'] = 'hidden';
     $form['account']['current_pass']['#type'] = 'hidden';
     $form['account']['pass']['#type'] = 'hidden';
     $form['agate'] = array(

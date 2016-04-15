@@ -110,11 +110,13 @@
         'AlertService',
         'AgateUserProfile',
         'AgateFormResource',
+        '$sce',
         function ($scope,
                   $location,
                   AlertService,
                   AgateUserProfile,
-                  AgateFormResource) {
+                  AgateFormResource,
+                  $sce) {
           AgateFormResource.get(
             function onSuccess(AgateProfileForm) {
               $scope.model = {};
@@ -129,7 +131,7 @@
                 $scope.model = userProfile.userProfile;
 
               });
-
+              $scope.ClientProfileEditForm = $sce.trustAsHtml(Drupal.settings.agateParam.ClientProfileEditForm);
               $scope.onSubmit = function (form) {
                 $scope.$broadcast('schemaFormValidate');
                 if (form.$valid) {
