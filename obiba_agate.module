@@ -453,7 +453,7 @@ function obiba_agate_form_user_profile_form_alter(&$form, $form_state) {
   $authmaps = user_get_authmaps($account->name);
   if (is_array($authmaps) && array_key_exists('obiba_agate', $authmaps)) {
     $form['account']['name']['#type'] = 'hidden';
-  //  $form['account']['mail']['#type'] = 'hidden';
+    $form['account']['mail']['#type'] = 'hidden';
     $form['account']['current_pass']['#type'] = 'hidden';
     $form['account']['pass']['#type'] = 'hidden';
     $form['agate'] = array(
