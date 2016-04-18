@@ -149,7 +149,7 @@ function obiba_agate_angular_register_page() {
 function obiba_agate_angular_profile_page() {
   global $user;
   obiba_mica_app_angular_load_template_app('obiba_agate');
-  $profile_name = !empty($user->data['real_name'])?$user->data['real_name']:$user->name;
+  $profile_name = !empty($user->data['real_name']) ? $user->data['real_name'] : $user->name;
   drupal_set_title('Profile - ' . $profile_name);
   return theme('obiba_agate_user-main-app');
 }
@@ -450,17 +450,19 @@ function obiba_agate_mail_user_login_validate(array $form, array &$form_state) {
  */
 function obiba_agate_form_user_profile_form_alter(&$form, $form_state) {
   $account = $form['#user'];
-  $authmaps = user_get_authmaps($account->name);
-  if (is_array($authmaps) && array_key_exists('obiba_agate', $authmaps)) {
-    $form['account']['name']['#type'] = 'hidden';
-    $form['account']['mail']['#type'] = 'hidden';
-    $form['account']['current_pass']['#type'] = 'hidden';
-    $form['account']['pass']['#type'] = 'hidden';
-    $form['agate'] = array(
-      '#type' => 'fieldset',
-      '#title' => t('Password'),
-      '#description' => t('You can request for your password to be reset.') . '<br/><br/>' . l(t('Reset password'), 'user/password', array('attributes' => array('class' => 'btn btn-default'))),
-    );
+  if (!empty($account->name)) {
+    $authmaps = user_get_authmaps($account->name);
+    if (is_array($authmaps) && array_key_exists('obiba_agate', $authmaps)) {
+      $form['account']['name']['#type'] = 'hidden';
+      $form['account']['mail']['#type'] = 'hidden';
+      $form['account']['current_pass']['#type'] = 'hidden';
+      $form['account']['pass']['#type'] = 'hidden';
+      $form['agate'] = array(
+        '#type' => 'fieldset',
+        '#title' => t('Password'),
+        '#description' => t('You can request for your password to be reset.') . '<br/><br/>' . l(t('Reset password'), 'user/password', array('attributes' => array('class' => 'btn btn-default'))),
+      );
+    }
   }
   $form['#submit'][] = 'obiba_agate_user_profile_form_submit';
   return $form;
