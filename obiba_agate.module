@@ -507,8 +507,15 @@ function obiba_agate_user_logout() {
   if (!ObibaAgateClient::hasTicket()) {
     return;
   }
+  $cookie = $_SESSION[ObibaAgateClient::OBIBA_COOKIE_OBJECT];
   $agate_client = new ObibaAgateClient();
   $agate_client->logout();
+
+  $expire = 0; // expires with drupal session
+  $path = empty($cookie['Path']) ? '/' : $cookie['Path'];
+  $domain = empty($cookie['Domain']) ? NULL : $cookie['Domain'];
+  $secure = empty($cookie['Secure']) ? FALSE : $cookie['Secure'];
+  setcookie(ObibaAgateClient::OBIBA_COOKIE, '', $expire, $path, $domain, $secure);
 }
 
 /**
