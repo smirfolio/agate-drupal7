@@ -5,6 +5,7 @@ core = 7.x
 
 dependencies[] = http_client
 dependencies[] = variable
+dependencies[] = autologout
 
 files[] = includes/agate_client.inc
 files[] = includes/agate_client_user_profile.inc
