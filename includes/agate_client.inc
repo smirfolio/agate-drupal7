@@ -17,6 +17,8 @@ class ObibaAgateClient {
 
   const SET_COOKIE_HEADER = 'Set-Cookie';
 
+  const AGATE_JUST_LOGGED_IN = 'agatein';
+
   const OBIBA_COOKIE = 'obibaid';
 
   const OBIBA_COOKIE_OBJECT = 'obibaid_object';

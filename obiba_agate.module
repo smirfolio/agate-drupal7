@@ -118,13 +118,22 @@ function obiba_agate_menu() {
  */
 function obiba_agate_preprocess_page(&$variables) {
   if (ObibaAgateClient::hasTicket()) {
-    $cookie = $_SESSION[ObibaAgateClient::OBIBA_COOKIE_OBJECT];
-    // The obiba cookie will expire with the drupal session
-    $expire = 0; // expires with drupal session
-    $path = empty($cookie['Path']) ? '/' : $cookie['Path'];
-    $domain = empty($cookie['Domain']) ? NULL : $cookie['Domain'];
-    $secure = empty($cookie['Secure']) ? FALSE : $cookie['Secure'];
-    setcookie(ObibaAgateClient::OBIBA_COOKIE, $cookie[ObibaAgateClient::OBIBA_COOKIE], $expire, $path, $domain, $secure);
+    if (empty($_SESSION[ObibaAgateClient::AGATE_JUST_LOGGED_IN]) && empty($_COOKIE[ObibaAgateClient::OBIBA_COOKIE])) {
+      // The obiba cookie has expired or was destroyed so logout
+      unset($_SESSION[ObibaAgateClient::OBIBA_COOKIE]);
+      unset($_SESSION[ObibaAgateClient::OBIBA_COOKIE_OBJECT]);
+      module_load_include('pages.inc', 'user');
+      user_logout();
+    } else {
+      unset($_SESSION[ObibaAgateClient::AGATE_JUST_LOGGED_IN]);
+      $cookie = $_SESSION[ObibaAgateClient::OBIBA_COOKIE_OBJECT];
+      // The obiba cookie will expire with the drupal session
+      $expire = 0; // expires with drupal session
+      $path = empty($cookie['Path']) ? '/' : $cookie['Path'];
+      $domain = empty($cookie['Domain']) ? NULL : $cookie['Domain'];
+      $secure = empty($cookie['Secure']) ? FALSE : $cookie['Secure'];
+      setcookie(ObibaAgateClient::OBIBA_COOKIE, $cookie[ObibaAgateClient::OBIBA_COOKIE], $expire, $path, $domain, $secure);
+    }
   }
 }
 
@@ -670,6 +679,7 @@ function obiba_agate_login_validate($form, &$form_state) {
       $account = obiba_agate_save_drupal_new_user();
       $form_state['uid'] = $account->uid;
     }
+    $_SESSION[ObibaAgateClient::AGATE_JUST_LOGGED_IN] = TRUE;
   }
   // Else drop through to the end and return nothing -
   // Drupal will handle the rejection for us.
