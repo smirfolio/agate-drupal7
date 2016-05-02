@@ -16,7 +16,7 @@
   <h3 class="modal-title"><?php print t('Update the password'); ?></h3>
 </div>
 <obiba-alert id="ModalPasswordUpdateController"></obiba-alert>
-<div class="container">
+<div class="modal-body">
   <form name="updatePassword">
     <label class="control-label "
       for="password"><?php print t('The current password'); ?></label>

@@ -12,8 +12,8 @@
 
 ?>
 
-<tabset>
-  <tab heading="<?php print t('Detail Profile'); ?>">
+<uib-tabset>
+  <uib-tab heading="<?php print t('Detail Profile'); ?>">
     <div class="row">
       <div class="col-md-6">
         <div class="obiba-bootstrap-user-register-form-wrapper">
@@ -45,8 +45,8 @@
         </div>
       </div>
     </div>
-  </tab>
+  </uib-tab>
 
-  <tab
-    heading="<?php print t('User'); ?>"><span ng-bind-html="ClientProfileEditForm"></span></tab>
-</tabset>
+  <uib-tab
+    heading="<?php print t('User'); ?>"><span ng-bind-html="ClientProfileEditForm"></span></uib-tab>
+</uib-tabset>
