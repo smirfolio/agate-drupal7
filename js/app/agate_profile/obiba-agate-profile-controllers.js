@@ -10,12 +10,12 @@
 
       mica.agateProfile.controller('ModalPasswordUpdateController',
         ['$scope',
-          '$modalInstance',
+          '$uibModalInstance',
           'userId',
           'AlertService',
           'AgateUserPassword',
           function ($scope,
-                    $modalInstance,
+                    $uibModalInstance,
                     userId,
                     AlertService,
                     AgateUserPassword) {
@@ -44,7 +44,7 @@
                         type: 'success',
                         msg: Drupal.t('The changes have been saved.')
                       });
-                      $modalInstance.close();
+                      $uibModalInstance.close();
                     }
                   }
                 );
@@ -52,7 +52,7 @@
             };
 
             $scope.cancel = function () {
-              $modalInstance.dismiss('cancel');
+              $uibModalInstance.dismiss('cancel');
             };
           }]);
 
@@ -62,13 +62,13 @@
         '$sce',
         'AgateFormResource',
         'AgateUserProfile',
-        '$modal',
+        '$uibModal',
         function ($rootScope,
                   $scope,
                   $sce,
                   AgateFormResource,
                   AgateUserProfile,
-                  $modal) {
+                  $uibModal) {
 
           AgateFormResource.get(function onSuccess(FormResources) {
             $scope.model = {};
@@ -84,7 +84,7 @@
               /*********U P D A T E    P A S S W O R D   U S E R ********************/
 
               $scope.updatePasswordUser = function () {
-                var modalInstance = $modal.open({
+                $uibModal.open({
                   templateUrl: Drupal.settings.basePath + 'obiba_mica_app_angular_view_template/obiba-agate-user-update-password-modal',
                   controller: 'ModalPasswordUpdateController',
                   resolve: {
@@ -92,8 +92,7 @@
                       return $scope.model.username;
                     }
                   }
-                });
-                modalInstance.result.then(function (data) {
+                }).result.then(function (data) {
                   $scope.profile = data;
                 }, function () {
                   console.log('Modal dismissed at: ' + new Date());
