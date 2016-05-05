@@ -9,3 +9,4 @@ dependencies[] = autologout
 
 files[] = includes/agate_client.inc
 files[] = includes/agate_client_user_profile.inc
+scripts[] = js/obiba-agate-utilities.js
