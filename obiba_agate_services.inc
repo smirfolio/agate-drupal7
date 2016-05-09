@@ -14,9 +14,6 @@
  * Register action (Ajax resource).
  */
 function obiba_agate_register_user() {
-
-  $form_attributes = obiba_agate_schema_form();
-
   // Secure the request by verify if the set of POST parameters are trusted by
   // the server.
   $response_captcha = $_POST['reCaptchaResponse'];
@@ -26,17 +23,7 @@ function obiba_agate_register_user() {
   $_POST['reCaptchaResponse'] = $response_captcha;
   $agate = new ObibaAgateClient();
   $response = $agate->addAgateUser($_POST);
-  if (!empty($response['code']) && $response['code'] == 200) {
     drupal_json_output($response);
-  }
-  else {
-    if (!empty($response['codeError'])) {
-      $message_serv_array = json_decode($response['message']);
-      obiba_agate_register_user_response_error($response['codeError'],
-        json_encode(array("message" => $message_serv_array->message)),
-        $form_attributes);
-    }
-  }
 }
 
 /**

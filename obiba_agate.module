@@ -218,9 +218,17 @@ function obiba_agate_get_js($weight_js) {
       'weight' => ++$weight_js,
     ));
   }
+  $parameters = drupal_get_query_parameters();
+  if(isset($parameters['mail'])){
+    $user_to_export = array(
+      'name' => $parameters['name'],
+      'mail' => $parameters['mail'],
+    );
+  }
   $js_params = array(
     'agateParam' => array(
       'userId' => !empty($user->name) ? $user->name : NULL,
+      'userToExport' => !empty($user_to_export) ? $user_to_export : NULL,
       'ClientProfileEditForm' => obiba_agate_get_drupal_profile_form(),
     ),
   );
@@ -290,24 +298,6 @@ function obiba_agate_library_alter(&$javascript, $module) {
     $path = drupal_get_path('module', 'jquery_update');
     jquery_update_jquery_replace($javascript, NULL, $path, NULL, '1.10');
   }
-}
-
-/**
- * Parse and return an formatted error message.
- *
- * @param string $code_error
- *   The code error.
- * @param string $message_error
- *   The message error.
- * @param array $form_attributes
- *   The attributes of the form.
- */
-function obiba_agate_register_user_response_error($code_error, $message_error, array $form_attributes = NULL) {
-  drupal_add_http_header('Status', $code_error);
-  $response['errorMessage'] = $message_error;
-  $response['updatedField']['form'] = !empty($form_attributes) ? $form_attributes['form'] : NULL;
-  $response['updatedField']['schema'] = !empty($form_attributes) ? $form_attributes['schema'] : NULL;
-  drupal_json_output($response);
 }
 
 /**
@@ -458,25 +448,59 @@ function obiba_agate_mail_user_login_validate(array $form, array &$form_state) {
  * To disable the ability to change email address and password,
  * for externally authenticated users.
  */
-function obiba_agate_form_user_profile_form_alter(&$form, $form_state) {
-  $account = $form['#user'];
-  if (!empty($account->name)) {
-    $authmaps = user_get_authmaps($account->name);
-    if (is_array($authmaps) && array_key_exists('obiba_agate', $authmaps)) {
-      $form['account']['name']['#type'] = 'hidden';
-      $form['account']['mail']['#type'] = 'hidden';
-      $form['account']['current_pass']['#type'] = 'hidden';
-      $form['account']['pass']['#type'] = 'hidden';
-      $form['agate'] = array(
-        '#type' => 'fieldset',
-        '#title' => t('Password'),
-        '#description' => t('You can request for your password to be reset.') . '<br/><br/>' . l(t('Reset password'), 'user/password', array('attributes' => array('class' => 'btn btn-default'))),
-      );
+function obiba_agate_form_alter(&$form, $form_state, $form_id) {
+  if ($form_id == 'user_profile_form') {
+    $action =null;
+    $account = $form['#user'];
+    if (!empty($account->name)) {
+      $authmaps = user_get_authmaps($account->name);
+      if (is_array($authmaps) && array_key_exists('obiba_agate', $authmaps)) {
+        $form['account']['name']['#type'] = 'hidden';
+        $form['account']['mail']['#type'] = 'hidden';
+        $form['account']['current_pass']['#type'] = 'hidden';
+        $form['account']['pass']['#type'] = 'hidden';
+
+        $form['agate'] = array(
+          '#type' => 'fieldset',
+          '#title' => t('Password'),
+          '#description' => t('You can request for your password to be reset.') . '<br/><br/>' . l(t('Reset password'), 'user/password', array('attributes' => array('class' => 'btn btn-default'))),
+        );
+      }
+      else {
+        if (isset($_GET['destination'])) {
+          unset($_GET['destination']);
+        }
+        $form['account']['export_agate'] = array(
+          '#access' => user_access('administer obiba agate'),
+          '#type' => 'submit',
+          '#value' => 'Export to Agate',
+          '#submit' => array('obiba_agate_export_to_agate'),
+        );
+        $form['#action'] = $action;
+      }
     }
+    $form['#submit'][] = 'obiba_agate_user_profile_form_submit';
   }
-  $form['#submit'][] = 'obiba_agate_user_profile_form_submit';
   return $form;
 
+}
+
+/**
+ * Implements hook_admin_paths_alter().
+ */
+function obiba_agate_admin_paths_alter(&$paths) {
+  // Disable admin overlay on editing user profile, it cause bug on export user to agate  process
+  $paths['user/*/edit'] = FALSE;
+}
+
+function obiba_agate_export_to_agate(&$form, &$form_state){
+  // Redirect to register user page as form to export user to agate
+  drupal_goto('agate/register', array(
+    'query'  => array(
+      'name' => $form_state['user']->name,
+      'mail' => $form_state['user']->mail
+    ),
+    'fragment' => 'join'));
 }
 
 /**
@@ -488,13 +512,22 @@ function obiba_agate_form_user_profile_form_alter(&$form, $form_state) {
  *   The form state array.
  */
 function obiba_agate_user_profile_form_submit(array $form, array &$form_state) {
-  if (isset($_GET['destination'])) {
-    unset($_GET['destination']);
+  $account = $form['#user'];
+  if (!empty($account->name)) {
+    $authmaps = user_get_authmaps($account->name);
+    if (is_array($authmaps) && array_key_exists('obiba_agate', $authmaps)) {
+      if (isset($_GET['destination'])) {
+        unset($_GET['destination']);
+      }
+      $form_state['redirect'] = array(
+        MicaClientPathProvider::AGATE_PROFILE,
+        array('fragment' => 'view'),
+      );
+    }
+    else{
+      $form_state['redirect'] = array('user/' . $account->uid);
+    }
   }
-  $form_state['redirect'] = array(
-    MicaClientPathProvider::AGATE_PROFILE,
-    array('fragment' => 'view'),
-  );
 }
 
 /**
@@ -588,12 +621,20 @@ function obiba_agate_save_drupal_new_user() {
     user_save($account, $user_edit);
   }
   if (empty($account)) {
+    $account = user_load_by_name($username);
+    if($account){
+      $auto_roles = variable_get('obiba_auto_assigned_role', array('mica-user'));
+      $user_edit['roles'] = obiba_agate_role_update($user_info['groups'], NULL, $auto_roles);;
+      $account = user_save($account, $user_edit);
+      user_set_authmaps($account, array("authname_" . "obiba_agate" => $username));
+    }else{
     $user_edit_object = drupal_anonymous_user();
     // Apply additional role.
     $auto_roles = variable_get('obiba_auto_assigned_role', array('mica-user'));
     $user_edit['roles'] = obiba_agate_role_update($user_info['groups'], NULL, $auto_roles);;
     $account = user_save($user_edit_object, $user_edit);
     user_set_authmaps($account, array("authname_" . "obiba_agate" => $username));
+    }
   }
 
   return $account;
@@ -674,13 +715,13 @@ function obiba_agate_role_update(array $user_groups = NULL, array $current_roles
 function obiba_agate_login_validate($form, &$form_state) {
   $username = $form_state['values']['name'];
   $password = $form_state['values']['pass'];
-  // Try to authenticate on Agate if not already authenticated.
-  if ((!isset($form_state['uid']) || $form_state['uid'] == FALSE) && !empty($username) && !empty($password)) {
+  // Try to authenticate on Agate if not already Local Drupal User.
+  if (!empty($username) && !empty($password) ) {
     if (obiba_agate_check_user($username, $password)) {
       $account = obiba_agate_save_drupal_new_user();
       $form_state['uid'] = $account->uid;
+      $_SESSION[ObibaAgateClient::AGATE_JUST_LOGGED_IN] = TRUE;
     }
-    $_SESSION[ObibaAgateClient::AGATE_JUST_LOGGED_IN] = TRUE;
   }
   // Else drop through to the end and return nothing -
   // Drupal will handle the rejection for us.

@@ -21,9 +21,7 @@
     <div class="obiba-bootstrap-user-register-form-wrapper">
 
       <div ng-app="ObibaAgate" ng-controller="RegisterFormController">
-        <alert ng-if="alert.message" type="{{alert.type}}"
-          close="closeAlert($index)">{{alert.message}}
-        </alert>
+        <obiba-alert id="RegisterFormController"></obiba-alert>
 
         <form id="obiba-user-register" name="theForm" ng-submit="submit(form)">
           <div sf-schema="schema" sf-form="form" sf-model="model"></div>
