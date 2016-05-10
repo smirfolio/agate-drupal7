@@ -48,7 +48,7 @@
     </div>
   </div>
 </div>
-<div>
+<div class="md-top-margin">
 <?php print l(' Already have an account ? Sign in', 'user/login', array(
   'query' => array('destination' => '/'),
 ));
