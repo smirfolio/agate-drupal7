@@ -48,3 +48,9 @@
     </div>
   </div>
 </div>
+<div>
+<?php print l(' Already have an account ? Sign in', 'user/login', array(
+  'query' => array('destination' => '/'),
+));
+?>
+</div>
