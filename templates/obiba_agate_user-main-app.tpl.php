@@ -12,4 +12,6 @@
 
 ?>
 
-<div ng-view=""></div>
+<obiba-alert id="UserProfile"></obiba-alert>
+<div ng-view="">
+</div>

@@ -253,14 +253,16 @@ class ObibaAgateClient {
       return TRUE;
     }
     catch (HttpClientException $e) {
+      $error_message = json_decode($e->getResponse()->body);
       watchdog('Agate Client', 'Request failed, @code: @message',
         array(
           '@code' => $e->getCode(),
           '@message' => $e->getMessage(),
         ), WATCHDOG_WARNING);
+      drupal_add_http_header('Status', $e->getCode());
       return array(
         'codeError' => $e->getCode(),
-        'message' => $e->getResponse()->body,
+        'message' => $error_message->message,
       );
     }
   }

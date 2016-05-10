@@ -25,7 +25,8 @@
                 AlertService.alert({
                   id: 'ModalPasswordUpdateController',
                   type: 'danger',
-                  msg: Drupal.t('The password and its confirmation do not match!')
+                  msg: Drupal.t('The password and its confirmation do not match!'),
+                  delay: 3000
                 });
               } else {
                 AgateUserPassword.save('', {
@@ -36,13 +37,15 @@
                       AlertService.alert({
                         id: 'ModalPasswordUpdateController',
                         type: 'danger',
-                        msg: Drupal.t('Server Error :') + response.errorServer
+                        msg: Drupal.t('Server Error :') + response.errorServer,
+                        delay: 3000
                       });
                     } else {
                       AlertService.alert({
-                        id: 'MainController',
+                        id: 'UserProfile',
                         type: 'success',
-                        msg: Drupal.t('The changes have been saved.')
+                        msg: Drupal.t('The changes have been saved.'),
+                        delay: 3000
                       });
                       $uibModalInstance.close();
                     }
@@ -138,17 +141,19 @@
                     response.locationRedirection = response.locationRedirection ? response.locationRedirection : 'view';
                     if (response && !response.errorServer) {
                       AlertService.alert({
-                        id: 'MainController',
+                        id: 'UserProfile',
                         type: 'success',
-                        msg: Drupal.t('The changes have been saved.')
+                        msg: Drupal.t('The changes have been saved.'),
+                        delay: 3000
                       });
 
                     }
                     else {
                       AlertService.alert({
-                        id: 'MainController',
+                        id: 'UserProfile',
                         type: 'warning',
-                        msg: response.errorServer
+                        msg: response.errorServer,
+                        delay: 3000
                       });
                     }
                     $location.path(response.locationRedirection).replace();
