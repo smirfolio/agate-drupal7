@@ -68,6 +68,7 @@ function obiba_agate_menu() {
     'title' => 'User Profile',
     'description' => 'User Profile',
     'page callback' => 'obiba_agate_angular_profile_page',
+    'access callback' => 'obiba_agate_angular_can_edit_profile',
   );
   $items[MicaClientPathProvider::AGATE_REGISTER] = array(
     'access callback' => TRUE,
@@ -109,6 +110,19 @@ function obiba_agate_menu() {
   );
 
   return $items;
+}
+
+/**
+ * Callback to restrict access to agate/profile page by anonymous users.
+ *
+ * @return bool
+ */
+function obiba_agate_angular_can_edit_profile(){
+  global $user;
+  if ($user->uid !=0 ) {
+    return TRUE;
+  }
+  return FALSE;
 }
 
 /**
