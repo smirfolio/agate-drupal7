@@ -171,11 +171,13 @@ function obiba_agate_angular_profile_page() {
  *   The form the drupal user profile form.
  */
 function obiba_agate_get_drupal_profile_form() {
+  if(current_path()!='agate/register'){
   module_load_include('inc', 'user', 'user.pages');
   global $user;
   $form_user = drupal_get_form('user_profile_form', $user);
   $output = drupal_render($form_user);
   return $output;
+  }
 }
 
 /**
