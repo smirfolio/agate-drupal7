@@ -20,14 +20,6 @@
                     AlertService) {
             AgateJoinFormResource.get(
               function onSuccess(AgateProfileForm) {
-                $scope.model ={};
-                var clientUSer = Drupal.settings.agateParam.userToExport;
-                if(clientUSer){
-                  $scope.model = {
-                    email: clientUSer.mail,
-                    username : clientUSer.name
-                  }
-                }
                 $scope.form = AgateProfileForm.form;
                 $scope.schema = AgateProfileForm.schema;
                 $scope.config = {
@@ -36,6 +28,15 @@
                 $scope.response = null;
                 $scope.widgetId = null;
                 $scope.model = {};
+                var clientUSer = Drupal.settings.agateParam.userToExport;
+                if(clientUSer){
+                  $scope.model = {
+                    email: clientUSer.mail,
+                    username : clientUSer.name
+                  }
+                  $scope.schema.properties.email.readonly=true;
+                  $scope.schema.properties.username.readonly=true;
+                }
 
                 $scope.setWidgetId = function (widgetId) {
                   $scope.widgetId = widgetId;
