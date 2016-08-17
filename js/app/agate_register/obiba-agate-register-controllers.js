@@ -33,7 +33,7 @@
                   $scope.model = {
                     email: clientUSer.mail,
                     username : clientUSer.name
-                  }
+                  };
                   $scope.schema.properties.email.readonly=true;
                   $scope.schema.properties.username.readonly=true;
                 }
@@ -53,8 +53,8 @@
                   $scope.$broadcast('schemaFormValidate');
                   // Then we check if the form is valid
                   if (form.$valid) {
-                    UserResourceJoin.post(angular.extend({}, $scope.model, {reCaptchaResponse: $scope.response})).
-                      success(function (data, status, headers, config) {
+                    UserResourceJoin.post(angular.extend({}, $scope.model, {reCaptchaResponse: $scope.response}))
+                        .success(function (data, status, headers, config) {
                         AlertService.alert({
                           id: 'RegisterFormController',
                           type: 'success',
