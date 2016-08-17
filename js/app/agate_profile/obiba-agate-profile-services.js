@@ -20,7 +20,7 @@
         .factory('AgateUserProfile', ['$resource', function ($resource) {
           return $resource(Drupal.settings.basePath + 'agate/agate-user-profile/ws', {}, {
             'save': {method: 'PUT', errorHandler: true},
-            'get': {method: 'GET', errorHandler: true}
+            'get': {method: 'GET', errorHandler: true, params: {locale: Drupal.settings.angularjsApp.locale}}
           });
         }])
         .factory('AgateUserPassword', ['$resource', function ($resource) {
