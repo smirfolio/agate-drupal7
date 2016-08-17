@@ -20,7 +20,7 @@
           function ($resource) {
             return $resource(Drupal.settings.basePath + 'agate/agate-form/ws', {}, {
               'get': {
-                method: 'GET', errorHandler: true
+                method: 'GET', errorHandler: true, params: {locale: Drupal.settings.angularjsApp.locale}
               }
             });
           }]);
