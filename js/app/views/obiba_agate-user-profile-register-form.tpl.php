@@ -10,10 +10,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+global $language;
+
 ?>
 
 <script
-  src="https://www.google.com/recaptcha/api.js?onload=vcRecaptchaApiLoaded&render=explicit"
+  src="https://www.google.com/recaptcha/api.js?onload=vcRecaptchaApiLoaded&render=explicit&hl=<?= $language->language;?>"
   async defer></script>
 
 <div class="row">
