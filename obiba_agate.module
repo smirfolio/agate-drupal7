@@ -97,16 +97,19 @@ function obiba_agate_menu() {
     'page callback' => 'obiba_agate_schema_form',
     'access callback' => TRUE,
     'file' => 'obiba_agate_services.inc',
+    'type' => MENU_CALLBACK
   );
   $items['agate/agate-user-profile/ws'] = array(
     'page callback' => 'obiba_agate_user_profile',
     'access callback' => TRUE,
     'file' => 'obiba_agate_services.inc',
+    'type' => MENU_CALLBACK
   );
   $items['agate/agate-user-update-password/ws'] = array(
     'page callback' => 'obiba_agate_user_profile_update_password',
     'access callback' => TRUE,
     'file' => 'obiba_agate_services.inc',
+    'type' => MENU_CALLBACK
   );
 
   return $items;
