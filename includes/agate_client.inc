@@ -129,6 +129,9 @@ class ObibaAgateClient {
   public function getConfigFormJoin() {
     $this->lastResponse = NULL;
     $url = $this->agateUrl . '/config/join';
+    if (array_key_exists('locale', drupal_get_query_parameters())) {
+      $url .= '?locale=' . drupal_get_query_parameters()['locale'];
+    }
     $request = new HttpClientRequest($url, array(
       'method' => HttpClientRequest::METHOD_GET,
       'headers' => array(
