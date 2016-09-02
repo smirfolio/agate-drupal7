@@ -18,7 +18,7 @@
         }])
         .factory('AgateJoinFormResource', ['$resource',
           function ($resource) {
-            return $resource(Drupal.settings.basePath + 'agate/agate-form/ws', {}, {
+            return $resource(Drupal.settings.basePath + 'agate/agate-form/ws?locale=' + Drupal.settings.angularjsApp.locale, {}, {
               'get': {
                 method: 'GET', errorHandler: true, params: {locale: Drupal.settings.angularjsApp.locale}
               }
