@@ -12,7 +12,7 @@
         var currentLocation = location.href;
         var urlDestination = currentLocation.split('?destination=')[1];
         if(!urlDestination){
-          urlDestination = pathName + '/#' + currentLocation.split('#')[1];
+          urlDestination = pathName + '#' + currentLocation.split('#')[1];
         }
         if (hashAttribute) {
           $('form#user-login').each(function () {
