@@ -9,9 +9,11 @@
 
       mica.agateRegister.config(['$routeProvider', '$locationProvider',
         function ($routeProvider, $locationProvider) {
+          var locatedBaseUrl = Drupal.settings.basePath + Drupal.settings.pathPrefix ;
+          console.log(locatedBaseUrl);
           $routeProvider
             .when('/join', {
-              templateUrl: Drupal.settings.basePath + 'obiba_mica_app_angular_view_template/obiba_agate-user-profile-register-form',
+              templateUrl: locatedBaseUrl  + 'obiba_mica_app_angular_view_template/obiba_agate-user-profile-register-form',
               controller: 'RegisterFormController'
             });
         }]);
