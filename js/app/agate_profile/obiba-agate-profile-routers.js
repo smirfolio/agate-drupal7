@@ -10,17 +10,18 @@
 
       mica.agateProfile.config(['$routeProvider', '$locationProvider',
         function ($routeProvider, $locationProvider) {
+          var locatedPathUrl = Drupal.settings.basePath + Drupal.settings.pathPrefix;
           $routeProvider
            .when('/view', {
-              templateUrl: Drupal.settings.basePath + 'obiba_mica_app_angular_view_template/obiba_agate-user-profile-view',
+              templateUrl: locatedPathUrl + 'obiba_mica_app_angular_view_template/obiba_agate-user-profile-view',
               controller: 'UserViewProfileController'
             }).
             when('/edit', {
-              templateUrl: Drupal.settings.basePath + 'obiba_mica_app_angular_view_template/obiba_agate-user-profile-form',
+              templateUrl: locatedPathUrl + 'obiba_mica_app_angular_view_template/obiba_agate-user-profile-form',
               controller: 'UserEditProfileController'
             })
             .otherwise({
-              templateUrl: Drupal.settings.basePath + 'obiba_mica_app_angular_view_template/obiba_agate-user-profile-view',
+              templateUrl: locatedPathUrl + 'obiba_mica_app_angular_view_template/obiba_agate-user-profile-view',
               controller: 'UserViewProfileController'
             });
         }]);
