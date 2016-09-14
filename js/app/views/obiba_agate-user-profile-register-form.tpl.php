@@ -37,12 +37,12 @@ global $language;
           <div class="md-top-margin">
             <button type="submit" class="btn btn-primary"
               ng-click="onSubmit(theForm)">
-              <span translate><?php print t('Join') ?></span>
+              <span translate>join</span>
             </button>
 
             <a href="#/" type="button" class="btn btn-default"
               ng-click="onCancel(theForm)">
-              <span translate><?php print t('Cancel') ?></span>
+              <span translate>cancel</span>
             </a>
           </div>
         </form>
