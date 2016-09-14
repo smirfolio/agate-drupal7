@@ -87,8 +87,9 @@
               /*********U P D A T E    P A S S W O R D   U S E R ********************/
 
               $scope.updatePasswordUser = function () {
+                var locatedPathUrl = Drupal.settings.basePath + Drupal.settings.pathPrefix;
                 $uibModal.open({
-                  templateUrl: Drupal.settings.basePath + 'fr/obiba_mica_app_angular_view_template/obiba-agate-user-update-password-modal',
+                  templateUrl: locatedPathUrl + 'obiba_mica_app_angular_view_template/obiba-agate-user-update-password-modal',
                   controller: 'ModalPasswordUpdateController',
                   resolve: {
                     userId: function () {
