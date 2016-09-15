@@ -9,13 +9,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
-global $language;
-
+$locale = 'en';
+if(!empty($locale_language)){
+  $locale = $locale_language;
+}
 ?>
-
 <script
-  src="https://www.google.com/recaptcha/api.js?onload=vcRecaptchaApiLoaded&render=explicit&hl=<?= $language->language;?>"
+  src="https://www.google.com/recaptcha/api.js?onload=vcRecaptchaApiLoaded&render=explicit&hl=<?php $locale; ?>"
   async defer></script>
 
 <div class="row">
