@@ -9,8 +9,7 @@
       /* App Module */
       mica.agateProfile = angular.module('mica.agateProfile', [
         'ui.bootstrap',
-        'schemaForm',
-        'vcRecaptcha'
+        'schemaForm'
       ]);
     }
   }

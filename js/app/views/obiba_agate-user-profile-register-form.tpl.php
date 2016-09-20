@@ -28,7 +28,7 @@ if(!empty($locale_language)){
         <form id="obiba-user-register" name="theForm" ng-submit="submit(form)">
           <div sf-schema="schema" sf-form="form" sf-model="model"></div>
 
-          <div vc-recaptcha
+          <div ng-if="config.key"  vc-recaptcha
             theme="'light'"
             key="config.key"
             on-create="setWidgetId(widgetId)"
