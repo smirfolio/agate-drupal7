@@ -58,7 +58,7 @@ function obiba_agate_password_form($form, &$form_state) {
   );
   $form['submit'] = array(
     '#type' => 'submit',
-    '#value' => 'Submit',
+    '#value' => t('Submit'),
   );
   return $form;
 }
@@ -76,7 +76,7 @@ function obiba_agate_password_form_process() {
     'scope' => 'footer',
   ));
   if (strstr(current_path(), 'confirm')) {
-    drupal_set_title('Password registration confirmation');
+    drupal_set_title(t('Password registration confirmation'));
     return theme('obiba_agate_user-form-password-confirm',
       array(
         'form_password_registration' => drupal_get_form('obiba_agate_password_form'),
@@ -84,7 +84,7 @@ function obiba_agate_password_form_process() {
       );
   }
   elseif (strstr(current_path(), 'reset')) {
-    drupal_set_title('Password Reset');
+    drupal_set_title(t('Password Reset'));
     return theme('obiba_agate_user-form-password-reset',
       array(
         'form_password_registration' => drupal_get_form('obiba_agate_password_form'),
