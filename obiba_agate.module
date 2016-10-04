@@ -177,7 +177,7 @@ function obiba_agate_angular_profile_page() {
   global $user;
   obiba_mica_app_angular_load_template_app('obiba_agate');
   $profile_name = !empty($user->data['real_name']) ? $user->data['real_name'] : $user->name;
-  drupal_set_title(t('Profile - @profile_name'), array('@profile_name' => $profile_name));
+  drupal_set_title(t('Profile - @profile_name', array('@profile_name' => $profile_name)));
   return theme('obiba_agate_user-main-app');
 }
 
