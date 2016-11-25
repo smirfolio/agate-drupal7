@@ -51,6 +51,15 @@ function obiba_agate_admin_settings() {
     '#description' => $info['description'],
   );
 
+  $info = variable_get_info('public_agate_url');
+  $form['server']['public_agate_url'] = array(
+    '#type' => 'textfield',
+    '#title' => $info['title'],
+    '#default_value' => variable_get_value('public_agate_url'),
+    '#maxlength' => 255,
+    '#description' => $info['description'],
+  );
+
   $form['account'] = array(
     '#type' => 'fieldset',
     '#title' => t('User accounts'),

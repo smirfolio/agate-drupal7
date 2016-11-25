@@ -20,6 +20,12 @@ function obiba_agate_variable_info($options) {
     'type' => 'string',
     'default' => 'https://localhost:8444',
   );
+  $variable['public_agate_url'] = array(
+    'title' => t('Agate Public address Url'),
+    'description' => t('The Public URL of the Agate server'),
+    'type' => 'string',
+    'default' => '',
+  );
   $variable['agate_application_name'] = array(
     'title' => t('Application name'),
     'description' => t('The name under which the Drupal server is known by Agate.'),
