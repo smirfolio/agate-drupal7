@@ -11,7 +11,7 @@
       mica.agateProfile
         .factory('AgateFormResource', ['$resource',
           function ($resource) {
-            return $resource(locatedPathUrl + 'agate/agate-form/ws?locale=' + Drupal.settings.angularjsApp.locale, {}, {
+            return $resource(locatedPathUrl + 'agate/agate-form/ws' + (Drupal.settings.confCleanPath?'?':'&') + 'locale=' + Drupal.settings.angularjsApp.locale, {}, {
               'get': {
                 method: 'GET', errorHandler: true
               }
