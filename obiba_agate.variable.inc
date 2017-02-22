@@ -74,5 +74,15 @@ function obiba_agate_variable_info($options) {
     'type' => 'string',
     'default' => 'E-mail new password',
   );
+
+  $variable['obiba_logout_redirection_page'] = array(
+    'title' => t('Logout redirection page'),
+    'description' => t('The Page to redirect to after logout. (Default : %current to redirect current page , we can use %front to redirect to Home page)', array(
+      '%current' => '<current>',
+      '%front' => '<front>',
+    )),
+    'type' => 'string',
+    'default' => '<current>',
+  );
   return $variable;
 }
