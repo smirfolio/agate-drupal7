@@ -51,6 +51,16 @@ function obiba_agate_admin_settings() {
     '#description' => $info['description'],
   );
 
+  $info = variable_get_info('obiba_logout_redirection_page');
+  $form['server']['obiba_logout_redirection_page'] = array(
+    '#type' => 'textfield',
+    '#title' => $info['title'],
+    '#required' => TRUE,
+    '#default_value' => variable_get_value('obiba_logout_redirection_page'),
+    '#maxlength' => 255,
+    '#description' => $info['description'],
+  );
+
   $form['account'] = array(
     '#type' => 'fieldset',
     '#title' => t('User accounts'),

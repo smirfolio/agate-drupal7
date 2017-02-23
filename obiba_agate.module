@@ -822,3 +822,17 @@ function obiba_agate_unset_authmaps($user_name) {
     ->condition('module', 'obiba_agate')
     ->execute();
 }
+
+/**
+ * return the redirection path.
+ */
+function obiba_agate_redirect_path() {
+  switch (variable_get_value('obiba_logout_redirection_page')){
+    case '<current>' :
+     return current_path();
+    case '<front>' :
+     return '/';
+    default :
+     return variable_get_value('obiba_logout_redirection_page');
+  }
+}
