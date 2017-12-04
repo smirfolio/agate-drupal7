@@ -37,12 +37,12 @@ if(!empty($locale_language)){
           <div class="md-top-margin">
             <button type="submit" class="btn btn-primary"
               ng-click="onSubmit(theForm)">
-              <span translate>join</span>
+              <?php print t('Join'); ?>
             </button>
 
             <a href="#/" type="button" class="btn btn-default"
               ng-click="onCancel(theForm)">
-              <span translate>cancel</span>
+              <?php print t('Cancel') ?>
             </a>
           </div>
         </form>
@@ -51,7 +51,7 @@ if(!empty($locale_language)){
   </div>
 </div>
 <div class="md-top-margin">
-<?php print l(' Already have an account ? Sign in', 'user/login', array(
+<?php print l(t('Already have an account ? Sign in'), 'user/login', array(
   'query' => array('destination' => '/'),
 ));
 ?>
