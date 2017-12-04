@@ -14,11 +14,20 @@
  * Provides settings pages.
  */
 function obiba_agate_admin_pages_settings() {
+
   // Login page.
   $form['login'] = array(
     '#type' => 'fieldset',
     '#title' => t('OBiBa Login Page'),
     '#collapsible' => FALSE,
+  );
+  $info = variable_get_info('access_signin_button');
+  $form['login']['access_signin_button'] = array(
+    '#type' => 'textfield',
+    '#title' => $info['title'],
+    '#default_value' => variable_get_value('access_signin_button'),
+    '#maxlength' => 255,
+    '#description' => $info['description'],
   );
   $info = variable_get_info('obiba_login_page_title');
   $form['login']['obiba_login_page_title'] = array(
@@ -59,6 +68,14 @@ function obiba_agate_admin_pages_settings() {
     '#type' => 'fieldset',
     '#title' => t('OBiBa Registration Page'),
     '#collapsible' => FALSE,
+  );
+  $info = variable_get_info('access_signup_button');
+  $form['register']['access_signup_button'] = array(
+    '#type' => 'textfield',
+    '#title' => $info['title'],
+    '#default_value' => variable_get_value('access_signup_button'),
+    '#maxlength' => 255,
+    '#description' => $info['description'],
   );
   $info = variable_get_info('obiba_register_page_title');
   $form['register']['obiba_register_page_title'] = array(
