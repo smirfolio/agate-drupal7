@@ -39,6 +39,10 @@
   </form>
 </div>
 <div class="modal-footer">
-  <button class="btn btn-primary" ng-click="ok()"><span translate>ok</span></button>
-  <button class="btn btn-default" ng-click="cancel()"><span translate>cancel</span></button>
+  <button class="btn btn-primary" ng-click="ok()">
+    <?php print t('Ok') ?>
+  </button>
+  <button class="btn btn-default" ng-click="cancel()">
+    <?php print t('Cancel') ?>
+  </button>
 </div>
