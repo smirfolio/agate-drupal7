@@ -74,7 +74,18 @@ function obiba_agate_variable_info($options) {
     'type' => 'string',
     'default' => 'E-mail new password',
   );
-
+  $variable['access_signup_button'] = array(
+    'title' => t('Sign up button'),
+    'description' => t('Sign up button caption.'),
+    'type' => 'string',
+    'default' => 'Sign Up',
+  );
+  $variable['access_signin_button'] = array(
+    'title' => t('Sign in button'),
+    'description' => t('Sign in button caption.'),
+    'type' => 'string',
+    'default' => 'Sign In',
+  );
   $variable['obiba_logout_redirection_page'] = array(
     'title' => t('Logout redirection page'),
     'description' => t('The Page to redirect to after logout. (Default : %current to redirect current page , we can use %front to redirect to Home page)', array(
