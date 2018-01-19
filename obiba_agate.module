@@ -134,7 +134,11 @@ function obiba_agate_angular_can_edit_profile(){
  * Implements hook_preprocess_page().
  */
 function obiba_agate_preprocess_page(&$variables) {
-  drupal_add_js(array('currentPath' => current_path()), 'setting');
+  $options = array(
+    'currentPath' => current_path(),
+    'confCleanPath' => !empty($GLOBALS['conf']['clean_url']) ? TRUE : FALSE,
+  );
+  drupal_add_js($options, 'setting');
   if (ObibaAgateClient::hasTicket()) {
     if (empty($_SESSION[ObibaAgateClient::AGATE_JUST_LOGGED_IN]) && empty($_COOKIE[ObibaAgateClient::OBIBA_COOKIE])) {
       // The obiba cookie has expired or was destroyed so logout

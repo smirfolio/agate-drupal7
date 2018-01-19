@@ -14,7 +14,6 @@
  * Provides settings pages.
  */
 function obiba_agate_admin_pages_settings() {
-
   // Login page.
   $form['login'] = array(
     '#type' => 'fieldset',
