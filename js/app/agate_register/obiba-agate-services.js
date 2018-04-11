@@ -5,16 +5,23 @@
 (function ($) {
 'use strict';
 
-      mica.agateRegister.factory('UserResourceJoin', ['$http',
-        function ($http) {
-          return {
-            post: function (data) {
-              return $http.post(Drupal.settings.basePath + Drupal.settings.pathPrefix + 'agate/agate_user_join/ws', $.param(data), {
-                headers: {'Content-Type': 'application/x-www-form-urlencoded'}
-              });
-            }
-          };
-        }])
+      mica.agateRegister.factory('UserResourceJoin', ['$resource',
+          function ($resource) {
+          return $resource(Drupal.settings.basePath + Drupal.settings.pathPrefix + 'agate/agate_user_join/ws',
+            {},
+            {
+              'post': {
+                method: 'POST',
+                errorHandler: true,
+                headers: {
+                  'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                transformRequest: function (data){
+                  return $.param(data);
+                }
+              }
+            })
+          }])
         .factory('AgateJoinFormResource', ['$resource',
           function ($resource) {
             return $resource(Drupal.settings.basePath + Drupal.settings.pathPrefix + 'agate/agate-form/ws' + (Drupal.settings.confCleanPath?'?':'&') + 'locale=' + Drupal.settings.angularjsApp.locale, {}, {
