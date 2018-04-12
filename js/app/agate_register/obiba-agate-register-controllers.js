@@ -44,36 +44,32 @@
                 $scope.setResponse = function (response) {
                   $scope.response = response;
                 };
-
-                $scope.setWidgetId = function (widgetId) {
-                  $scope.widgetId = widgetId;
-                };
+                
                 $scope.onSubmit = function (form) {
                   // First we broadcast an event so all fields validate themselves
                   $scope.$broadcast('schemaFormValidate');
                   // Then we check if the form is valid
                   if (form.$valid) {
                     UserResourceJoin.post(angular.extend({}, $scope.model, {reCaptchaResponse: $scope.response}))
-                        .success(function (data, status, headers, config) {
-                        AlertService.alert({
-                          id: 'RegisterFormController',
-                          type: 'success',
-                          msg: Drupal.t('You will receive an email to confirm your registration with the instructions to set your password.'),
-                          delay: 3000
-                        });
-                        var elem = document.getElementById("obiba-user-register");
-                        angular.element(elem).remove();
-
-                      })
-                      .error(function (data, status, headers, config) {
+                      .$promise.then(function(){
+                      AlertService.alert({
+                        id: 'RegisterFormController',
+                        type: 'success',
+                        msg: Drupal.t('You will receive an email to confirm your registration with the instructions to set your password.'),
+                        delay: 5000
+                      });
+                      var elem = document.getElementById("obiba-user-register");
+                      angular.element(elem).remove();
+                    },
+                      function (message) {
                         AlertService.alert({
                           id: 'RegisterFormController',
                           type: 'danger',
-                          msg: data.message,
-                          delay: 3000
+                          msg: message.data.message,
+                          delay: 5000
                         });
-                        vcRecaptchaService.reload($scope.widgetId);
-
+                        var widgetId = $scope.widgetId ? $scope.widgetId : 0;
+                        vcRecaptchaService.reload(widgetId);
                       });
                   }
                 };
