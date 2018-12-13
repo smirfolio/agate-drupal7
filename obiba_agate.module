@@ -74,6 +74,7 @@ function obiba_agate_menu() {
     'access callback' => TRUE,
     'title' => 'Register User',
     'description' => 'Register User',
+    'access callback' => 'obiba_agate_singup_access',
     'page callback' => 'obiba_agate_angular_register_page',
   );
 
@@ -159,6 +160,16 @@ function obiba_agate_preprocess_page(&$variables) {
   }
 }
 
+/**
+ * Permission access to the registration page
+ *
+ */
+function obiba_agate_singup_access(){
+  if(variable_get_value('access_signup_button_enable')){
+    return TRUE;
+  }
+  return FALSE;
+}
 /**
  * The page of the user registration, it load the angularJs resources.
  *

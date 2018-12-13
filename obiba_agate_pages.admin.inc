@@ -69,6 +69,13 @@ function obiba_agate_admin_pages_settings() {
     '#title' => t('OBiBa Registration Page'),
     '#collapsible' => FALSE,
   );
+  $info = variable_get_info('access_signup_button_enable');
+  $form['register']['access_signup_button_enable'] = array(
+    '#type' => 'checkbox',
+    '#title' => $info['title'],
+    '#default_value' => TRUE,
+    '#description' => $info['description'],
+  );
   $info = variable_get_info('access_signup_button');
   $form['register']['access_signup_button'] = array(
     '#type' => 'textfield',
