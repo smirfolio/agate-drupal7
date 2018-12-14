@@ -73,7 +73,7 @@ function obiba_agate_admin_pages_settings() {
   $form['register']['access_signup_button_enable'] = array(
     '#type' => 'checkbox',
     '#title' => $info['title'],
-    '#default_value' => TRUE,
+    '#default_value' => variable_get_value('access_signup_button_enable'),
     '#description' => $info['description'],
   );
   $info = variable_get_info('access_signup_button');
