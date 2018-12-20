@@ -165,7 +165,7 @@ function obiba_agate_preprocess_page(&$variables) {
  *
  */
 function obiba_agate_singup_access(){
-  if(variable_get_value('access_signup_button_enable')){
+  if(!variable_get_value('access_signup_button_disabled')){
     return TRUE;
   }
   return FALSE;

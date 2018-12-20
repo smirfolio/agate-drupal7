@@ -86,11 +86,11 @@ function obiba_agate_variable_info($options) {
     'type' => 'string',
     'default' => 'Sign In',
   );
-  $variable['access_signup_button_enable'] = array(
-    'title' => t('Enable the sign up button'),
+  $variable['access_signup_button_disabled'] = array(
+    'title' => t('Disable the sign up button'),
     'description' => t('Enable the sign up button.'),
     'type' => 'boolean',
-    'default' => TRUE,
+    'default' => FALSE,
   );
   $variable['obiba_logout_redirection_page'] = array(
     'title' => t('Logout redirection page'),
