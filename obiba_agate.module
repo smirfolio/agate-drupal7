@@ -649,7 +649,7 @@ function obiba_agate_save_drupal_new_user() {
 
   $account = user_external_load($username);
   $groups = empty($user_info['groups']) ? NULL : $user_info['groups'];
-  $account->data = obiba_agate_extract_user_data($user_info);
+
   if ($account) {
     $roles = $account->roles;
     $roles_to_add = obiba_agate_role_update($groups, $roles, NULL);
@@ -668,10 +668,12 @@ function obiba_agate_save_drupal_new_user() {
     // Apply additional role.
     $auto_roles = variable_get('obiba_auto_assigned_role', array('mica-user'));
     $user_edit['roles'] = obiba_agate_role_update($groups, NULL, $auto_roles);;
+    $user_edit_object->data = obiba_agate_extract_user_data($user_info);
     $account = user_save($user_edit_object, $user_edit);
     user_set_authmaps($account, array("authname_" . "obiba_agate" => $username));
     }
   }
+
 
   return $account;
 }
