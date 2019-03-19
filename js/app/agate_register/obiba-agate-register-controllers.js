@@ -55,8 +55,7 @@
                       AlertService.alert({
                         id: 'RegisterFormController',
                         type: 'success',
-                        msg: Drupal.t('You will receive an email to confirm your registration with the instructions to set your password.'),
-                        delay: 5000
+                        msg: Drupal.t('You will receive an email to confirm your registration with the instructions to set your password.')
                       });
                       var elem = document.getElementById("obiba-user-register");
                       angular.element(elem).remove();
