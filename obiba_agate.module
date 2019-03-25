@@ -129,6 +129,26 @@ function obiba_agate_angular_can_edit_profile(){
   return FALSE;
 }
 
+/*
+ * Make sure to logout the current user
+ * */
+function obiba_agate_logout_current_user(){
+  // The obiba cookie has expired or was destroyed so logout
+  if(isset($_SESSION[ObibaAgateClient::OBIBA_COOKIE])){
+    unset($_SESSION[ObibaAgateClient::OBIBA_COOKIE]);
+    unset($_SESSION[ObibaAgateClient::OBIBA_COOKIE_OBJECT]);
+  }
+  global $user;
+  if(isset($user->name) && user_get_authmaps($user->name)){
+  module_load_include('pages.inc', 'user');
+  module_invoke_all('user_logout', $user);
+    // Destroy the current session, and reset $user to the anonymous user.
+    if(isset($user->session)){
+      session_destroy();
+    }
+  }
+}
+
 /**
  * Apply Obiba cookie for single sign-on in other Obiba applications.
  *
@@ -142,11 +162,7 @@ function obiba_agate_preprocess_page(&$variables) {
   drupal_add_js($options, 'setting');
   if (ObibaAgateClient::hasTicket()) {
     if (empty($_SESSION[ObibaAgateClient::AGATE_JUST_LOGGED_IN]) && empty($_COOKIE[ObibaAgateClient::OBIBA_COOKIE])) {
-      // The obiba cookie has expired or was destroyed so logout
-      unset($_SESSION[ObibaAgateClient::OBIBA_COOKIE]);
-      unset($_SESSION[ObibaAgateClient::OBIBA_COOKIE_OBJECT]);
-      module_load_include('pages.inc', 'user');
-      user_logout();
+      obiba_agate_logout_current_user();
     } else {
       unset($_SESSION[ObibaAgateClient::AGATE_JUST_LOGGED_IN]);
       $cookie = $_SESSION[ObibaAgateClient::OBIBA_COOKIE_OBJECT];
