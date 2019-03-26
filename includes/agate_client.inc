@@ -496,6 +496,7 @@ class ObibaAgateClient {
       $this->lastResponse = $client->lastResponse;
       $this->setLastResponseCookies();
       unset($_SESSION[self::OBIBA_COOKIE]);
+      unset($_SESSION[self::OBIBA_COOKIE_OBJECT]);
     }
     catch (HttpClientException $e) {
       // Ignore.
