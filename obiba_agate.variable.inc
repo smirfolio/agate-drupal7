@@ -1,7 +1,7 @@
 <?php
 /**
  * @file
- * Obiba Agate Mdule.
+ * Obiba Agate Module.
  *
  * Copyright (c) 2015 OBiBa. All rights reserved.
  * This program and the accompanying materials
@@ -101,5 +101,13 @@ function obiba_agate_variable_info($options) {
     'type' => 'string',
     'default' => '<current>',
   );
+
+  $variable['obiba_agate_user_fields_mapping'] = array(
+    'title' => t('The mapping field Drupal/Agate synchronize Drupal users'),
+    'description' => t('Please enter Drupal field machine name to mapped to Agate users field profile'),
+    'type' => 'string',
+    'default' => array(),
+  );
+
   return $variable;
 }

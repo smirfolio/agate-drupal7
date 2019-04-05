@@ -1,7 +1,7 @@
 <?php
 /**
  * @file
- * Obiba Agate Mdule.
+ * Obiba Agate Module.
  *
  * Copyright (c) 2015 OBiBa. All rights reserved.
  * This program and the accompanying materials
@@ -12,8 +12,8 @@
 
 ?>
 
-<uib-tabset>
-  <uib-tab heading="<?php print t('Detail Profile'); ?>">
+<uib-tabset active="activeTab">
+  <uib-tab index="0" heading="<?php print t('Detail Profile'); ?>" disable="disableAgateForm">
     <div class="row">
       <div class="col-md-6">
         <div class="obiba-bootstrap-user-register-form-wrapper">
@@ -47,6 +47,6 @@
     </div>
   </uib-tab>
 
-  <uib-tab
-    heading="<?php print t('User'); ?>"><span ng-bind-html="ClientProfileEditForm"></span></uib-tab>
+  <uib-tab index="1"
+    heading="<?php print t('User'); ?>" active="{{activeDrupalForm}}"><span ng-bind-html="ClientProfileEditForm"></span></uib-tab>
 </uib-tabset>
