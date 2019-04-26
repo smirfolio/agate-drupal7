@@ -133,8 +133,7 @@ function obiba_agate_fields_admin_settings($form){
  */
 function _obiba_agate_configuration_get_draggable_blocks_form($draggable_form, $draggable_items, $variable_key) {
   $default_value = variable_get_value($variable_key);
-  $items = $default_value ? $default_value : $draggable_items;
-  foreach ($items as $key_aggregation => $aggregation) {
+  foreach ($draggable_items as $key_aggregation => $aggregation) {
     switch ($key_aggregation){
       case 'lastname':
         $key_aggregation = 'lastName';
