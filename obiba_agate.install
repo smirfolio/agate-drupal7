@@ -1,7 +1,7 @@
 <?php
 /**
  * @file
- * Obiba Agate Mdule.
+ * Obiba Agate Module.
  *
  * Copyright (c) 2015 OBiBa. All rights reserved.
  * This program and the accompanying materials

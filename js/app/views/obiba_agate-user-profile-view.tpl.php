@@ -1,7 +1,7 @@
 <?php
 /**
  * @file
- * Obiba Agate Mdule.
+ * Obiba Agate Module.
  *
  * Copyright (c) 2015 OBiBa. All rights reserved.
  * This program and the accompanying materials
@@ -11,11 +11,16 @@
  */
 
 ?>
-
-<div class="row drupal-profile">
+<div ng-if="loading" class="loading"></div>
+<div ng-show="!loading" class="row drupal-profile">
   <div class="col-md-3"><span ng-bind-html="DrupalProfile"></span></div>
-  <div class="col-md-8">
-    <div sf-schema="schema" sf-form="form" sf-model="model"></div>
+ <div ng-show="!loading" class="col-md-8">
+    <div  ng-show="model.username" sf-schema="schema" sf-form="form" sf-model="model"></div>
+    <div  ng-show="!model.username" >
+      <?php print t('Not an agate user '); ?>
+      <?php print l('Your profile', 'user')?>
+    </div>
+  <div  ng-show="model.username">
     <a ng-href="#/edit"
       class="btn btn-primary">
       <i class="glyphicon glyphicon-edit"></i>
@@ -26,5 +31,6 @@
       <?php print t('Update Password'); ?>
     </a>
   </div>
+ </div>
 
 </div>

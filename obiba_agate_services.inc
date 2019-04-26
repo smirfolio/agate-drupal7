@@ -1,7 +1,7 @@
 <?php
 /**
  * @file
- * Obiba Agate Mdule.
+ * Obiba Agate Module.
  *
  * Copyright (c) 2015 OBiBa. All rights reserved.
  * This program and the accompanying materials
@@ -52,15 +52,7 @@ function obiba_agate_user_profile() {
         }
       }
       // Update email Drupal user. add last name first name in drupal data field
-      $updated_profile = $agate->getUserProfile();
-      $account = user_external_load($updated_profile->username);
-      $edit = array(
-        'mail' => $updated_profile->email,
-        'data' => array(
-          'real_name' => $updated_profile->firstname . ' ' .  $updated_profile->lastname
-        )
-      );
-      user_save($account, $edit);
+      obiba_agate_save_drupal_user();
       break;
   }
 }
