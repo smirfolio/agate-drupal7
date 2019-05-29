@@ -90,7 +90,7 @@ function obiba_agate_admin_settings() {
     '#access' => user_access('administer permissions'),
     DRUPAL_AUTHENTICATED_RID => $checkbox_authenticated,
   );
-
+  return system_settings_form($form);
 }
 
 function obiba_agate_fields_admin_settings($form){
