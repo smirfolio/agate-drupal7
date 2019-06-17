@@ -72,7 +72,7 @@
                   AgateFormResource,
                   AgateUserProfile,
                   $uibModal) {
-
+          $scope.loading = 1;
           AgateFormResource.get(function onSuccess(FormResources) {
             $scope.model = {};
 
@@ -80,29 +80,32 @@
             $scope.schema = FormResources.schema;
             $scope.schema.readonly = true;
             AgateUserProfile.get(function onSuccess(userProfile) {
-              userProfile.userProfile.username = Drupal.settings.agateParam.userId;
-              $scope.model = userProfile.userProfile;
-              $scope.DrupalProfile = $sce.trustAsHtml(userProfile.drupalUserDisplay);
+              $scope.loading = 0;
+              if(userProfile.userProfile){
+                userProfile.userProfile.username = Drupal.settings.agateParam.userId;
+                $scope.model = userProfile.userProfile;
+                $scope.DrupalProfile = $sce.trustAsHtml(userProfile.drupalUserDisplay);
 
-              /*********U P D A T E    P A S S W O R D   U S E R ********************/
+                /*********U P D A T E    P A S S W O R D   U S E R ********************/
 
-              $scope.updatePasswordUser = function () {
-                var locatedPathUrl = Drupal.settings.basePath + Drupal.settings.pathPrefix;
-                $uibModal.open({
-                  templateUrl: locatedPathUrl + 'obiba_mica_app_angular_view_template/obiba-agate-user-update-password-modal',
-                  controller: 'ModalPasswordUpdateController',
-                  resolve: {
-                    userId: function () {
-                      return $scope.model.username;
+                $scope.updatePasswordUser = function () {
+                  var locatedPathUrl = Drupal.settings.basePath + Drupal.settings.pathPrefix;
+                  $uibModal.open({
+                    templateUrl: locatedPathUrl + 'obiba_mica_app_angular_view_template/obiba-agate-user-update-password-modal',
+                    controller: 'ModalPasswordUpdateController',
+                    resolve: {
+                      userId: function () {
+                        return $scope.model.username;
+                      }
                     }
-                  }
-                }).result.then(function (data) {
-                  $scope.profile = data;
-                }, function () {
-                  console.log('Modal dismissed at: ' + new Date());
-                });
+                  }).result.then(function (data) {
+                    $scope.profile = data;
+                  }, function () {
+                    console.log('Modal dismissed at: ' + new Date());
+                  });
 
-              };
+                };
+              }
             });
           });
 
@@ -130,8 +133,16 @@
                 $scope.schema.properties.username.readonly = true;
               }
               AgateUserProfile.get(function onSuccess(userProfile) {
-                userProfile.userProfile.username = Drupal.settings.agateParam.userId;
-                $scope.model = userProfile.userProfile;
+                $scope.disableAgateForm = false;
+                $scope.activeTab = 0;
+                if(userProfile.userProfile){
+                  userProfile.userProfile.username = Drupal.settings.agateParam.userId;
+                  $scope.model = userProfile.userProfile;
+                }
+                else{
+                  $scope.disableAgateForm = true;
+                  $scope.activeTab = 1;
+                }
 
               });
               $scope.ClientProfileEditForm = $sce.trustAsHtml(Drupal.settings.agateParam.ClientProfileEditForm);
