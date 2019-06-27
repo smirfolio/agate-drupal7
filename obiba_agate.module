@@ -185,6 +185,25 @@ function obiba_agate_preprocess_page(&$variables) {
       setcookie(ObibaAgateClient::OBIBA_COOKIE, $cookie[ObibaAgateClient::OBIBA_COOKIE], $expire, $path, $domain, $secure);
     }
   }
+  else{
+    if(isset($_COOKIE[ObibaAgateClient::OBIBA_COOKIE])){
+      $agate = new ObibaAgateClient();
+      // validate if ObibaSession has a correspondent ticket in agate and get the user name
+      $user_name = $agate->validate($_COOKIE[ObibaAgateClient::OBIBA_COOKIE]);
+      if(!empty($user_name)){
+        // update/create drupal user
+        obiba_agate_save_drupal_user();
+        // force login the user
+        user_external_login_register($user_name, 'obiba_agate');
+        // have to force the browser, so the authentication take effect
+        header("refresh: 0");
+      }
+      else{
+        // if no ticket to correspondent session force logout and unset all sessions/cookies
+        obiba_agate_logout_current_user();
+      }
+    }
+  }
 }
 
 /**
@@ -340,7 +359,35 @@ function obiba_agate_theme($existing, $type, $theme, $path) {
     'obiba_agate_table_widget_component' => array(
       'render element' => 'element'
     ),
+    'user_login' => array(
+      'template' => 'user-login',
+      'path' => $path_theme,
+      'render element' => 'form',
+      'preprocess functions' => array(
+        'obiba_agate_login_users_process'
+      )
+    ),
+    'user_register_form' => array(
+      'template' => 'user-register-form',
+      'path' => $path_theme,
+      'render element' => 'form',
+    ),
+    'user_pass' => array(
+      'template' => 'user-pass',
+      'path' => $path_theme,
+      'render element' => 'form',
+    )
   );
+}
+
+function obiba_agate_login_users_process(&$variables){
+  $agate = new ObibaAgateClient();
+
+  $variables['classes_array'] = array();
+  $variables['attributes_array'] = array();
+  $variables['title_attributes_array'] = array();
+  $variables['content_attributes_array'] = array();
+  $variables['providers'] = $agate->getProviders();
 }
 
 function theme_obiba_agate_table_widget_component($vars) {
@@ -717,10 +764,10 @@ function obiba_agate_save_drupal_user() {
     $auto_roles = variable_get('obiba_auto_assigned_role', array('mica-user'));
     $account = obiba_agate_normalize_drupal_user_profile($user_info, $account);
     $user_edit['roles'] = obiba_agate_role_update($groups, NULL, $auto_roles);
-    $account->data = obiba_agate_extract_user_data($user_info);
 
     }
   }
+  $account->data = obiba_agate_extract_user_data($user_info);
   user_save($account, $user_edit);
   user_set_authmaps($account, array("authname_" . "obiba_agate" => $username));
   return $account;
