@@ -69,6 +69,36 @@ class ObibaAgateClient {
   }
 
   /**
+   * Function to get enabled provider
+   */
+  public function getProviders(){
+    $this->lastResponse = NULL;
+    $url = $this->agateUrl . '/auth/providers';
+    $request = new HttpClientRequest($url, array(
+      'method' => HttpClientRequest::METHOD_GET,
+      'headers' => array(
+        'Accept' => array('application/json'),
+        ObibaAgateClient::AUTHORIZATION_HEADER_AGATE => array($this->authorizationHeader()),
+      ),
+    ));
+
+    $client = $this->client();
+    try {
+      $body = $client->execute($request);
+      $this->lastResponse = $client->lastResponse;
+      return json_decode($body, TRUE);
+    }
+    catch (HttpClientException $e) {
+      watchdog('Agate Client', 'Request failed, @code: @message',
+        array(
+          '@code' => $e->getCode(),
+          '@message' => $e->getMessage(),
+        ), WATCHDOG_WARNING);
+      return array();
+    }
+  }
+
+  /**
    * Get the last response (if any).
    *
    * @return mixed
@@ -129,9 +159,9 @@ class ObibaAgateClient {
   public function getConfigFormJoin() {
     $this->lastResponse = NULL;
     $url = $this->agateUrl . '/config/join';
-    if (array_key_exists('locale', drupal_get_query_parameters())) {
-      $url .= '?locale=' . drupal_get_query_parameters()['locale'];
-    }
+    $url .= (array_key_exists('locale',
+      drupal_get_query_parameters())) ? '?locale=' . drupal_get_query_parameters()['locale']
+         : '?locale=en';
     $request = new HttpClientRequest($url, array(
       'method' => HttpClientRequest::METHOD_GET,
       'headers' => array(
@@ -422,6 +452,7 @@ class ObibaAgateClient {
     try {
       $body = $client->execute($request);
       $this->lastResponse = $client->lastResponse;
+      $this->setLastResponseCookies();
       $_SESSION[self::OBIBA_COOKIE] = $token;
       return $body;
     }
@@ -435,6 +466,40 @@ class ObibaAgateClient {
     }
   }
 
+  private function invalidateSession(){
+    unset($_COOKIE[self::OBIBA_COOKIE]);
+    unset($_SESSION[self::OBIBA_COOKIE]);
+    unset($_SESSION[self::OBIBA_COOKIE_OBJECT]);
+  }
+
+  private function getSubjectNoAuth($obiba_session = NULL){
+  $session_obiba = !empty($obiba_session) ? $obiba_session : $_SESSION[self::OBIBA_COOKIE];
+  $this->lastResponse = NULL;
+  $url = $this->agateUrl . '/ticket/' . $session_obiba . '/subject';
+  $request = new HttpClientRequest($url, array(
+    'method' => HttpClientRequest::METHOD_GET,
+    'headers' => array(
+      'Accept' => array('application/json'),
+      ObibaAgateClient::AUTHORIZATION_HEADER_AGATE => array($this->authorizationHeader()),
+    ),
+  ));
+
+  $client = $this->client();
+  try {
+    $body = $client->execute($request);
+    $this->lastResponse = $client->lastResponse;
+    $this->setLastResponseCookies();
+    return json_decode($body, TRUE);
+  }
+  catch (HttpClientException $e) {
+    watchdog('Agate Client', 'Request failed, @code: @message',
+      array(
+        '@code' => $e->getCode(),
+        '@message' => $e->getMessage(),
+      ), WATCHDOG_WARNING);
+    return array();
+  }
+}
   /**
    * Get the subject from the current Agate ticket.
    *
@@ -447,30 +512,7 @@ class ObibaAgateClient {
     if (!ObibaAgateClient::hasTicket()) {
       return array();
     }
-    $this->lastResponse = NULL;
-    $url = $this->agateUrl . '/ticket/' . $_SESSION[self::OBIBA_COOKIE] . '/subject';
-    $request = new HttpClientRequest($url, array(
-      'method' => HttpClientRequest::METHOD_GET,
-      'headers' => array(
-        'Accept' => array('application/json'),
-        ObibaAgateClient::AUTHORIZATION_HEADER_AGATE => array($this->authorizationHeader()),
-      ),
-    ));
-
-    $client = $this->client();
-    try {
-      $body = $client->execute($request);
-      $this->lastResponse = $client->lastResponse;
-      return json_decode($body, TRUE);
-    }
-    catch (HttpClientException $e) {
-      watchdog('Agate Client', 'Request failed, @code: @message',
-        array(
-          '@code' => $e->getCode(),
-          '@message' => $e->getMessage(),
-        ), WATCHDOG_WARNING);
-      return array();
-    }
+    return $this->getSubjectNoAuth();
   }
 
   /**
@@ -495,8 +537,7 @@ class ObibaAgateClient {
       $client->execute($request);
       $this->lastResponse = $client->lastResponse;
       $this->setLastResponseCookies();
-      unset($_SESSION[self::OBIBA_COOKIE]);
-      unset($_SESSION[self::OBIBA_COOKIE_OBJECT]);
+      $this->invalidateSession();
     }
     catch (HttpClientException $e) {
       // Ignore.
