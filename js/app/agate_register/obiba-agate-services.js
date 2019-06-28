@@ -29,6 +29,12 @@
                 method: 'GET', errorHandler: true, params: {locale: Drupal.settings.angularjsApp.locale}
               }
             });
+          }])
+        .factory('OidcProvidersResource', ['$resource',
+          function ($resource) {
+            return $resource(Drupal.settings.basePath + Drupal.settings.pathPrefix + 'agate/auth/providers/ws', {locale: '@locale'}, {
+              'get': { method: 'GET', errorHandler: true, isArray: true }
+            });
           }]);
 
 }(jQuery));

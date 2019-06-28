@@ -100,6 +100,12 @@ function obiba_agate_menu() {
     'file' => 'obiba_agate_services.inc',
     'type' => MENU_CALLBACK
   );
+  $items['agate/auth/providers/ws'] = array(
+    'page callback' => 'obiba_agate_get_providers',
+    'access callback' => TRUE,
+    'file' => 'obiba_agate_services.inc',
+    'type' => MENU_CALLBACK
+  );
   $items['agate/agate-user-profile/ws'] = array(
     'page callback' => 'obiba_agate_user_profile',
     'access callback' => TRUE,
@@ -225,6 +231,7 @@ function obiba_agate_singup_access(){
 function obiba_agate_angular_register_page() {
   obiba_mica_app_angular_load_template_app('obiba_agate');
   drupal_set_title(variable_get_value('obiba_register_page_title'));
+
   return theme('obiba_agate_user-main-app');
 }
 

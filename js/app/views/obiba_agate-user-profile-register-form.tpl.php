@@ -48,6 +48,13 @@ if(!empty($locale_language)){
         </form>
       </div>
     </div>
+      <div ng-if="providers && !hasCookie">
+          <hr>
+          <div ng-repeat="provider in providers">
+              <a class="btn btn-info btn-block text-center voffset2" href="http://localhost:8081/auth/signup/{{provider.name}}?redirect=http%3A%2A%2Alocalhost%2Adrupal%2Aagate%2Aregister%2A#join">{{'realm.oidc.signup-with' | translate}} {{provider.title}}</a>
+          </div>
+      </div>
+  </div>
   </div>
 </div>
 <div class="md-top-margin">

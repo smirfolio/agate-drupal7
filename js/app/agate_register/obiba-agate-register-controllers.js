@@ -12,12 +12,24 @@
           'vcRecaptchaService',
           'AgateJoinFormResource',
           'AlertService',
+          '$translate',
+          'OidcProvidersResource',
+          '$cookies',
           function ($scope,
                     $log,
                     UserResourceJoin,
                     vcRecaptchaService,
                     AgateJoinFormResource,
-                    AlertService) {
+                    AlertService,
+                    $translate,
+                    OidcProvidersResource,
+                    $cookies) {
+
+            var userCookie = $cookies.get('u_auth');
+            OidcProvidersResource.get({locale: $translate.use()}).$promise.then(function(providers) {
+              $scope.providers = providers;
+            });
+
             AgateJoinFormResource.get(
               function onSuccess(AgateProfileForm) {
                 $scope.form = AgateProfileForm.form;
@@ -28,6 +40,12 @@
                 $scope.response = null;
                 $scope.widgetId = null;
                 $scope.model = {};
+                $scope.hasCookie = !!userCookie;
+
+                if (userCookie) {
+                  $scope.model = JSON.parse(userCookie.replace(/\\"/g, "\""));
+                }
+
                 var clientUSer = Drupal.settings.agateParam.userToExport;
                 if(clientUSer){
                   $scope.model = {
