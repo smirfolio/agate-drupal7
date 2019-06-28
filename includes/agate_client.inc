@@ -72,6 +72,7 @@ class ObibaAgateClient {
    * Function to get enabled provider
    */
   public function getProviders(){
+    global $base_url;
     $this->lastResponse = NULL;
     $url = $this->agateUrl . '/auth/providers';
     $request = new HttpClientRequest($url, array(
@@ -86,7 +87,51 @@ class ObibaAgateClient {
     try {
       $body = $client->execute($request);
       $this->lastResponse = $client->lastResponse;
-      return json_decode($body, TRUE);
+      $providers = json_decode($body, TRUE);
+      $destinationLogin = (isset($_GET['destination'])) ? $_GET['destination'] : '';
+      if(!empty($providers)){
+        foreach ($providers as $provider_key => $provider){
+          $providers[$provider_key]['linkSingInPath'] = variable_get_value('agate_url') . '/auth/signin/' . $provider['name'] . '?redirect=' . $base_url . '/' . $destinationLogin;
+          $providers[$provider_key]['linkSingUpPath'] = variable_get_value('agate_url') . '/auth/signup/' . $provider['name'] . '?redirect=' . $base_url . '/agate/register/&redirect_hash=join';
+        }
+      }
+      return $providers;
+    }
+    catch (HttpClientException $e) {
+      watchdog('Agate Client', 'Request failed, @code: @message',
+        array(
+          '@code' => $e->getCode(),
+          '@message' => $e->getMessage(),
+        ), WATCHDOG_WARNING);
+      return array();
+    }
+  }
+
+  /**
+   * Get form registration from agate.
+   *
+   * @return string
+   *   The google key of ReCaptcha configuration sorted on the agate server.
+   */
+  public function testUser($data) {
+    $this->lastResponse = NULL;
+    $url = $this->agateUrl . '/users/_test';
+    $request = new HttpClientRequest($url, array(
+      'method' => HttpClientRequest::METHOD_POST,
+      'headers' => array(
+        'Accept' => array('application/json'),
+        'Content-Type' => array('application/json'),
+        ObibaAgateClient::AUTHORIZATION_HEADER_AGATE => array($this->authorizationHeader()),
+      ),
+      'data' => json_encode($data),
+    ));
+
+    $client = $this->client();
+    try {
+
+      $body = $client->execute($request);
+      $this->lastResponse = $client->lastResponse;
+      return json_decode($body);
     }
     catch (HttpClientException $e) {
       watchdog('Agate Client', 'Request failed, @code: @message',
@@ -192,7 +237,7 @@ class ObibaAgateClient {
    * @return string
    *   The google key of ReCaptcha configuration sorted on the agate server.
    */
-  public function getReCaptchaKeyConfigFormJoin() {
+  public function getConfigClient() {
     $this->lastResponse = NULL;
     $url = $this->agateUrl . '/config/client';
     $request = new HttpClientRequest($url, array(
@@ -208,8 +253,7 @@ class ObibaAgateClient {
 
       $body = $client->execute($request);
       $this->lastResponse = $client->lastResponse;
-      $response_google = json_decode($body);
-      return $response_google->reCaptchaKey;
+      return json_decode($body);
     }
     catch (HttpClientException $e) {
       watchdog('Agate Client', 'Request failed, @code: @message',

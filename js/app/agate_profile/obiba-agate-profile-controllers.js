@@ -5,7 +5,6 @@
 (function ($) {
   Drupal.behaviors.obiba_agate_profile_controllers = {
     attach: function (context, settings) {
-
       'use strict';
 
       mica.agateProfile.controller('ModalPasswordUpdateController',
@@ -76,7 +75,7 @@
           AgateFormResource.get(function onSuccess(FormResources) {
             $scope.model = {};
 
-            $scope.form = FormResources.form;
+            $scope.definition = FormResources.definition;
             $scope.schema = FormResources.schema;
             $scope.schema.readonly = true;
             AgateUserProfile.get(function onSuccess(userProfile) {
@@ -126,7 +125,7 @@
           AgateFormResource.get(
             function onSuccess(AgateProfileForm) {
               $scope.model = {};
-              $scope.form = AgateProfileForm.form;
+              $scope.definition = AgateProfileForm.definition;
               $scope.schema = AgateProfileForm.schema;
               $scope.response = null;
               if ($scope.schema.properties.username) {

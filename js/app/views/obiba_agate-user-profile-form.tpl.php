@@ -21,7 +21,7 @@
           <div>
             <form id="obiba-user-register" name="theForm"
               ng-submit="submit(form)">
-              <div sf-schema="schema" sf-form="form" sf-model="model"></div>
+              <div sf-schema="schema" sf-form="definition" sf-model="model"></div>
 
               <div vc-recaptcha
                 theme="'light'"

@@ -100,6 +100,12 @@ function obiba_agate_menu() {
     'file' => 'obiba_agate_services.inc',
     'type' => MENU_CALLBACK
   );
+  $items['agate/auth/providers/ws'] = array(
+    'page callback' => 'obiba_agate_get_providers',
+    'access callback' => TRUE,
+    'file' => 'obiba_agate_services.inc',
+    'type' => MENU_CALLBACK
+  );
   $items['agate/agate-user-profile/ws'] = array(
     'page callback' => 'obiba_agate_user_profile',
     'access callback' => TRUE,
@@ -122,6 +128,20 @@ function obiba_agate_menu() {
     'type' => MENU_NORMAL_ITEM,
     'file' => 'obiba_agate.admin.inc',
     'weight' => 1,
+  );
+
+  $items['agate/config/client/ws'] = array(
+    'page callback' => 'obiba_agate_get_config_client',
+    'access callback' => TRUE,
+    'file' => 'obiba_agate_services.inc',
+    'type' => MENU_CALLBACK
+  );
+
+  $items['agate/users/_test/ws'] = array(
+    'page callback' => 'obiba_agate_test_user',
+    'access callback' => TRUE,
+    'file' => 'obiba_agate_services.inc',
+    'type' => MENU_CALLBACK
   );
 
   return $items;
@@ -225,6 +245,7 @@ function obiba_agate_singup_access(){
 function obiba_agate_angular_register_page() {
   obiba_mica_app_angular_load_template_app('obiba_agate');
   drupal_set_title(variable_get_value('obiba_register_page_title'));
+
   return theme('obiba_agate_user-main-app');
 }
 
@@ -308,6 +329,7 @@ function obiba_agate_get_js($weight_js) {
   }
   $js_params = array(
     'agateParam' => array(
+      'agateUrl' => variable_get_value('agate_url'),
       'userId' => !empty($user->name) ? $user->name : NULL,
       'userToExport' => !empty($user_to_export) ? $user_to_export : NULL,
       'ClientProfileEditForm' => obiba_agate_get_drupal_profile_form(),
@@ -340,9 +362,10 @@ function obiba_agate_theme($existing, $type, $theme, $path) {
       'template' => 'obiba-agate-user-update-password-modal',
       'path' => $path_views_theme,
     ),
-    'obiba_agate_user-pass-request-form' => array(
-      'template' => 'obiba_agate_user-pass-request-form',
-      'path' => $path_theme,
+
+    'obiba_agate-user-profile-register-test-modal' => array(
+      'template' => 'obiba_agate-user-profile-register-test-modal',
+      'path' => $path_views_theme,
     ),
     'obiba_agate_user-form-password-confirm' => array(
       'template' => 'obiba_agate_user-form-password-confirm',
@@ -448,23 +471,7 @@ function obiba_agate_library_alter(&$javascript, $module) {
 function obiba_agate_schema_form() {
   $agate_client = new ObibaAgateClient();
   $form = $agate_client->getConfigFormJoin();
-  $form_attributes = array(
-    'form' => $form['definition'],
-    'schema' => $form['schema'],
-    'captchaConfig' => $agate_client->getReCaptchaKeyConfigFormJoin(),
-  );
-  drupal_json_output($form_attributes);
-}
-
-/**
- * Get the join form parameters from Agate server.
- *
- * @return string
- *   The json config with a google reCaptcha key.
- */
-function obiba_agate_get_agate_recaptch_key() {
-  $agate_client = new ObibaAgateClient();
-  return $agate_client->getReCaptchaKeyConfigFormJoin();
+  drupal_json_output($form);
 }
 
 /**
