@@ -381,6 +381,7 @@ function obiba_agate_theme($existing, $type, $theme, $path) {
 }
 
 function obiba_agate_login_users_process(&$variables){
+  global $base_url;
   $agate = new ObibaAgateClient();
 
   $variables['classes_array'] = array();
@@ -388,6 +389,7 @@ function obiba_agate_login_users_process(&$variables){
   $variables['title_attributes_array'] = array();
   $variables['content_attributes_array'] = array();
   $variables['providers'] = $agate->getProviders();
+  $variables['base_url'] = $base_url;
 }
 
 function theme_obiba_agate_table_widget_component($vars) {
