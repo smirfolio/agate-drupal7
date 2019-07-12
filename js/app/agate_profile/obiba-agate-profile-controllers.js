@@ -72,12 +72,14 @@
                   AgateUserProfile,
                   $uibModal) {
           $scope.loading = 1;
+          $scope.showUpdatePassword = false;
           AgateFormResource.get(function onSuccess(FormResources) {
             $scope.model = {};
 
             $scope.definition = FormResources.definition;
             $scope.schema = FormResources.schema;
             $scope.schema.readonly = true;
+            delete $scope.schema.properties.realm;
             AgateUserProfile.get(function onSuccess(userProfile) {
               $scope.loading = 0;
               if(userProfile.userProfile){
@@ -86,24 +88,25 @@
                 $scope.DrupalProfile = $sce.trustAsHtml(userProfile.drupalUserDisplay);
 
                 /*********U P D A T E    P A S S W O R D   U S E R ********************/
-
-                $scope.updatePasswordUser = function () {
-                  var locatedPathUrl = Drupal.settings.basePath + Drupal.settings.pathPrefix;
-                  $uibModal.open({
-                    templateUrl: locatedPathUrl + 'obiba_mica_app_angular_view_template/obiba-agate-user-update-password-modal',
-                    controller: 'ModalPasswordUpdateController',
-                    resolve: {
-                      userId: function () {
-                        return $scope.model.username;
+                if(userProfile.userProfile.realm === 'agate-user-realm'){
+                  $scope.showUpdatePassword = true;
+                  $scope.updatePasswordUser = function () {
+                    var locatedPathUrl = Drupal.settings.basePath + Drupal.settings.pathPrefix;
+                    $uibModal.open({
+                      templateUrl: locatedPathUrl + 'obiba_mica_app_angular_view_template/obiba-agate-user-update-password-modal',
+                      controller: 'ModalPasswordUpdateController',
+                      resolve: {
+                        userId: function () {
+                          return $scope.model.username;
+                        }
                       }
-                    }
-                  }).result.then(function (data) {
-                    $scope.profile = data;
-                  }, function () {
-                    console.log('Modal dismissed at: ' + new Date());
-                  });
-
-                };
+                    }).result.then(function (data) {
+                      $scope.profile = data;
+                    }, function () {
+                      console.log('Modal dismissed at: ' + new Date());
+                    });
+                  };
+                }
               }
             });
           });
@@ -131,6 +134,7 @@
               if ($scope.schema.properties.username) {
                 $scope.schema.properties.username.readonly = true;
               }
+              delete $scope.schema.properties.realm;
               AgateUserProfile.get(function onSuccess(userProfile) {
                 $scope.disableAgateForm = false;
                 $scope.activeTab = 0;

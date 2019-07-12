@@ -625,11 +625,13 @@ function obiba_agate_form_alter(&$form, $form_state, $form_id) {
             }
           }
         }
-        $form['agate'] = array(
-          '#type' => 'fieldset',
-          '#title' => t('Password'),
-          '#description' => t('You can request for your password to be reset.') . '<br/><br/>' . l(t('Reset password'), 'user/password', array('attributes' => array('class' => 'btn btn-default'))),
-        );
+        if($account->data['realm'] === 'agate-user-realm'){
+          $form['agate'] = array(
+            '#type' => 'fieldset',
+            '#title' => t('Password'),
+            '#description' => t('You can request for your password to be reset.') . '<br/><br/>' . l(t('Reset password'), 'user/password', array('attributes' => array('class' => 'btn btn-default'))),
+          );
+        }
         $form['#submit'][] = 'obiba_agate_user_profile_form_submit';
       }
       else {
