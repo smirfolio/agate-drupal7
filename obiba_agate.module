@@ -721,6 +721,12 @@ function obiba_agate_save_drupal_user() {
 
     }
   }
+  $enabled_languages = language_list($field = 'language');
+  $account->language = "";
+  /* if agate user has locale and it exist as one of enabled languages in Drupal */
+  if(!empty($account->data['locale']) && isset($enabled_languages[$account->data['locale']])){
+    $account->language = $account->data['locale'];
+  }
   user_save($account, $user_edit);
   user_set_authmaps($account, array("authname_" . "obiba_agate" => $username));
   return $account;
@@ -737,7 +743,6 @@ function obiba_agate_normalize_drupal_user_profile($updated_profile, $account){
   };
   if(!empty(variable_get('obiba_agate_user_fields_mapping'))){
     foreach (variable_get('obiba_agate_user_fields_mapping') as $key_field => $field){
-      $toto = current($get_value($updated_profile, $key_field))['value'];
       if($key_field !== 'email' || $key_field !== 'username' && $field['enable']){
         if($key_field === 'firstName'){
           $account->{$field['drupal_value']}['und'][0]['value'] = current($get_value($updated_profile, 'firstName'))['value'];
