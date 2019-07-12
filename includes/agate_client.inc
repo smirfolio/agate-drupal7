@@ -372,15 +372,19 @@ class ObibaAgateClient {
       if (!empty($body)) {
         $this->lastResponse = $client->lastResponse;
       }
-      return json_decode($body, TRUE);
+      return TRUE;
     }
     catch (HttpClientException $e) {
+      $errorMessage = json_decode($e->getResponse()->body)->message;
       watchdog('Agate Client', 'Request failed, @code: @message',
         array(
           '@code' => $e->getCode(),
-          '@message' => $e->getMessage(),
+          '@message' => $errorMessage,
         ), WATCHDOG_WARNING);
-      return array();
+      return array(
+        'codeError' => $e->getCode(),
+        'message' =>  $errorMessage,
+      );
     }
   }
 
