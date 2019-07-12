@@ -72,3 +72,18 @@ function obiba_agate_user_profile_update_password() {
       break;
   }
 }
+
+function obiba_agate_get_providers(){
+ $agate =  new ObibaAgateClient();
+  drupal_json_output($agate->getProviders());
+}
+
+function obiba_agate_get_config_client(){
+ $agate =  new ObibaAgateClient();
+  drupal_json_output($agate->getConfigClient());
+}
+function obiba_agate_test_user(){
+ $agate =  new ObibaAgateClient();
+  $user_password = json_decode(file_get_contents('php://input'));
+  drupal_json_output($agate->testUser($user_password));
+}

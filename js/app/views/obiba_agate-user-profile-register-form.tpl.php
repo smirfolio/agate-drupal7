@@ -24,35 +24,43 @@ if(!empty($locale_language)){
 
       <div ng-app="ObibaAgate" ng-controller="RegisterFormController">
         <obiba-alert id="RegisterFormController"></obiba-alert>
+          <form ng-if="!hideRegistration" name="joinForm" ng-submit="submit(form)">
 
-        <form id="obiba-user-register" name="theForm" ng-submit="submit(form)">
-          <div sf-schema="schema" sf-form="form" sf-model="model"></div>
+          <div sf-schema="joinConfig.schema" sf-form="joinConfig.definition" sf-model="model"></div>
 
-          <div ng-if="config.key"  vc-recaptcha
+          <div ng-if="config.reCaptchaKey" class="form-group"
+            vc-recaptcha
             theme="'light'"
-            key="config.key"
+            key="config.reCaptchaKey"
             on-create="setWidgetId(widgetId)"
             on-success="setResponse(response)"></div>
 
           <div class="md-top-margin">
             <button type="submit" class="btn btn-primary"
-              ng-click="onSubmit(theForm)">
+              ng-click="onSubmit(joinForm)">
               <?php print t('Join'); ?>
             </button>
 
-            <a href="#/" type="button" class="btn btn-default"
-              ng-click="onCancel(theForm)">
+            <a href="#/" type="button" class="btn btn-default">
               <?php print t('Cancel') ?>
             </a>
-          </div>
+         </div>
         </form>
+
+      <div ng-if="providers && !hasCookie && !hideRegistration">
+         <hr>
+         <div ng-repeat="provider in providers">
+              <a id="{{provider.name}}" class="btn btn-info btn-block text-center voffset2" href="{{provider.linkSingUpPath}}">{{'realm.oidc.signup-with' | translate}} {{provider.title}}</a>
+         </div>
+          </div>
+
+         <div  ng-if="!hideRegistration" class="md-top-margin">
+            <?php print l(t('Already have an account ? Sign in'), 'user/login', array(
+              'query' => array('destination' => '/'),
+            ));
+            ?>
+          </div>
       </div>
     </div>
   </div>
-</div>
-<div class="md-top-margin">
-<?php print l(t('Already have an account ? Sign in'), 'user/login', array(
-  'query' => array('destination' => '/'),
-));
-?>
-</div>
+  </div>

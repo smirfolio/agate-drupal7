@@ -10,6 +10,8 @@
         'ui.bootstrap',
         'schemaForm',
         'vcRecaptcha'
-      ]);
+      ]).service('DrupalSettings', [function(){
+        return {baseUrl: Drupal.settings.basePath + Drupal.settings.pathPrefix}
+      }]);
 
 

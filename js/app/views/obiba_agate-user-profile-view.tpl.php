@@ -15,7 +15,7 @@
 <div ng-show="!loading" class="row drupal-profile">
   <div class="col-md-3"><span ng-bind-html="DrupalProfile"></span></div>
  <div ng-show="!loading" class="col-md-8">
-    <div  ng-show="model.username" sf-schema="schema" sf-form="form" sf-model="model"></div>
+    <div  ng-show="model.username" sf-schema="schema" sf-form="definition" sf-model="model"></div>
     <div  ng-show="!model.username" >
       <?php print t('Not an agate user '); ?>
       <?php print l('Your profile', 'user')?>

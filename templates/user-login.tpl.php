@@ -28,7 +28,7 @@
       <?php if (!empty($providers)): ?>
         <?php foreach ($providers as $provider_key=> $provider): ?>
               <div class="md-top-margin" >
-                <?php print l(t($provider['title']), variable_get_value('agate_url') . '/auth/signin/' . $provider['name'] . '?redirect=' . $base_url . '/' . $_GET['destination'], array(
+                <?php print l(t($provider['title']),$provider['linkSingInPath'] , array(
                   'attributes' => array('class' => 'btn btn-info btn-block text-center voffset2')
                 )); ?>
               </div>
