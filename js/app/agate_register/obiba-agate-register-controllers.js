@@ -156,7 +156,7 @@ mica.agateRegister.controller('RegisterFormController',
         var userProvider = userProvider($scope.model.realm);
         var signInUrl = userProvider.length > 0 ? userProvider[0].linkSingInPath : DrupalSettings.baseUrl + 'user/login';
         if($scope.model.realm !== "agate-user-realm"){
-          signupMessage = Drupal.t('Seems you can <a href="@loginLink">Log In</a>', {'@loginLink':signInUrl});
+          signupMessage = Drupal.t('You can now <a href="@loginLink">Sign In</a>', {'@loginLink':signInUrl});
         }
         AlertService.alert({
           id: 'RegisterFormController',
