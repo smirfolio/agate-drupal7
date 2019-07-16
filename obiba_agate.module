@@ -517,12 +517,12 @@ function obiba_agate_user_pass_submit(array $form, array &$form_state) {
 function obiba_agate_send_password_request(array $name_email) {
   $agate_client = new ObibaAgateClient();
   $response = $agate_client->passwordRequest($name_email);
-  if ($response && !isset($response['codeError'])) {
+  if ($response && !isset($response->message)) {
     drupal_set_message(t('Further instructions have been sent to your e-mail address.'), 'status');
   return TRUE;
   }
   else {
-    if (!empty($response['codeError'])) {
+    if (!empty($response->message)) {
       return FALSE;
     }
   }

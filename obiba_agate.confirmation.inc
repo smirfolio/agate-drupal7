@@ -108,14 +108,14 @@ function obiba_agate_send_password_user($resource = 'confirm') {
         'password' => $parameters['password'],
       ), $resource
     );
-    if (empty($response['code'])) {
+    if (empty($response->code)) {
       drupal_set_message(t('You can now log in.'));
       drupal_json_output($response);
       die;
     }
     else {
-      drupal_add_http_header('Status', '400 Bad Request');
-      drupal_set_message(t('Server Error : @message', array('@message' => $response['message'])), 'error');
+      drupal_add_http_header('Status', $response->code);
+      drupal_set_message(t('Server Error : @message', array('@message' => $response->message)), 'error');
     }
   }
   drupal_json_output(array());
