@@ -50,9 +50,13 @@ mica.agateRegister.controller('RegisterFormController',
           $scope.model.realm = AGATE_USER_REALM;
 
           if (reason.error) {
-            $rootScope.$broadcast(NOTIFICATION_EVENTS.showNotificationDialog, {
-              message: ServerErrorUtils.buildMessage(reason.error)
-            });
+            // $rootScope.$broadcast(NOTIFICATION_EVENTS.showNotificationDialog, {
+            //   message: ServerErrorUtils.buildMessage(reason.error)
+            // });
+
+            /* Drupal notification */
+            drupalNotificationMessage(ServerErrorUtils.buildMessage(reason.error), 'danger');
+            /***********************/
           }
         });
       }
@@ -109,15 +113,18 @@ mica.agateRegister.controller('RegisterFormController',
               // $location.path('/');
 
               /* Drupal specification */
-              drupalNotificationMessage();
+              drupalNotificationMessage(null, 'success');
               $scope.hideRegistration = true;
               /**********************/
 
             }, function (data) {
-              $rootScope.$broadcast(NOTIFICATION_EVENTS.showNotificationDialog, {
-                message: ServerErrorUtils.buildMessage(data)
-              });
+              // $rootScope.$broadcast(NOTIFICATION_EVENTS.showNotificationDialog, {
+              //   message: ServerErrorUtils.buildMessage(data)
+              // });
 
+              /* Drupal specification */
+              drupalNotificationMessage(ServerErrorUtils.buildMessage(data), 'danger');
+              /*************************/
               vcRecaptchaService.reload($scope.widgetId);
             });
         } else if (!$scope.outsideRealmValidated) {
@@ -145,23 +152,24 @@ mica.agateRegister.controller('RegisterFormController',
       });
 
       /* Drupal specification */
-      function drupalNotificationMessage(){
+      function drupalNotificationMessage(message, type){
         function userProvider(realm){
           return $scope.providers.filter(function(provider){
             return provider.name === realm ? realm : null;
           });
         }
-
-        var signupMessage = Drupal.t('You will receive an email to confirm your registration with the instructions to set your password.');
-        var userProvider = userProvider($scope.model.realm);
-        var signInUrl = userProvider.length > 0 ? userProvider[0].linkSingInPath : DrupalSettings.baseUrl + 'user/login';
-        if($scope.model.realm !== "agate-user-realm"){
-          signupMessage = Drupal.t('You can now <a href="@loginLink">Sign In</a>', {'@loginLink':signInUrl});
+        if(!message){
+          message = Drupal.t('You will receive an email to confirm your registration with the instructions to set your password.');
+          var userProvider = userProvider($scope.model.realm);
+          var signInUrl = userProvider.length > 0 ? userProvider[0].linkSingInPath : DrupalSettings.baseUrl + 'user/login';
+          if($scope.model.realm !== "agate-user-realm"){
+            message = Drupal.t('You can now <a href="@loginLink">Sign In</a>', {'@loginLink':signInUrl});
+          }
         }
         AlertService.alert({
           id: 'RegisterFormController',
-          type: 'success',
-          msg: signupMessage
+          type: type,
+          msg: message
         });
       }
       /**********************************/

@@ -134,13 +134,24 @@ class ObibaAgateClient {
       return json_decode($body);
     }
     catch (HttpClientException $e) {
-      watchdog('Agate Client', 'Request failed, @code: @message',
-        array(
-          '@code' => $e->getCode(),
-          '@message' => $e->getMessage(),
-        ), WATCHDOG_WARNING);
-      return array();
+      return $this->errorResponse($e);
     }
+  }
+
+  private function errorResponse($e){
+    if(isset($e->getResponse()->body)){
+      $rowResponse = json_decode($e->getResponse()->body);
+    }
+    $response = new stdClass();
+    $response->message = !empty($rowResponse->message) ? $rowResponse->message : $e->getMessage();
+    $response->code = !empty($rowResponse->code) ? $rowResponse->code : $e->getCode();
+    watchdog('Agate Client', 'Request failed, @code: @message',
+      array(
+        '@code' => $response->code,
+        '@message' => $response->message,
+      ), WATCHDOG_WARNING);
+    drupal_add_http_header('Status', $response->code);
+    return $response;
   }
 
   /**
@@ -222,12 +233,7 @@ class ObibaAgateClient {
       return json_decode($body, TRUE);
     }
     catch (HttpClientException $e) {
-      watchdog('Agate Client', 'Request failed, @code: @message',
-        array(
-          '@code' => $e->getCode(),
-          '@message' => $e->getMessage(),
-        ), WATCHDOG_WARNING);
-      return array();
+      return $this->errorResponse($e);
     }
   }
 
@@ -256,12 +262,7 @@ class ObibaAgateClient {
       return json_decode($body);
     }
     catch (HttpClientException $e) {
-      watchdog('Agate Client', 'Request failed, @code: @message',
-        array(
-          '@code' => $e->getCode(),
-          '@message' => $e->getMessage(),
-        ), WATCHDOG_WARNING);
-      return array();
+      return $this->errorResponse($e);
     }
   }
 
@@ -330,17 +331,7 @@ class ObibaAgateClient {
       return TRUE;
     }
     catch (HttpClientException $e) {
-      $error_message = json_decode($e->getResponse()->body);
-      watchdog('Agate Client', 'Request failed, @code: @message',
-        array(
-          '@code' => $e->getCode(),
-          '@message' => $e->getMessage(),
-        ), WATCHDOG_WARNING);
-      drupal_add_http_header('Status', $e->getCode());
-      return array(
-        'codeError' => $e->getCode(),
-        'message' => $error_message->message,
-      );
+      return $this->errorResponse($e);
     }
   }
 
@@ -375,16 +366,7 @@ class ObibaAgateClient {
       return TRUE;
     }
     catch (HttpClientException $e) {
-      $errorMessage = json_decode($e->getResponse()->body)->message;
-      watchdog('Agate Client', 'Request failed, @code: @message',
-        array(
-          '@code' => $e->getCode(),
-          '@message' => $errorMessage,
-        ), WATCHDOG_WARNING);
-      return array(
-        'codeError' => $e->getCode(),
-        'message' =>  $errorMessage,
-      );
+      return $this->errorResponse($e);
     }
   }
 
@@ -416,16 +398,7 @@ class ObibaAgateClient {
       return json_decode($body, TRUE);
     }
     catch (HttpClientException $e) {
-      $body_response_message = json_decode($e->getResponse()->body);
-      watchdog('Agate Client', 'Request failed, @code: @message',
-        array(
-          '@code' => $body_response_message->code,
-          '@message' => $body_response_message->message,
-        ), WATCHDOG_WARNING);
-      return array(
-        'code' => $body_response_message->code,
-        'message' => $body_response_message->message,
-      );
+      return $this->errorResponse($e);
     }
   }
 
