@@ -71,10 +71,15 @@ class ObibaAgateClient {
   /**
    * Function to get enabled provider
    */
-  public function getProviders(){
-    global $base_url;
+  public function getProviders($usage = NULL){
+    global $base_url, $language;
     $this->lastResponse = NULL;
-    $url = $this->agateUrl . '/auth/providers';
+    $url = $this->agateUrl . '/auth/providers?locale=' . $language->language;
+
+    if (!empty($usage)) {
+      $url .= '&usage=' . $usage;
+    }
+
     $request = new HttpClientRequest($url, array(
       'method' => HttpClientRequest::METHOD_GET,
       'headers' => array(

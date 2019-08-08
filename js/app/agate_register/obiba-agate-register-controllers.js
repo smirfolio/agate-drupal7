@@ -61,7 +61,7 @@ mica.agateRegister.controller('RegisterFormController',
         });
       }
 
-      $q.all([OidcProvidersResource.get({locale: $translate.use()}).$promise, JoinConfigResource.get().$promise]).then(function (values) {
+      $q.all([OidcProvidersResource.get({usage: 'SIGNUP', locale: $translate.use()}).$promise, JoinConfigResource.get().$promise]).then(function (values) {
         $scope.providers = values[0];
         $scope.joinConfig = values[1];
 
