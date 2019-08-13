@@ -96,8 +96,9 @@ class ObibaAgateClient {
       $destinationLogin = (isset($_GET['destination'])) ? $_GET['destination'] : '';
       if(!empty($providers)){
         foreach ($providers as $provider_key => $provider){
-          $providers[$provider_key]['linkSingInPath'] = variable_get_value('agate_url') . '/auth/signin/' . $provider['name'] . '?redirect=' . $base_url . '/' . $destinationLogin;
-          $providers[$provider_key]['linkSingUpPath'] = variable_get_value('agate_url') . '/auth/signup/' . $provider['name'] . '?redirect=' . $base_url . '/agate/register/&redirect_hash=join';
+          $providers[$provider_key]['linkSingInPath'] = variable_get_value('agate_url') . '/auth/signin/' . $provider['name'] . '?redirect=' . $base_url . '/' . $destinationLogin . '&signin_error=' . $base_url . urlencode('/agate/register/#/join');
+
+          $providers[$provider_key]['linkSingUpPath'] = variable_get_value('agate_url') . '/auth/signup/' . $provider['name'] . '?redirect=' . $base_url . urlencode('/agate/register/#/join');
         }
       }
       return $providers;
