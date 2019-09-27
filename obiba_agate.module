@@ -180,6 +180,46 @@ function obiba_agate_logout_current_user(){
   }
 }
 
+function obiba_agate_boot(){
+    // Include bootstrap.
+    include_once('./includes/bootstrap.inc');
+// Initialize stuff.
+    drupal_bootstrap(DRUPAL_BOOTSTRAP_FULL);
+    if (ObibaAgateClient::hasTicket()) {
+      if (empty($_SESSION[ObibaAgateClient::AGATE_JUST_LOGGED_IN]) && empty($_COOKIE[ObibaAgateClient::OBIBA_COOKIE])) {
+        obiba_agate_logout_current_user();
+      } else {
+        unset($_SESSION[ObibaAgateClient::AGATE_JUST_LOGGED_IN]);
+        $cookie = $_SESSION[ObibaAgateClient::OBIBA_COOKIE_OBJECT];
+        // The obiba cookie will expire with the drupal session
+        $expire = 0; // expires with drupal session
+        $path = empty($cookie['Path']) ? '/' : $cookie['Path'];
+        $domain = empty($cookie['Domain']) ? NULL : $cookie['Domain'];
+        $secure = empty($cookie['Secure']) ? FALSE : $cookie['Secure'];
+        setcookie(ObibaAgateClient::OBIBA_COOKIE, $cookie[ObibaAgateClient::OBIBA_COOKIE], $expire, $path, $domain, $secure);
+      }
+    }
+    else{
+      if(isset($_COOKIE[ObibaAgateClient::OBIBA_COOKIE])){
+        $agate = new ObibaAgateClient();
+        // validate if ObibaSession has a correspondent ticket in agate and get the user name
+        $user_name = $agate->validate($_COOKIE[ObibaAgateClient::OBIBA_COOKIE]);
+        if(!empty($user_name)){
+          // update/create drupal user
+          obiba_agate_save_drupal_user();
+          // force login the user
+          user_external_login_register($user_name, 'obiba_agate');
+          // have to force refresh the browser, so the authentication take effect
+          header("refresh: 0");
+        }
+        else{
+          // if no ticket to correspondent session force logout and unset all sessions/cookies
+          obiba_agate_logout_current_user();
+        }
+      }
+    }
+}
+
 /**
  * Apply Obiba cookie for single sign-on in other Obiba applications.
  *
@@ -191,39 +231,6 @@ function obiba_agate_preprocess_page(&$variables) {
     'confCleanPath' => !empty($GLOBALS['conf']['clean_url']) ? TRUE : FALSE,
   );
   drupal_add_js($options, 'setting');
-  if (ObibaAgateClient::hasTicket()) {
-    if (empty($_SESSION[ObibaAgateClient::AGATE_JUST_LOGGED_IN]) && empty($_COOKIE[ObibaAgateClient::OBIBA_COOKIE])) {
-      obiba_agate_logout_current_user();
-    } else {
-      unset($_SESSION[ObibaAgateClient::AGATE_JUST_LOGGED_IN]);
-      $cookie = $_SESSION[ObibaAgateClient::OBIBA_COOKIE_OBJECT];
-      // The obiba cookie will expire with the drupal session
-      $expire = 0; // expires with drupal session
-      $path = empty($cookie['Path']) ? '/' : $cookie['Path'];
-      $domain = empty($cookie['Domain']) ? NULL : $cookie['Domain'];
-      $secure = empty($cookie['Secure']) ? FALSE : $cookie['Secure'];
-      setcookie(ObibaAgateClient::OBIBA_COOKIE, $cookie[ObibaAgateClient::OBIBA_COOKIE], $expire, $path, $domain, $secure);
-    }
-  }
-  else{
-    if(isset($_COOKIE[ObibaAgateClient::OBIBA_COOKIE])){
-      $agate = new ObibaAgateClient();
-      // validate if ObibaSession has a correspondent ticket in agate and get the user name
-      $user_name = $agate->validate($_COOKIE[ObibaAgateClient::OBIBA_COOKIE]);
-      if(!empty($user_name)){
-        // update/create drupal user
-        obiba_agate_save_drupal_user();
-        // force login the user
-        user_external_login_register($user_name, 'obiba_agate');
-        // have to force the browser, so the authentication take effect
-        header("refresh: 0");
-      }
-      else{
-        // if no ticket to correspondent session force logout and unset all sessions/cookies
-        obiba_agate_logout_current_user();
-      }
-    }
-  }
 }
 
 /**
@@ -708,11 +715,16 @@ function obiba_agate_user_logout() {
   $agate_client = new ObibaAgateClient();
   $agate_client->logout();
 
-  $expire = 0; // expires with drupal session
+  $expire = REQUEST_TIME - 3600; // expires with drupal session
   $path = empty($cookie['Path']) ? '/' : $cookie['Path'];
   $domain = empty($cookie['Domain']) ? NULL : $cookie['Domain'];
   $secure = empty($cookie['Secure']) ? FALSE : $cookie['Secure'];
-  setcookie(ObibaAgateClient::OBIBA_COOKIE, '', $expire, $path, $domain, $secure);
+  // Better way to invalidate cookies
+  setrawcookie(ObibaAgateClient::OBIBA_COOKIE, '', $expire, $path, $domain, $secure);
+  // Have to rebuild menu if cache activated
+  if(variable_get('cache')){
+    menu_rebuild();
+  }
 }
 
 /**
