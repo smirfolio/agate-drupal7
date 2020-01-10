@@ -252,7 +252,11 @@ function obiba_agate_singup_access(){
 function obiba_agate_angular_register_page() {
   obiba_mica_app_angular_load_template_app('obiba_agate');
   drupal_set_title(variable_get_value('obiba_register_page_title'));
-
+  if(user_is_logged_in()){
+    drupal_goto('/', array(
+      'fragment' => '/'
+    ));
+  }
   return theme('obiba_agate_user-main-app');
 }
 
