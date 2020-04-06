@@ -1,0 +1,14 @@
+obiba_agate.admin_config_agate:
+  title: 'OBIBA AGATE'
+  route_name: obiba_agate.admin_config_agate
+  parent: system.admin_config
+obiba_agate.admin_server_settings:
+  title: 'Agate Server Settings'
+  route_name: obiba_agate.admin_server_settings
+  description: 'Configure OBiBa central authentication services'
+  parent: obiba_agate.admin_config_agate
+obiba_agate.admin_page_settings:
+  title: 'Agate Pages Content Settings'
+  route_name: obiba_agate.admin_page_settings
+  description: 'Configure Agate Pages Content Settings'
+  parent: obiba_agate.admin_config_agate

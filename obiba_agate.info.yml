@@ -1,0 +1,7 @@
+name: Obiba Agate
+type: module
+description: 'Agate authentication Drupal integration'
+core: 8.x
+package: 'Obiba Mica'
+dependencies:
+  - externalauth:externalauth

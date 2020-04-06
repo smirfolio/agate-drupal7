@@ -1,0 +1,28 @@
+<?php
+
+
+namespace Drupal\obiba_agate;
+
+use Drupal\Core\DependencyInjection\ServiceProviderBase;
+use Drupal\Core\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Reference;
+
+  class ObibaAgateServiceProvider extends ServiceProviderBase{
+
+    /**
+     * {@inheritdoc}
+     */
+    public function alter(ContainerBuilder $container) {
+      $definition = $container->getDefinition('user.auth');
+      $definition->setClass('Drupal\obiba_agate\ObibaAgateUserAuth\ObibaAgateUserAuthService');
+      $definition->setArguments(
+        [
+          new Reference('entity.manager'),
+          new Reference('password'),
+          new Reference('language_manager'),
+          new Reference('logger.factory'),
+        ]
+      );
+    }
+
+  }

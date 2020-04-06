@@ -1,0 +1,23 @@
+obiba_agate.admin_config_agate:
+  path: '/admin/config/obiba-agate'
+  defaults:
+    _controller: '\Drupal\system\Controller\SystemController::systemAdminMenuBlockPage'
+    _title: 'Obiba Agate'
+  requirements:
+    _permission: 'access administration pages'
+obiba_agate.admin_server_settings:
+  path: '/admin/config/obiba-agate/agate-server-settings'
+  defaults:
+    _form: '\Drupal\obiba_agate\Form\AgateServerSettings'
+    _title: 'Settings'
+    _description: 'Configure OBiBa Agate authentication services'
+  requirements:
+    _permission: 'administer obiba agate'
+obiba_agate.admin_page_settings:
+  path: '/admin/config/obiba-agate/agate-server-pages-settings'
+  defaults:
+    _form: '\Drupal\obiba_agate\Form\AgateServerPagesSettings'
+    _title: 'Settings'
+    _description: 'Configure Agate Pages Content Settings'
+  requirements:
+    _permission: 'administer obiba agate'

@@ -1,0 +1,40 @@
+id: d7_obiba_agate_settings
+label: Obiba Agate settings
+migration_tags:
+  - Drupal 7
+source:
+  plugin: variable
+  variables:
+    - url
+    - application_name
+    - application_key
+    - logout_redirection_page
+    - auto_assigned_role
+    - access_signin_button
+    - obiba_login_page_title
+    - obiba_login_username_label
+    - obiba_login_button_caption
+    - enable_form_tooltips
+    - access_signup_button_disabled
+    - access_signup_button
+    - obiba_register_page_title
+    - obiba_reset_password_button_caption
+  source_module: obiba_agate
+process:
+  'server/url': url
+  'server/application_name': application_name
+  'server/application_key': application_key
+  'server/logout_redirection_page': logout_redirection_page
+  'server/auto_assigned_role': auto_assigned_role
+  'page_settings/access_signin_button': access_signin_button
+  'page_settings/obiba_login_page_title': obiba_login_page_title
+  'page_settings/obiba_login_username_label': obiba_login_username_label
+  'page_settings/obiba_login_button_caption': obiba_login_button_caption
+  'page_settings/enable_form_tooltips': enable_form_tooltips
+  'page_settings/access_signup_button_disabled': access_signup_button_disabled
+  'page_settings/access_signup_button': access_signup_button
+  'page_settings/obiba_register_page_title': obiba_register_page_title
+  'page_settings/obiba_reset_password_button_caption': obiba_reset_password_button_caption
+destination:
+  plugin: config
+  config_name: obiba_agate.settings

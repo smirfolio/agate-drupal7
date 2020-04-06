@@ -1,0 +1,22 @@
+services:
+#  authentication.obibaagate:
+#    class: Drupal\obiba_agate\Authentication\Provider\ObibaAgateAuthenticationProvider
+#    arguments:
+#      - '@logger.channel.obibaagatelog'
+#      - '@obiba_agate.controller.agateusermanager'
+#      - '@entity.manager'
+#    tags:
+#      - { name: 'authentication_provider', provider_id: obiba_agate, priority: 0 }
+  logger.channel.obibaagatelog:
+    parent: 'logger.channel_base'
+    arguments: ['obiba_agate']
+  obiba_agate.server.agateclient:
+    class: Drupal\obiba_agate\Server\AgateClient
+    arguments:
+      - '@http_client'
+      - '@entity.manager'
+  obiba_agate.controller.agateusermanager:
+    class: Drupal\obiba_agate\Controller\AgateUserManager
+    arguments:
+      - '@obiba_agate.server.agateclient'
+      - '@externalauth.externalauth'
