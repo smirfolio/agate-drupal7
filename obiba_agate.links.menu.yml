@@ -12,3 +12,8 @@ obiba_agate.admin_page_settings:
   route_name: obiba_agate.admin_page_settings
   description: 'Configure Agate Pages Content Settings'
   parent: obiba_agate.admin_config_agate
+obiba_agate.agate_user_fields_mapping_setting:
+  title: 'Configure The Mapping of The users Agate/Drupal Fields'
+  route_name: obiba_agate.agate_user_fields_mapping_setting
+  description: 'Configure The Mapping of The users Agate/Drupal Fields'
+  parent: obiba_agate.admin_config_agate

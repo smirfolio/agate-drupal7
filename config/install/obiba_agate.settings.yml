@@ -8,9 +8,19 @@ page_settings:
   access_signin_button: 'Sign In'
   obiba_login_page_title: 'User account'
   obiba_login_username_label: 'Username or E-mail'
-  obiba_login_button_caption: 'Log in toto'
+  obiba_login_button_caption: 'Log in'
   enable_form_tooltips: true
   access_signup_button_disabled: false
   access_signup_button: 'Sign Up'
   obiba_register_page_title: 'User registration'
   obiba_reset_password_button_caption: 'E-mail new password'
+user_fields_mapping:
+    agate_profile_field:
+      firstName: 'firstName'
+      lastName: 'lastName'
+    drupal_profile_field:
+      firstName: 'field_agate_first_name'
+      lastName: 'field_agate_last_name'
+    enabled_import:
+      firstName: TRUE
+      lastName: TRUE
