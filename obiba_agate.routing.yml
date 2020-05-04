@@ -21,3 +21,11 @@ obiba_agate.admin_page_settings:
     _description: 'Configure Agate Pages Content Settings'
   requirements:
     _permission: 'administer obiba agate'
+obiba_agate.agate_user_fields_mapping_setting:
+  path: '/admin/config/obiba-agate/agate-server-user-fields-mapping-settings'
+  defaults:
+    _form: '\Drupal\obiba_agate\Form\AgateServerUserFieldsMapping'
+    _title: 'Settings'
+    _description: 'Configure The Mapping of The users Agate/Drupal Fields'
+  requirements:
+    _permission: 'administer obiba agate'

@@ -6,11 +6,14 @@
  * Agate authentication Drupal integration
  */
 
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\core\Form\FormStateInterface;
 use Drupal\Core\Link;
 
-use Drupal\obiba_agate\obibaAgate;
+use Drupal\obiba_agate\ObibaAgate;
+use Drupal\obiba_agate\Server\AgateClient;
+use GuzzleHttp\ClientInterface;
 
 /**
  * Implements hook_help().
@@ -29,22 +32,21 @@ function obiba_agate_help($route_name, RouteMatchInterface $route_match) {
 }
 
 
-//function obiba_agate_theme_suggestions_form_element_alter(array &$suggestions, array $variables) {
-//  if (\Drupal::service('path.current')->getPath() == '/user/login') {
-//    $suggestions[] = $variables['theme_hook_original'] . '--user-login';
-//  }
-//}
+function obiba_agate_theme_suggestions_form_element_alter(array &$suggestions, array $variables) {
+  if (\Drupal::service('path.current')->getPath() == '/user/login') {
+    $suggestions[] = $variables['theme_hook_original'] . '--user-login';
+  }
+}
 
 /**
  * Preprocess page title
  */
 function obiba_agate_preprocess_page_title(&$variables) {
   if (strstr(\Drupal::service('path.current')->getPath(), 'user/login')) {
-    $variables['title'] = \Drupal::config(obibaAgate::AGATE_SERVER_PAGES_SETTINGS)->get(obibaAgate::CONFIG_PREFIX_PAGE.'obiba_login_page_title');
+    $variables['title'] = \Drupal::config(ObibaAgate::AGATE_SERVER_SETTINGS)->get(ObibaAgate::CONFIG_PREFIX_PAGE .
+        '.' . 'obiba_login_page_title');
   }
 }
-
-//access_signin_button
 
 /**
  * Implements hook_form_alter().
@@ -52,52 +54,44 @@ function obiba_agate_preprocess_page_title(&$variables) {
  * Adjusts form on login page.
  */
 function obiba_agate_form_alter(&$form, FormStateInterface $form_state, $form_id) {
-  $agate_page_config = \Drupal::config(obibaAgate::AGATE_SERVER_PAGES_SETTINGS);
-  if ($form_id == 'user_login_form') {
+    $agate_page_config = \Drupal::config(ObibaAgate::AGATE_SERVER_SETTINGS);
+    if ($form_id == 'user_login_form') {
     $form['#prefix'] = '<div class="row">
     <div class="col-md-4"></div>
     <div class="well col-md-4">';
-    $form['#suffix'] = '</div> 
+    $form['#suffix'] = '</div>
     <div class="col-md-4"></div>
     </div>';
-    $form['name']['#title'] = $agate_page_config->get(obibaAgate::CONFIG_PREFIX_PAGE.'obiba_login_username_label');
-    $form['reset'] = [
-      '#markup' => '<p class="forgot-password">' . Link::createFromRoute(t('Rest password'), 'user.pass')->toString() . '</p>',
-      '#weight' => 100,
+    $form['name']['#title'] = $agate_page_config->get(ObibaAgate::CONFIG_PREFIX_PAGE . '.' . 'obiba_login_username_label');
+    $form['name']['#smart_description'] = $form['pass']['#smart_description'] =
+        $agate_page_config->get(ObibaAgate::CONFIG_PREFIX_PAGE . '.' . 'enable_form_tooltips') ? TRUE : FALSE;
+
+    $form['actions']['submit']['#value'] = $agate_page_config->get(ObibaAgate::CONFIG_PREFIX_PAGE . '.' . 'obiba_login_button_caption');
+    $form['actions']['submit']['#attributes'] = [
+        'class' => ['btn btn-primary'],
     ];
 
-    $form['register'] = [
-      '#markup' => '<p class="register">' . Link::createFromRoute(t('register'), 'user.register')->toString() . '</p>',
-      '#weight' => 101,
-    ];
-    $form['#validate'][] = '::validateName';
-    $form['#validate'][] = '::validateAuthentication';
-    $form['#validate'][] = 'obiba_agate_login_validate';
-    $form['#validate'][] = '::validateFinal';
-    $form['#validate'][] = '::validateForm';
+    if($agate_page_config->get(ObibaAgate::CONFIG_PREFIX_PAGE . '.' .'access_signup_button_disabled')){
+        unset($form['register']);
+    }
+    else{
+        $form['register'] = [
+            '#markup' => '<p class="register">' . Link::createFromRoute($agate_page_config->get(ObibaAgate::CONFIG_PREFIX_PAGE .
+                    '.' . 'access_signup_button')
+                        , 'user.register')->toString() . '</p>',
+            '#weight' => 101,
+        ];
+    }
+      $form['reset'] = [
+          '#markup' => '<p class="forgot-password">' . Link::createFromRoute($agate_page_config->get(ObibaAgate::CONFIG_PREFIX_PAGE .
+                  '.' . 'obiba_reset_password_button_caption')
+                      , 'user.pass')->toString() . '</p>',
+          '#weight' => 100,
+      ];
   }
-}
-
-/**
- * The function callback to authenticate the user overriding drupal validation..
- *
- * The obiba_agate_auth() function attempts to authenticate a user off the
- * external system using their e-mail address.
- */
-
-function obiba_agate_login_validate($form, &$form_state){
-  $username = $form_state->getValue('name');
-  $password = $form_state->getValue('pass');
-  // Try to authenticate on Agate if not already Local Drupal User.
-  if (!empty($username) && !empty($password) ) {
-    $form_state->set('uid', 2);
-//    if (obiba_agate_check_user($username, $password)) {
-//      $account = obiba_agate_save_drupal_user();
-//      $form_state['uid'] = $account->uid;
-//      $_SESSION[ObibaAgateClient::AGATE_JUST_LOGGED_IN] = TRUE;
-//    }
+  if ($form_id == 'user_form'){
+    $form['account']['mail']['#disabled'] = TRUE;
   }
-  $toto = $form_state;
 }
 
 /**
@@ -119,5 +113,30 @@ function obiba_agate_menu_local_tasks_alter(&$data, $route_name) {
     unset($data['tabs'][0]['user.pass']);
     unset($data['tabs'][0]['user.register']);
   }
-
 }
+
+/**
+ * Implements hook_user_logou()
+ *
+ * @param $account
+ */
+function obiba_agate_user_logout($account){
+    \Drupal::service('obiba_agate.server.agateclient')->logout();
+}
+
+/**
+ * Implements hook_entity_presave().
+ * useful to when update Drupal user
+ */
+//function obiba_agate_entity_presave(Drupal\Core\Entity\EntityInterface $entity){
+//    if($entity->bundle() == 'user'){
+//        $config = \Drupal::config(ObibaAgate::AGATE_SERVER_SETTINGS);
+//        $user_field_mapping = $config->get(ObibaAgate::CONFIG_PREFIX_USER_FIELDS_MAPPING);
+//        $agate_user_profile = [];
+//        foreach ($user_field_mapping[ObibaAgate::AGATE_PROFILE_FIELD] as $field => $agate_field){
+//            if($user_field_mapping[ObibaAgate::DRUPAL_ENABLED_FILED_IMPORT][$field]){
+//                $agate_user_profile[$field] = current($entity->{$user_field_mapping[ObibaAgate::DRUPAL_PROFILE_FIELD][$field]}->getValue()[0]);
+//            }
+//        }
+//    }
+//}
