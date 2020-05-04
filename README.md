@@ -12,7 +12,7 @@ Drupal obiba_agate module for interacting with [Agate](https://github.com/obiba/
 * sign-in
 * sign-out
 
-agate-drupal8
+Progress
 =============
 
 Working in progress
