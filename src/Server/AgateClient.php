@@ -110,7 +110,30 @@ class AgateClient   implements AgateClientInterface{
         }
     }
 
+    public function createUser(Array $user){
+        try{
+            $headers = [
+                'Accept' => ['application/json'],
+                'Content-Type' => 'application/x-www-form-urlencoded' ,
+                'X-App-Auth' => $this->basicAgateAuth,
+            ];
 
+            $response = $this->httpClient->request(
+                'POST',
+                $this->agateUrl .  '/users/_join',
+                [
+                    'headers' => $headers,
+                    'form_params' => $user,
+                    'debug' => true,
+                ]
+            );
+
+            return json_decode($response->getBody()->getContents());
+        }catch (\Exception $e){
+            watchdog_exception('Agate Exception', $e);
+            return self::parseServerErrorCode($e);
+        }
+    }
   /**
    * @param $userName
    * @param $password
@@ -175,6 +198,31 @@ class AgateClient   implements AgateClientInterface{
         $this->invalidateSession();
         $this->redirectDrupal();
     }
+    /**
+     * Get fields to use in drupal
+     *
+     * @return mixed|void
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function getConfigFormJoin(){
+        try{
+            $headers = [
+                'Accept' => 'application/json' ,
+                'X-App-Auth' => $this->basicAgateAuth,
+            ];
+            $response = $this->httpClient->request(
+                'GET',
+                $this->agateUrl .  '/config/join',
+                [
+                    'headers' => $headers,
+                ]
+            );
+            return json_decode($response->getBody()->getContents(), TRUE);
+        }catch (\Exception $e){
+            watchdog_exception('Agate Exception', $e);
+            return ;
+        }
+    }
 
     /**
      * Set Agate User cookies
@@ -223,29 +271,13 @@ class AgateClient   implements AgateClientInterface{
     }
 
     /**
-     * Get fields to use in drupal
-     *
-     * @return mixed|void
-     * @throws \GuzzleHttp\Exception\GuzzleException
+     * Parse the server error
      */
-    public function getConfigFormJoin(){
-        try{
-            $headers = [
-                'Accept' => 'application/json' ,
-                'X-App-Auth' => $this->basicAgateAuth,
-            ];
-            $response = $this->httpClient->request(
-                'GET',
-                $this->agateUrl .  '/config/join',
-                [
-                    'headers' => $headers,
-                ]
-            );
-            return json_decode($response->getBody()->getContents(), TRUE);
-        }catch (\Exception $e){
-            watchdog_exception('Agate Exception', $e);
-            return ;
-        }
+    protected static function parseServerErrorCode($serverError){
+        preg_match('/(?<=\{)(.*)(?=\})/m', $serverError->getMessage(), $message);
+        return [
+            'code' => $serverError->getCode(),
+            'message' =>  json_decode('{' . $message[0] . '}')->message,
+        ];
     }
-
 }

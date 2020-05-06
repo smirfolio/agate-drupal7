@@ -147,4 +147,36 @@ class AgateUserManager extends ControllerBase{
           return $arrayAttribute->key == $attribute;
       }))->value;
   }
+
+  public function createAgateUser($userEntity){
+    return $this->agateClient->createUser($this->normalizeDrupalUserAttributes($userEntity));
+  }
+
+    /**
+     * @param array $user
+     */
+  public function updateAgateUser($userEntity){
+
+  }
+
+    /**
+     * Normalize the Agate User attribute to save
+     *
+     * @param $agateUserProfile
+     * @return mixed
+     */
+    private function normalizeDrupalUserAttributes($drupalUserEntity){
+        $config = \Drupal::config(ObibaAgate::AGATE_SERVER_SETTINGS);
+        $user_field_mapping = $config->get(ObibaAgate::CONFIG_PREFIX_USER_FIELDS_MAPPING);
+        $agate_user_profile['username'] = current($drupalUserEntity->name->getValue()[0]);
+        $agate_user_profile['email'] = current($drupalUserEntity->mail->getValue()[0]);
+        $agate_user_profile['local'] = current($drupalUserEntity->langcode->getValue()[0]);
+        $agate_user_profile['g-recaptcha-response'] = $_POST['g-recaptcha-response'];
+        foreach ($user_field_mapping[ObibaAgate::AGATE_PROFILE_FIELD] as $field => $agate_field){
+            if($user_field_mapping[ObibaAgate::DRUPAL_ENABLED_FILED_IMPORT][$field]){
+                $agate_user_profile[$field] = current($drupalUserEntity->{$user_field_mapping[ObibaAgate::DRUPAL_PROFILE_FIELD][$field]}->getValue()[0]);
+            }
+        }
+        return $agate_user_profile;
+    }
 }
