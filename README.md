@@ -21,7 +21,16 @@ Working in progress
 - [x] Add/Update Drupal User on login
 - [x] Logout Drupal User if no Agate Ticket
 - [x] Single SingOn 
-- [ ] Register User Page (Deal with Agate re-captcha) 
+- [ ] Register User Page (Deal with Agate re-captcha)
+    - [x] Form Registration
+    - [x] User Added To Agate
+    - [x] User saved in Drupal
+    - [ ] Mail Activation process (new password creation form in Drupal)
+    - [ ] Automatic Active user once password saved
+    - [ ] Consolidate fields attribute creation in Agate (FirsName/LastName)
+    - [ ] Realm field should be changed to select field and make it visible if multiple Agate Realm exist
+- [ ] The Edit/Update Drupal user should update Agate User  
+- [ ] Implement the Password reset process 
 - [ ] Disable Drupal User if disabled/blocked in Agate (Optional)
 - [ ] Delete Drupal User if deleted in Agate (Optional)
 - [ ] Migration implementation from Agate Drupal7
