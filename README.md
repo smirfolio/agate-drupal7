@@ -25,10 +25,14 @@ Working in progress
     - [x] Form Registration
     - [x] User Added To Agate
     - [x] User saved in Drupal
-    - [ ] Mail Activation process (new password creation form in Drupal)
-    - [ ] Automatic Active user once password saved
-    - [ ] Consolidate fields attribute creation in Agate (FirsName/LastName)
-    - [ ] Realm field should be changed to select field and make it visible if multiple Agate Realm exist
+    - [x] Consolidate Drupal fields attribute created in Agate (FirsName/LastName/roles)
+    - [x] Agate User creation validation
+    - [x] Deal with Agate re-captcha
+    - [x] Administrator Create a Drupal User (Not in agate) Via Drupal Add User UI
+    - [x] Mail Activation process (new password creation form in Drupal)
+    - [x] Automatic Active user once password saved
+    - [x] Override Drupal Mail notification email message to reflect Agate Activation account process
+    - [ ] Realm field should be changed to select Realm and make it visible if multiple Agate Realm exist
 - [ ] The Edit/Update Drupal user should update Agate User  
 - [ ] Implement the Password reset process 
 - [ ] Disable Drupal User if disabled/blocked in Agate (Optional)

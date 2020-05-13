@@ -31,6 +31,7 @@ class AgateServerUserFieldsMapping extends ConfigFormBase{
      */
     public function buildForm(array $form, FormStateInterface $form_state) {
         $userFields = \Drupal::service('obiba_agate.server.agateclient')->getConfigFormJoin()['schema']['properties'];
+        $recaptchaClient = \Drupal::service('obiba_agate.server.agateclient')->getServerRecaptcha();
         unset($userFields['locale']);
         unset($userFields['username']);
         unset($userFields['email']);
@@ -40,7 +41,7 @@ class AgateServerUserFieldsMapping extends ConfigFormBase{
         $form['user_fields'] = [
             '#type' => 'details',
             '#title' => $this->t('The mapping field Drupal/Agate synchronize Drupal users'),
-            '#description' => $this->t('Please enter Drupal field machine name to mapped to Agate users field profile'),
+            '#description' => $this->t('Please enter Drupal field machine name to mapped to Agate users field profile, Remember de disable the Recaptcha (If module installed) on Form registration User '),
             '#open' => TRUE,
         ];
         $form['user_fields']['table-row'] = [
@@ -73,6 +74,32 @@ class AgateServerUserFieldsMapping extends ConfigFormBase{
           '#default_value' => $config->get(ObibaAgate::CONFIG_PREFIX_USER_FIELDS_MAPPING . '.' . 'enabled_import.' . $filedConfig),
       ];
   }
+        $form['user_fields']['table-row']['recaptcha'] = [
+            'agate_profile_field' => [
+                '#type' => 'hidden',
+                '#default_value' => '',
+            ],
+
+            'agate_profile_field_markup' => [
+                '#markup' => 'ReCaptcha Client Key',
+                '#default_value' => $config->get(ObibaAgate::CONFIG_PREFIX_USER_FIELDS_MAPPING . '.' . 'agate_profile_field.recaptcha'),
+                ],
+            'drupal_profile_field' => [
+                '#type' => 'textfield',
+                '#disabled' => TRUE,
+                '#default_value' => $config->get(ObibaAgate::CONFIG_PREFIX_USER_FIELDS_MAPPING . '.' . 'drupal_profile_field.recaptcha') ?
+                    $config->get(ObibaAgate::CONFIG_PREFIX_USER_FIELDS_MAPPING . '.' . 'drupal_profile_field.recaptcha') :
+                    $recaptchaClient->reCaptchaKey,
+                ],
+            'enabled_import' => [
+                '#type' => 'checkbox',
+                '#disabled' => TRUE,
+                '#cheked' => TRUE,
+                '#default_value' => TRUE,
+                ]
+
+        ];
+
         return $form;
     }
 

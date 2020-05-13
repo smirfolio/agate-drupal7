@@ -36,10 +36,9 @@ class AgateUserManager extends ControllerBase{
         if($user){
             $externalUserAccount =  $this->externalAuth->login($user->username, ObibaAgate::AGATE_PROVIDER);
             if($externalUserAccount){
-                return $this->updateDrupalExternalUser($externalUserAccount, $user);
+                $this->updateDrupalExternalUser($externalUserAccount, $user);
             }
         }
-        return FALSE;
     }
 
     /**
@@ -54,6 +53,32 @@ class AgateUserManager extends ControllerBase{
             return $drupalUserAccount;
         }
         return FALSE;
+    }
+
+    /**
+     * Manage User Authentication status
+     *
+     * @throws \Drupal\Core\Entity\EntityStorageException
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function isAuthenticate(){
+        // Force Authentication if already existing valid Cookies (Single signOn)
+        if($this->agateClient::hasCookiesTicket()){
+            //Validate the cookies
+            $user = $this->agateClient->getSubjectNoAuth($_COOKIE[$this->agateClient::OBIBA_COOKIE]);
+            if($user){
+                $this->agateClient->setCookies([$this->agateClient::OBIBA_COOKIE . ':' . $_COOKIE[$this->agateClient::OBIBA_COOKIE]]);
+                $this->agateLogin($user);
+            }
+        }
+        // Force logout if no existing obibaid Session or current user authenticated and is an Agate User
+        else{
+            $currentUser = \Drupal::currentUser();
+            if($this->agateClient::hasTicket() ||
+                ($currentUser->isAuthenticated() && $this->agateUserManager->externalAuth->load(\Drupal::currentUser()->getAccountName(), 'obiba_agate'))){
+                $this->agateClient->logout();
+            }
+        }
     }
 
     /**
@@ -91,15 +116,17 @@ class AgateUserManager extends ControllerBase{
     $user_info['preferred_langcode'] = $this->getAgateUserAttribute($agateUserProfile->attributes, 'locale');
     foreach ($drupalConfig as $field => $drupalField){
         switch ($field){
-            case 'firstname':
+            case 'firstName':
                 if($enableImportConfig[$field]){
                     $user_info[$drupalField] = $this->getAgateUserAttribute($agateUserProfile->attributes, 'firstName');
                 }
                 break;
-            case 'lastname':
+            case 'lastName':
                 if($enableImportConfig[$field]) {
                     $user_info[$drupalField] = $this->getAgateUserAttribute($agateUserProfile->attributes, 'lastName');
                 }
+                break;
+                case 'recaptcha':
                 break;
             default:
                 if($enableImportConfig[$field]) {
@@ -127,7 +154,7 @@ class AgateUserManager extends ControllerBase{
       }
       // Update Drupal user Roles
       foreach ($groups as $group){
-              if(!Role::load($group)){
+              if(!Role::load($group) && !empty($group)){
                  Role::create(['id' => $group, 'label' => $group])->save();
               }
           $drupalUserAccount->addRole($group);
@@ -149,7 +176,9 @@ class AgateUserManager extends ControllerBase{
   }
 
   public function createAgateUser($userEntity){
-    return $this->agateClient->createUser($this->normalizeDrupalUserAttributes($userEntity));
+      /* Create Agate User */
+    return $this->agateClient->createUser($this->normalizeDrupalUserAttributes($userEntity,
+        \Drupal::config(ObibaAgate::AGATE_SERVER_SETTINGS)->get(ObibaAgate::CONFIG_PREFIX_SERVER . '.' . 'auto_assigned_role')));
   }
 
     /**
@@ -162,21 +191,40 @@ class AgateUserManager extends ControllerBase{
     /**
      * Normalize the Agate User attribute to save
      *
-     * @param $agateUserProfile
+     * @param $drupalUserEntity
+     * @param array $roles
      * @return mixed
      */
-    private function normalizeDrupalUserAttributes($drupalUserEntity){
+    private function normalizeDrupalUserAttributes($drupalUserEntity, Array $roles): String {
         $config = \Drupal::config(ObibaAgate::AGATE_SERVER_SETTINGS);
         $user_field_mapping = $config->get(ObibaAgate::CONFIG_PREFIX_USER_FIELDS_MAPPING);
         $agate_user_profile['username'] = current($drupalUserEntity->name->getValue()[0]);
         $agate_user_profile['email'] = current($drupalUserEntity->mail->getValue()[0]);
         $agate_user_profile['local'] = current($drupalUserEntity->langcode->getValue()[0]);
-        $agate_user_profile['g-recaptcha-response'] = $_POST['g-recaptcha-response'];
+        $agate_user_profile['g-recaptcha-response'] =  \Drupal::request()->request->get('g-recaptcha-response');
         foreach ($user_field_mapping[ObibaAgate::AGATE_PROFILE_FIELD] as $field => $agate_field){
-            if($user_field_mapping[ObibaAgate::DRUPAL_ENABLED_FILED_IMPORT][$field]){
-                $agate_user_profile[$field] = current($drupalUserEntity->{$user_field_mapping[ObibaAgate::DRUPAL_PROFILE_FIELD][$field]}->getValue()[0]);
+            if($user_field_mapping[ObibaAgate::DRUPAL_ENABLED_FILED_IMPORT][$field] && ($field != 'recaptcha')){
+                $agate_user_profile[$agate_field] = current($drupalUserEntity->{$user_field_mapping[ObibaAgate::DRUPAL_PROFILE_FIELD][$field]}->getValue()[0]);
             }
         }
-        return $agate_user_profile;
+        return http_build_query($agate_user_profile) . $this->normalizeDrupalUserRoles($roles);
+    }
+
+    /**
+     * Normalize roles array to Agate User group parameters
+     * @Todo May be need working on Agate Api that is different from Form Url parameters defined in rfc1738 or rfc3986
+     *          (group=role1&group=role2&group=role3 VS RFC =>  group[]=role1&group[]=role2&group[]=role3)
+     *
+     * @param array $roles
+     * @return String
+     */
+    private function normalizeDrupalUserRoles(array $roles): String {
+        $groups = '';
+        foreach ($roles as $role) {
+            if (!empty($role) && strstr($role, 'mica')) {
+                $groups .= '&group=' . $role;
+            }
+        }
+        return $groups;
     }
 }

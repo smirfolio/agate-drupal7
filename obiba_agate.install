@@ -1,0 +1,51 @@
+<?php
+/**
+ * @file
+ * Install, update and uninstall functions for the obiba_agate install module.
+ */
+
+use Drupal\obiba_agate\ObibaAgate;
+
+/**
+ * Implements hook_install().
+ *
+ * Perform actions to set up the site for this module.
+ *
+ * @see system_install()
+ */
+function obiba_agate_install() {
+    $config =  \Drupal::service('config.factory')->getEditable(ObibaAgate::AGATE_SERVER_SETTINGS);
+
+    // Retrieve Recaptcha Agate Server key, the sAgate server must be up
+    $recaptchaClient = \Drupal::service('obiba_agate.server.agateclient')->getServerRecaptcha();
+
+    // Default Fields mapping settings
+    $fields = [
+        'firstName' => ['firstname', 'field_agate_first_name', 1],
+        'lastName' => ['lastname', 'field_agate_last_name', 1],
+        'recaptcha'=> ['', '', 0],
+        'realm' => ['', '', 0],
+    ];
+
+    // Set Default fields mapping settings
+    foreach ($fields as $keyField => $field){
+        if($recaptchaClient && $keyField === 'recaptcha'){
+            $config->set(ObibaAgate::CONFIG_PREFIX_USER_FIELDS_MAPPING . '.' . 'agate_profile_field.' . $keyField,'');
+            $config->set(ObibaAgate::CONFIG_PREFIX_USER_FIELDS_MAPPING . '.' . 'drupal_profile_field.' . $keyField, $recaptchaClient->reCaptchaKey);
+            $config->set(ObibaAgate::CONFIG_PREFIX_USER_FIELDS_MAPPING . '.' . 'enabled_import.' . $keyField, TRUE);
+        }
+        else{
+            $config->set(ObibaAgate::CONFIG_PREFIX_USER_FIELDS_MAPPING . '.' . 'agate_profile_field.' . $keyField, $field[0]);
+            $config->set(ObibaAgate::CONFIG_PREFIX_USER_FIELDS_MAPPING . '.' . 'drupal_profile_field.' . $keyField, $field[1]);
+            $config->set(ObibaAgate::CONFIG_PREFIX_USER_FIELDS_MAPPING . '.' . 'enabled_import.' . $keyField, $field[2]);
+        }
+    }
+    // Save Fields mapping setting
+    $config->save();
+
+    // Set and Save default user account registration settings (May override a desired configuration)
+    \Drupal::service('config.factory')->getEditable('user.settings')
+        ->set('notify.register_no_approval_required', FALSE)
+        ->set('register', 'visitors')
+        ->save();
+}

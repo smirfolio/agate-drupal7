@@ -6,10 +6,12 @@
  * Agate authentication Drupal integration
  */
 
+use Drupal\Core\Url;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\core\Form\FormStateInterface;
 use Drupal\Core\Link;
+use Drupal\Core\Entity\Display\EntityFormDisplayInterface;
 
 use Drupal\obiba_agate\ObibaAgate;
 
@@ -94,33 +96,11 @@ function obiba_agate_form_user_login_form_alter(&$form, FormStateInterface $form
  * Adjusts form on edit profile user page.
  */
 function obiba_agate_form_alter(&$form, FormStateInterface $form_state, $form_id){
-    if($form_id === '$form_id'){
+    if($form_id === 'user_form'){
         $form['account']['mail']['#disabled'] = TRUE;
+        $form['account']['pass']['#type'] = 'hidden';
+        $form['account']['current_pass']['#type'] = 'hidden';
     }
-}
-
-/**
- * Implements hook_form_user_register_form_alter().
- *
- * Adjusts form on register user page.
- */
-function obiba_agate_form_user_register_form_alter(&$form, FormStateInterface $form_state, $form_id){
-    $form['#prefix'] = '<div class="row">
-    <div class="col-md-2"></div>
-    <div class="well col-md-8">';
-    $form['#suffix'] = '</div>
-    <div class="col-md-2"></div>
-    </div>';
-    $formToreorder = $form['account'];
-    unset($form['account']);
-    $form['account']['#type'] = $formToreorder['#type'];
-    $form['account']['#weight'] = $formToreorder['#weight'];
-
-    $form['account']['name'] = $formToreorder['name'];
-    $form['account']['mail'] = $formToreorder['mail'];
-    $form['account']['pass'] = $formToreorder['pass'];
-    $form['account']['pass']['#type'] = 'hidden';
-    $form['account']['pass']['#required'] = false;
 }
 
 
@@ -155,30 +135,19 @@ function obiba_agate_user_logout($account){
 }
 
 /**
- * Implements hook_entity_presave().
- * useful to when update Drupal user
+ * Implements hook_entity_type_alter().
  */
-function obiba_agate_user_presave(Drupal\Core\Entity\EntityInterface $entity){
-        if(!empty($entity->original)){
-            // Its an update
-        }
-        else{
-            $server_response = \Drupal::service('obiba_agate.controller.agateusermanager')->createAgateUser($entity);
-                if(!empty($server_response['code']) && $server_response['code'] !== 200){
-                    $response = new RedirectResponse(\Drupal::request()->getRequestUri());
-                    $response->send();
-                    \Drupal::messenger()->addError($server_response['message']);
-                    exit;
-                }
-
-        }
+function obiba_agate_entity_type_build(array &$entity_types) {
+    $entity = $entity_types['user'];
+    $entity->addConstraint('UserAgateValidation')
+            ->setFormClass('register', 'Drupal\obiba_agate\Form\AgateRegisterForm');
 }
 
 /**
  * Implements hook_ENTITY_TYPE_insert().
  */
 function obiba_agate_user_insert(Drupal\Core\Entity\EntityInterface $entity) {
-    if(!$entity->isAnonymous() && !empty($entity->field_agate_realm->getValue()[0])){
+    if(!$entity->isAnonymous() && !empty($entity->field_agate_realm->getValue()[0]) && !\Drupal::currentUser()->hasPermission('administrator')){
         \Drupal::service('obiba_agate.controller.agateusermanager')->externalAuth->linkExistingAccount($entity->name->getValue()[0]['value'], 'obiba_agate', $entity);
     }
 }

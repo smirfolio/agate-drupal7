@@ -12,7 +12,6 @@ use Drupal\obiba_agate\Controller\AgateUserManager;
 use Drupal\externalauth\Authmap;
 
 use Drupal\Core\Authentication\AuthenticationProviderInterface;
-use Drupal\obiba_agate\Server\AgateClient;
 use Drupal\user\Controller\UserAuthenticationController;
 use Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent;
 use Symfony\Component\HttpFoundation\Request;
@@ -74,8 +73,7 @@ class ObibaAgateAuthenticationProvider extends UserAuthenticationController impl
    * {@inheritdoc}
    */
   public function authenticate(Request $request) {
-    // TODO if current user have Ticket and have valid session in Agate it can process current page, else access denied
-    // See D7 obiba_agate_boot()
+    // If current user have Ticket and have valid session in Agate it can process current page, else access denied
       $userName = $request->get('name');
       if(isset($userName)){
           if($this->externalAuth->getUid($userName, ObibaAgate::AGATE_PROVIDER)){
@@ -93,6 +91,7 @@ class ObibaAgateAuthenticationProvider extends UserAuthenticationController impl
     /**
      * {@inheritdoc}
      * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws \Drupal\Core\Entity\EntityStorageException
      */
   public function applies(Request $request) {
       $userName = $request->get('name');
@@ -104,21 +103,10 @@ class ObibaAgateAuthenticationProvider extends UserAuthenticationController impl
             return TRUE;
         }
     }
-    // Force Authentication if already existing valid Cookies (Single signOn)
-      elseif($this->agateUserManager->agateClient::hasCookiesTicket() && !$this->agateUserManager->agateClient::hasTicket()){
-          //Validate the cookies
-          $user = $this->agateUserManager->agateClient->getSubjectNoAuth($_COOKIE[$this->agateUserManager->agateClient::OBIBA_COOKIE]);
-          $_SESSION[$this->agateUserManager->agateClient::OBIBA_COOKIE] = $_COOKIE[$this->agateUserManager->agateClient::OBIBA_COOKIE];
-          $this->agateUserManager->agateLogin($user);
-          return FALSE;
-      }
-    // Force logout if no existing obibaid cookies or session and current user is an Agate User
-      elseif(!$this->agateUserManager->agateClient::hasCookiesTicket() && !$this->agateUserManager->agateClient::hasTicket()){
-        $currentUser = \Drupal::currentUser();
-        if($currentUser->isAuthenticated() && $this->agateUserManager->externalAuth->load(\Drupal::currentUser()->getAccountName(), 'obiba_agate'))
-          $this->agateUserManager->agateClient->logout();
-          return FALSE;
-      }
+    // Verify legetime authenticated Agate user on mica pages only
+  if(preg_match('/\/mica\//', $request->getPathInfo())){
+      $this->agateUserManager->isAuthenticate();
+  }
     return FALSE;
   }
 
