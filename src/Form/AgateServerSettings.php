@@ -10,6 +10,7 @@ use Drupal\obiba_agate\ObibaAgate;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Session\AccountInterface;
+use Drupal\obiba_agate\Server\AgateClient;
 
 class AgateServerSettings extends ConfigFormBase {
 
@@ -90,13 +91,16 @@ class AgateServerSettings extends ConfigFormBase {
 
     // Taken from Drupal's User module.
     $roles = user_role_names();
-    $checkbox_authenticated = [
+    $checkboxMicaUser = [
       '#type' => 'checkbox',
-      '#title' => $roles[AccountInterface::AUTHENTICATED_ROLE],
+      '#title' => $roles[AgateClient::ROLE_MICA_CLIENT] ? $roles[AgateClient::ROLE_MICA_CLIENT] : AgateClient::ROLE_MICA_CLIENT,
       '#default_value' => TRUE,
       '#disabled' => TRUE,
     ];
-    unset($roles[AccountInterface::AUTHENTICATED_ROLE]);
+    // Only display Drupal Custom or Agate Roles
+      unset($roles[AccountInterface::AUTHENTICATED_ROLE]);
+      unset($roles[AccountInterface::ANONYMOUS_ROLE]);
+      unset($roles['administrator']);
     $default_check_values = $config->get(ObibaAgate::CONFIG_PREFIX_SERVER . '.' . 'auto_assigned_role');
     $form['account'][ObibaAgate::CONFIG_PREFIX_SERVER . '_' . 'auto_assigned_role'] = [
       '#type' => 'checkboxes',
@@ -105,7 +109,7 @@ class AgateServerSettings extends ConfigFormBase {
       '#options' => $roles,
       '#default_value' => $default_check_values,
       '#access' => \Drupal::currentUser()->hasPermission('administer permissions'),
-      AccountInterface::AUTHENTICATED_ROLE => $checkbox_authenticated,
+        AgateClient::ROLE_MICA_CLIENT => $checkboxMicaUser,
     ];
     return $form;
   }

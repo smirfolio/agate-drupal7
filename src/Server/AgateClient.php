@@ -20,6 +20,7 @@ class AgateClient   implements AgateClientInterface{
 
   const OBIBA_COOKIE = 'obibaid';
   const OBIBA_COOKIE_OBJECT = 'obibaid_object';
+  const ROLE_MICA_CLIENT = 'mica-user';
   protected $agateUrl;
   protected $config;
   protected $httpClient;
@@ -56,12 +57,13 @@ class AgateClient   implements AgateClientInterface{
     }
 
     /**
-     * Check if the user was authenticated by Agate.
+     * Check if ticket cookie already set.
      *
+     * @param null $coockieName
      * @return bool
      */
-    public static function hasCookiesTicket() {
-        return isset($_COOKIE[self::OBIBA_COOKIE]);
+    public static function hasCookiesTicket($coockieName = NULL) {
+        return isset($_COOKIE[($coockieName ? $coockieName : self::OBIBA_COOKIE)]);
     }
 
     /**
@@ -103,14 +105,18 @@ class AgateClient   implements AgateClientInterface{
 
             return json_decode($response->getBody()->getContents());
         }catch (\Exception $e){
-            watchdog_exception('Agate Exception', $e);
+            $this->logError($e, __LINE__, __FILE__);
             $this->invalidateSession();
             user_logout();
             return FALSE;
         }
     }
 
-    public function createUser(Array $user){
+    /**
+     * @param String $user
+     * @return array|mixed
+     */
+    public function createUser(String $user){
         try{
             $headers = [
                 'Accept' => ['application/json'],
@@ -123,17 +129,17 @@ class AgateClient   implements AgateClientInterface{
                 $this->agateUrl .  '/users/_join',
                 [
                     'headers' => $headers,
-                    'form_params' => $user,
-                    'debug' => true,
+                    'body' => $user,
                 ]
             );
 
             return json_decode($response->getBody()->getContents());
         }catch (\Exception $e){
-            watchdog_exception('Agate Exception', $e);
+            $this->logError($e, __LINE__, __FILE__);
             return self::parseServerErrorCode($e);
         }
     }
+
   /**
    * @param $userName
    * @param $password
@@ -153,10 +159,10 @@ class AgateClient   implements AgateClientInterface{
         $this->agateUrl .  '/tickets',
           [
               'headers' => $headers,
-              'form_params' => [
+              'body' => http_build_query([
                   'username' => $userName,
                   'password' => $password
-              ],
+              ]),
               ''
           ]
       );
@@ -165,7 +171,7 @@ class AgateClient   implements AgateClientInterface{
           return TRUE;
         }
     }catch (\Exception $e){
-      watchdog_exception('Agate Exception', $e);
+        $this->logError($e, __LINE__, __FILE__);
     }
       return FALSE;
   }
@@ -192,7 +198,7 @@ class AgateClient   implements AgateClientInterface{
                 );
 
             }catch (\Exception $e){
-                watchdog_exception('Agate Exception', $e);
+                $this->logError($e, __LINE__, __FILE__);
             }
         }
         $this->invalidateSession();
@@ -219,24 +225,78 @@ class AgateClient   implements AgateClientInterface{
             );
             return json_decode($response->getBody()->getContents(), TRUE);
         }catch (\Exception $e){
-            watchdog_exception('Agate Exception', $e);
+            $this->logError($e, __LINE__, __FILE__);
             return ;
         }
     }
 
     /**
+     * Get The recaptcha client key
+     *
+     * @return mixed|void
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function getServerRecaptcha(){
+        try{
+            $headers = [
+                'Accept' => 'application/json' ,
+                'X-App-Auth' => $this->basicAgateAuth,
+            ];
+            $response = $this->httpClient->request(
+                'GET',
+                $this->agateUrl .  '/config/client',
+                [
+                    'headers' => $headers,
+                ]
+            );
+            return json_decode($response->getBody()->getContents());
+        }catch (\Exception $e){
+            $this->logError($e, __LINE__, __FILE__);
+            return ;
+        }
+    }
+
+    public function sendPassword($password, $resourceRequest = 'confirm'){
+        try{
+            $headers = [
+                'Accept' => ['application/json'],
+                'Content-Type' => 'application/x-www-form-urlencoded' ,
+                'X-App-Auth' => $this->basicAgateAuth,
+            ];
+
+            $response = $this->httpClient->request(
+                'POST',
+                $this->agateUrl .  '/users/_' . $resourceRequest,
+                [
+                    'headers' => $headers,
+                    'body' => http_build_query($password),
+                ]
+            );
+
+            return [
+                'message' => 'Password Sent',
+                'code' => $response->getStatusCode()
+            ];
+        }catch (\Exception $e){
+            $this->logError($e, __LINE__, __FILE__);
+            return self::parseServerErrorCode($e);
+        }
+    }
+    /**
      * Set Agate User cookies
      *
      * @param array $cookies
      */
-    protected function setCookies(array $cookies){
+    public function setCookies(array $cookies){
         $cookieParser = new CookieParser;
         $cookieObject = \stdClass::class;
         foreach ($cookies as $cookie){
             $cookieObject = $cookieParser->fromString($cookie);
             $_SESSION[$cookieObject->getName()] = $cookieObject->getValue();
-            setcookie($cookieObject->getName(), $cookieObject->getValue(),
-                $cookieObject->getExpires(),$cookieObject->getPath(),$cookieObject->getDomain(),$cookieObject->getSecure());
+            if(!$this->hasCookiesTicket($cookieObject->getName())){
+                setcookie($cookieObject->getName(), $cookieObject->getValue(),
+                    $cookieObject->getExpires(),$cookieObject->getPath(),$cookieObject->getDomain(),$cookieObject->getSecure());
+            }
         }
         $_SESSION[self::OBIBA_COOKIE_OBJECT] = $cookieObject;
     }
@@ -277,7 +337,25 @@ class AgateClient   implements AgateClientInterface{
         preg_match('/(?<=\{)(.*)(?=\})/m', $serverError->getMessage(), $message);
         return [
             'code' => $serverError->getCode(),
-            'message' =>  json_decode('{' . $message[0] . '}')->message,
+            'message' =>  $message ? json_decode('{' . $message[0] . '}')->message : $serverError->getMessage(),
         ];
+    }
+
+    /**
+     * Drupal Log  Errors
+     * @param \Exception $e
+     * @param $line
+     * @param $file
+     */
+    private function logError(\Exception $e, $line, $file):void {
+        //Todo add debug mode config to the agate module soo errors wil be logged
+        \Drupal::logger('obiba_agate')->error('Agate Server -- Client Error Code:@code, Message: @message.
+             In Line:@line , File:@file',
+            [
+                '@code' => $e->getCode(),
+                '@message' => $e->getMessage(),
+                '@line' => $line,
+                '@file' => $file,
+            ]);
     }
 }

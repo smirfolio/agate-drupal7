@@ -29,3 +29,19 @@ obiba_agate.agate_user_fields_mapping_setting:
     _description: 'Configure The Mapping of The users Agate/Drupal Fields'
   requirements:
     _permission: 'administer obiba agate'
+obiba_agate_agaute_user_password_activation:
+  path: '/agate/confirm'
+  defaults:
+    _form: '\Drupal\obiba_agate\Form\PasswordProcess'
+    _title: 'Password User Activation'
+    _description: 'User password confirm Registration'
+  requirements:
+    _permission: 'access content'
+obiba_agate_agaute_user_password_reset:
+  path: '/agate/reset_password'
+  defaults:
+    _form: '\Drupal\obiba_agate\Form\PasswordProcess'
+    _title: 'Password User Reset'
+    _description: 'User password confirm Registration'
+  requirements:
+    _permission: 'access content'

@@ -3,7 +3,8 @@ server:
   application_name: 'drupal'
   application_key: 'changeit'
   logout_redirection_page: '<front>'
-  auto_assigned_role: {}
+  auto_assigned_role:
+    - "mica-user"
 page_settings:
   access_signin_button: 'Sign In'
   obiba_login_page_title: 'User account'
