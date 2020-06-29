@@ -26,6 +26,8 @@ class ObibaAgate {
     const DRUPAL_ENABLED_FILED_IMPORT = 'enabled_import';
     const OBIBA_AGATE_FORM_USER_FIELDS_MAPPING_SETTINGS = 'agate_user_fields_mapping_setting';
 
+    const OBIBA_AGATE_FORM_USER_FIELDS_REALM = 'realm';
+
     // Agate User register Form
     const AGATE_USER_REGISTER_FORM = 'user-register';
 
@@ -33,4 +35,5 @@ class ObibaAgate {
     const AGATE_USER_PASSWORD_ACTIVATION_FORM = 'user-reset-password';
 
     const AGATE_PROVIDER = 'obiba_agate';
+
 }

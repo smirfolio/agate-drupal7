@@ -35,7 +35,7 @@ class AgateServerUserFieldsMapping extends ConfigFormBase{
         unset($userFields['locale']);
         unset($userFields['username']);
         unset($userFields['email']);
-        //unset($userFields['realm']);
+        unset($userFields['realm']);
         $config = $this->config(ObibaAgate::AGATE_SERVER_SETTINGS);
         $form = parent::buildForm($form, $form_state);
         $form['user_fields'] = [

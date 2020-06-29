@@ -3,13 +3,26 @@
 
 namespace Drupal\obiba_agate\Form;
 
+use Drupal\Component\Datetime\TimeInterface;
+use Drupal\Core\Entity\EntityRepositoryInterface;
+use Drupal\Core\Entity\EntityTypeBundleInfoInterface;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Language\LanguageManagerInterface;
 use Drupal\obiba_agate\ObibaAgate;
-use Drupal\user\RegisterForm;
+use Drupal\user\AccountForm;
 use Drupal\Core\Url;
+use Drupal\Core\Link;
 
 
-class AgateRegisterForm extends RegisterForm {
+class AgateRegisterForm extends  AccountForm {
+    protected $hasRealm;
+    public function __construct(EntityRepositoryInterface $entity_repository,
+                                LanguageManagerInterface $language_manager,
+                                EntityTypeBundleInfoInterface $entity_type_bundle_info = NULL,
+                                TimeInterface $time = NULL) {
+        parent::__construct($entity_repository, $language_manager, $entity_type_bundle_info, $time);
+        $this->hasRealm = $this->hasRealmOptions();
+    }
 
     /**
      * {@inheritdoc}.
@@ -26,13 +39,31 @@ class AgateRegisterForm extends RegisterForm {
         if(!\Drupal::currentUser()->hasPermission('administrator')){
             $config =  \Drupal::config(ObibaAgate::AGATE_SERVER_SETTINGS);
             $form['#prefix'] = '<div class="row">
-    <div class="col-md-2"></div>
-    <div class="well col-md-8">';
+                <div class="col-md-2"></div>
+                <div class="well col-md-8" id="update-field">';
             $form['#suffix'] = '</div>
-    <div class="col-md-2"></div>
-    </div>';
+                <div class="col-md-2"></div>
+                </div>';
             $form['account']['pass']['#type'] = 'hidden';
             $form['account']['pass']['#required'] = false;
+
+            if($this->hasRealm){
+                $form['test_realm'] =  [
+                    '#weight' => 24,
+                    '#markup' => '<div>' .
+                        Link::fromTextAndUrl('Have you an external User profile Provider (Mysql, Ldap, etc ..)',
+                            Url::fromUri($config->get(ObibaAgate::CONFIG_PREFIX_SERVER . '.' . 'url') . '/' .
+                                $config->get(ObibaAgate::CONFIG_PREFIX_SERVER . '.' . 'sign_up_page')
+                                , [
+                                'attributes' => [
+                                    'target' => '_blank',
+                                ]
+                            ])
+                        )->toString() .
+                        '</div>'
+                ];
+            }
+
             $form['captcha_response'] = [
                 '#weight' => 25,
                 '#markup' => '<div class="g-recaptcha" data-sitekey=" ' . $config->get(ObibaAgate::CONFIG_PREFIX_USER_FIELDS_MAPPING . '.' . 'drupal_profile_field.recaptcha') . ' "></div>',
@@ -107,5 +138,12 @@ class AgateRegisterForm extends RegisterForm {
             $this->messenger()->addStatus($this->t('Thank you for applying for an account. Your account is currently pending approval by the site administrator.<br />In the meantime, a welcome message with further instructions has been sent to your email address.'));
             $form_state->setRedirect('<front>');
         }
+    }
+
+    private function hasRealmOptions(){
+       return count(current(array_filter(\Drupal::service('obiba_agate.server.agateclient')->getConfigFormJoin()['definition'],
+           function($definition){
+               return $definition['key'] === ObibaAgate::OBIBA_AGATE_FORM_USER_FIELDS_REALM;
+           }))['titleMap']) > 1;
     }
 }

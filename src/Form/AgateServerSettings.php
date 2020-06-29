@@ -53,6 +53,14 @@ class AgateServerSettings extends ConfigFormBase {
       '#maxlength' => 255,
       '#description' => $this->t('URL of the Agate server. Note that cross-domain is not supported. Example: https://agate.example.org:8444'),
     ];
+    $form['server'][ObibaAgate::CONFIG_PREFIX_SERVER . '_' . 'sign_up_page'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Agate SignUp Page Path'),
+      '#required' => TRUE,
+      '#default_value' => $config->get(ObibaAgate::CONFIG_PREFIX_SERVER . '.' . 'sign_up_page'),
+      '#maxlength' => 255,
+      '#description' => $this->t('The SignUp Page of the Agate server.'),
+    ];
 
     $form['server'][ObibaAgate::CONFIG_PREFIX_SERVER . '_' . 'application_name'] = [
       '#type' => 'textfield',
@@ -121,6 +129,7 @@ class AgateServerSettings extends ConfigFormBase {
       parent::submitForm($form, $form_state);
       $this->config(ObibaAgate::AGATE_SERVER_SETTINGS)
       ->set(ObibaAgate::CONFIG_PREFIX_SERVER . '.' . 'url', $form_state->getValue(ObibaAgate::CONFIG_PREFIX_SERVER . '_' . 'url'))
+      ->set(ObibaAgate::CONFIG_PREFIX_SERVER . '.' . 'sign_up_page', $form_state->getValue(ObibaAgate::CONFIG_PREFIX_SERVER . '_' . 'sign_up_page'))
       ->set(ObibaAgate::CONFIG_PREFIX_SERVER . '.' . 'application_name', $form_state->getValue(ObibaAgate::CONFIG_PREFIX_SERVER . '_' . 'application_name'))
       ->set(ObibaAgate::CONFIG_PREFIX_SERVER . '.' . 'application_key', $form_state->getValue(ObibaAgate::CONFIG_PREFIX_SERVER . '_' . 'application_key'))
       ->set(ObibaAgate::CONFIG_PREFIX_SERVER . '.' . 'logout_redirection_page', $form_state->getValue(ObibaAgate::CONFIG_PREFIX_SERVER . '_' . 'logout_redirection_page'))

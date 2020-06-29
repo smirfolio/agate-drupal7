@@ -3,15 +3,10 @@
 
 namespace Drupal\obiba_agate\Form;
 
-use Drupal\Core\Ajax\AlertCommand;
-use Drupal\Core\Ajax\AnnounceCommand;
-use Drupal\Core\Ajax\HtmlCommand;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\obiba_agate\ObibaAgate;
 
-use Drupal\Core\Ajax\AjaxResponse;
-use Drupal\Core\Ajax\InvokeCommand;
 
 /**
  * Form Reset / Activation password process
@@ -90,7 +85,6 @@ class PasswordProcess extends FormBase {
      *
      * @param array $form
      * @param FormStateInterface $form_state
-     * @return AjaxResponse
      */
     public function submitForm(array &$form, FormStateInterface $form_state){
 

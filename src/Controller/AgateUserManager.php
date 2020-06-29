@@ -178,7 +178,7 @@ class AgateUserManager extends ControllerBase{
   public function createAgateUser($userEntity){
       /* Create Agate User */
     return $this->agateClient->createUser($this->normalizeDrupalUserAttributes($userEntity,
-        \Drupal::config(ObibaAgate::AGATE_SERVER_SETTINGS)->get(ObibaAgate::CONFIG_PREFIX_SERVER . '.' . 'auto_assigned_role')));
+        array_keys(\Drupal::config(ObibaAgate::AGATE_SERVER_SETTINGS)->get(ObibaAgate::CONFIG_PREFIX_SERVER . '.' . 'auto_assigned_role'))));
   }
 
     /**
