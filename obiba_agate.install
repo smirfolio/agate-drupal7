@@ -24,7 +24,6 @@ function obiba_agate_install() {
         'firstName' => ['firstname', 'field_agate_first_name', 1],
         'lastName' => ['lastname', 'field_agate_last_name', 1],
         'recaptcha'=> ['', '', 0],
-        'realm' => ['', '', 0],
     ];
 
     // Set Default fields mapping settings

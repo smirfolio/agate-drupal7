@@ -1,8 +1,6 @@
 <?php
 namespace Drupal\obiba_agate\Plugin\Validation\Constraint;
 
-
-use Drupal\obiba_agate\ObibaAgate;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
 

@@ -6,12 +6,9 @@
  * Agate authentication Drupal integration
  */
 
-use Drupal\Core\Url;
-use Symfony\Component\HttpFoundation\RedirectResponse;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\core\Form\FormStateInterface;
 use Drupal\Core\Link;
-use Drupal\Core\Entity\Display\EntityFormDisplayInterface;
 
 use Drupal\obiba_agate\ObibaAgate;
 
@@ -147,7 +144,7 @@ function obiba_agate_entity_type_build(array &$entity_types) {
  * Implements hook_ENTITY_TYPE_insert().
  */
 function obiba_agate_user_insert(Drupal\Core\Entity\EntityInterface $entity) {
-    if(!$entity->isAnonymous() && !empty($entity->field_agate_realm->getValue()[0]) && !\Drupal::currentUser()->hasPermission('administrator')){
+    if(!$entity->isAnonymous() && !\Drupal::currentUser()->hasPermission('administrator')){
         \Drupal::service('obiba_agate.controller.agateusermanager')->externalAuth->linkExistingAccount($entity->name->getValue()[0]['value'], 'obiba_agate', $entity);
     }
 }
