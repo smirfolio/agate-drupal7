@@ -11,6 +11,8 @@ use Drupal\obiba_agate\ObibaAgate;
 
 use Drupal\Core\Url;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use Drupal\Core\Session\SessionManager;
+use Drupal\Core\Session\AnonymousUserSession;
 
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Cookie\SetCookie as CookieParser;
@@ -27,16 +29,25 @@ class AgateClient   implements AgateClientInterface{
   protected $entityTypeManager;
   protected $basicAgateAuth;
 
+    /**
+     * The session.
+     *
+     * @var \Drupal\Core\Session\SessionManager
+     */
+    protected $session;
+
   /**
    * AgateClient constructor.
    *
    * @param \GuzzleHttp\ClientInterface $httpClient
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entityTypeManager
+   * @param \Drupal\Core\Session\SessionManager $sessionManager
    *
    * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
+   *
    */
-  public function __construct(ClientInterface $httpClient, EntityTypeManagerInterface $entityTypeManager) {
+  public function __construct(ClientInterface $httpClient, EntityTypeManagerInterface $entityTypeManager, SessionManager $sessionManager) {
 
     $this->httpClient = $httpClient;
     $this->config = \Drupal::config(ObibaAgate::AGATE_SERVER_SETTINGS);
@@ -45,6 +56,8 @@ class AgateClient   implements AgateClientInterface{
     $this->agateUrl = $this->config->get(ObibaAgate::CONFIG_PREFIX_SERVER . '.' . 'url') . '/ws';
     $this->entityTypeManager = $entityTypeManager->getStorage('user');
     $this->basicAgateAuth = ['Basic ' . base64_encode($appName . ':' . $keyName)];
+    $this->session = $sessionManager;
+
   }
 
     /**
@@ -140,6 +153,35 @@ class AgateClient   implements AgateClientInterface{
         }
     }
 
+    /**
+     * Update Agate Profile user
+     *
+     * @param String $user
+     * @return array|mixed
+     */
+    public function updateUser(String $user){
+        try{
+            $headers = [
+                'Accept' => ['application/json'],
+                'Content-Type' => 'application/json' ,
+                'X-App-Auth' => $this->basicAgateAuth,
+            ];
+
+            $response = $this->httpClient->request(
+                'PUT',
+                $this->agateUrl .  '/ticket/' . $_SESSION[self::OBIBA_COOKIE] . '/profile',
+                [
+                    'headers' => $headers,
+                    'body' => $user,
+                ]
+            );
+
+            return json_decode($response->getBody()->getContents());
+        }catch (\Exception $e){
+            $this->logError($e, __LINE__, __FILE__);
+            return self::parseServerErrorCode($e);
+        }
+    }
   /**
    * @param $userName
    * @param $password
@@ -202,8 +244,8 @@ class AgateClient   implements AgateClientInterface{
             }
         }
         $this->invalidateSession();
-        $this->redirectDrupal();
     }
+
     /**
      * Get fields to use in drupal
      *
@@ -305,9 +347,11 @@ class AgateClient   implements AgateClientInterface{
      * Invalidate user sessions
      */
   private function invalidateSession(){
+      $user = \Drupal::currentUser();
       $this->invalidateObibaCookies();
-      $session_manager = \Drupal::service('session_manager');
-      $session_manager->delete(\Drupal::currentUser()->id());
+      $this->session->delete($user->id());
+      $this->session->destroy();
+      $user->setAccount(new AnonymousUserSession());
   }
 
     /**
@@ -319,15 +363,6 @@ class AgateClient   implements AgateClientInterface{
         $domain = empty($cookie['Domain']) ? NULL : $cookie['Domain'];
         $secure = empty($cookie['Secure']) ? FALSE : $cookie['Secure'];
         setrawcookie(self::OBIBA_COOKIE, '', $expire, $path, $domain, $secure);
-    }
-
-    /**
-     * Redirect To home page
-     */
-    protected function redirectDrupal(){
-        $url = Url::fromRoute('<front>')->toString();
-        $response = new RedirectResponse($url);
-        $response->send();
     }
 
     /**

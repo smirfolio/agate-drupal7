@@ -62,22 +62,33 @@ class AgateUserManager extends ControllerBase{
      * @throws \GuzzleHttp\Exception\GuzzleException
      */
     public function isAuthenticate(){
+        if($this->agateClient::hasCookiesTicket() && $this->agateClient::hasTicket() && \Drupal::currentUser()->isAuthenticated()) {
+            return TRUE;
+        }
         // Force Authentication if already existing valid Cookies (Single signOn)
         if($this->agateClient::hasCookiesTicket()){
             //Validate the cookies
             $user = $this->agateClient->getSubjectNoAuth($_COOKIE[$this->agateClient::OBIBA_COOKIE]);
-            if($user){
-                $this->agateClient->setCookies([$this->agateClient::OBIBA_COOKIE . ':' . $_COOKIE[$this->agateClient::OBIBA_COOKIE]]);
-                $this->agateLogin($user);
+
+            // Returned user can be an inactive user, so only his username is returned
+            if($user && !empty($user->groups)){
+                if(!$this->agateClient::hasTicket()){
+                    $this->agateClient->setCookies([$this->agateClient::OBIBA_COOKIE . ':' . $_COOKIE[$this->agateClient::OBIBA_COOKIE]]);
+                    $this->agateLogin($user);
+                }
+            }
+
+            // Seems the returned agate user is inactive
+            else{
+                $this->agateClient->logout();
+                $this->logoutMessage();
             }
         }
-        // Force logout if no existing obibaid Session or current user authenticated and is an Agate User
-        else{
-            $currentUser = \Drupal::currentUser();
-            if($this->agateClient::hasTicket() ||
-                ($currentUser->isAuthenticated() && $this->agateUserManager->externalAuth->load(\Drupal::currentUser()->getAccountName(), 'obiba_agate'))){
-                $this->agateClient->logout();
-            }
+
+        // Force logout if no existing obibaid Cookies but have a session
+        elseif($this->agateClient::hasTicket()){
+            $this->agateClient->logout();
+            $this->logoutMessage();
         }
     }
 
@@ -185,7 +196,11 @@ class AgateUserManager extends ControllerBase{
      * @param array $user
      */
   public function updateAgateUser($userEntity){
-
+      /* Update the current connected Drupal User */
+      if($this->isAuthenticate()){
+          return $this->agateClient->updateUser($this->normalizeDrupalUserAttributes($userEntity,
+              preg_grep('/mica\-|opal\-/m', $userEntity->getRoles()), TRUE));
+      }
   }
 
     /**
@@ -193,9 +208,9 @@ class AgateUserManager extends ControllerBase{
      *
      * @param $drupalUserEntity
      * @param array $roles
-     * @return mixed
+     * @param $toUpdate
      */
-    private function normalizeDrupalUserAttributes($drupalUserEntity, Array $roles): String {
+    private function normalizeDrupalUserAttributes($drupalUserEntity, Array $roles, $toUpdate = False): String {
         $config = \Drupal::config(ObibaAgate::AGATE_SERVER_SETTINGS);
         $user_field_mapping = $config->get(ObibaAgate::CONFIG_PREFIX_USER_FIELDS_MAPPING);
         $agate_user_profile['username'] = current($drupalUserEntity->name->getValue()[0]);
@@ -207,7 +222,14 @@ class AgateUserManager extends ControllerBase{
                 $agate_user_profile[$agate_field] = current($drupalUserEntity->{$user_field_mapping[ObibaAgate::DRUPAL_PROFILE_FIELD][$field]}->getValue()[0]);
             }
         }
-        return http_build_query($agate_user_profile) . $this->normalizeDrupalUserRoles($roles);
+        // User to Create Agate
+        if(!$toUpdate){
+            return http_build_query($agate_user_profile) . $this->normalizeDrupalUserRoles($roles);
+        }
+        // User to Update Agate
+        else{
+            return json_encode($agate_user_profile);
+        }
     }
 
     /**
@@ -227,4 +249,8 @@ class AgateUserManager extends ControllerBase{
         }
         return $groups;
     }
+
+    private function logoutMessage() {
+        \Drupal::messenger()->addError('You are logged Out');
+   }
 }

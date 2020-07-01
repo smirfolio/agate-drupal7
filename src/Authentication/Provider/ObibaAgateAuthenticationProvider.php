@@ -103,7 +103,7 @@ class ObibaAgateAuthenticationProvider extends UserAuthenticationController impl
             return TRUE;
         }
     }
-    // Verify legetime authenticated Agate user on mica pages only
+    // Verify authenticated Agate user on mica pages only
   if(preg_match('/\/mica\//', $request->getPathInfo())){
       $this->agateUserManager->isAuthenticate();
   }

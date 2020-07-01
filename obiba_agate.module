@@ -97,6 +97,30 @@ function obiba_agate_form_alter(&$form, FormStateInterface $form_state, $form_id
         $form['account']['mail']['#disabled'] = TRUE;
         $form['account']['pass']['#type'] = 'hidden';
         $form['account']['current_pass']['#type'] = 'hidden';
+
+        // Administrator can't edit Agate profile fields, as administrator he should do so on agate server
+        if(\Drupal::currentUser()->hasPermission('administrator') && \Drupal::service('externalauth.externalauth')->load($form['account']['name']['#default_value'], 'obiba_agate')){
+            $agate_config = \Drupal::config(ObibaAgate::AGATE_SERVER_SETTINGS);
+            $user_field_mapping = $agate_config->get(ObibaAgate::CONFIG_PREFIX_USER_FIELDS_MAPPING);
+            $form['account']['name']['#disabled'] = TRUE;
+
+            // Read only Agate Roles convention: must begin with 'mica_' or 'opal_'
+            $mica_roles = preg_grep('/mica\-|opal\-/m', $form['account']['roles']['#options']);
+            foreach ($mica_roles as $mica_role){
+                $form['account']['roles'][$mica_role]['#disabled'] = TRUE;
+                if(in_array($mica_role, $form['account']['roles']['#default_value'])){
+                    $form['account']['roles'][$mica_role]['#default_value'] = TRUE;
+                }
+            }
+
+            // Read only Agate profile fields thar are enabled in the mapping drupal field configuration
+            foreach ($user_field_mapping['drupal_profile_field'] as $field => $drupal_field){
+                if($field != 'recaptcha' && ($user_field_mapping['enabled_import'][$field] == 1)){
+                    $form[$drupal_field]['#disabled'] = TRUE;
+                }
+            }
+        }
+
     }
 }
 

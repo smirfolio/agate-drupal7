@@ -15,6 +15,7 @@ services:
     arguments:
       - '@http_client'
       - '@entity.manager'
+      - '@session_manager'
   obiba_agate.controller.agateusermanager:
     class: Drupal\obiba_agate\Controller\AgateUserManager
     arguments:
