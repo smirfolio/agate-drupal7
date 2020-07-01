@@ -62,6 +62,9 @@ class AgateUserManager extends ControllerBase{
      * @throws \GuzzleHttp\Exception\GuzzleException
      */
     public function isAuthenticate(){
+        if($this->agateClient::hasCookiesTicket() && $this->agateClient::hasTicket() && \Drupal::currentUser()->isAuthenticated()) {
+            return TRUE;
+        }
         // Force Authentication if already existing valid Cookies (Single signOn)
         if($this->agateClient::hasCookiesTicket()){
             //Validate the cookies
@@ -69,19 +72,23 @@ class AgateUserManager extends ControllerBase{
 
             // Returned user can be an inactive user, so only his username is returned
             if($user && !empty($user->groups)){
-                $this->agateClient->setCookies([$this->agateClient::OBIBA_COOKIE . ':' . $_COOKIE[$this->agateClient::OBIBA_COOKIE]]);
-                $this->agateLogin($user);
+                if(!$this->agateClient::hasTicket()){
+                    $this->agateClient->setCookies([$this->agateClient::OBIBA_COOKIE . ':' . $_COOKIE[$this->agateClient::OBIBA_COOKIE]]);
+                    $this->agateLogin($user);
+                }
             }
 
             // Seems the returned agate user is inactive
             else{
                 $this->agateClient->logout();
+                $this->logoutMessage();
             }
         }
 
         // Force logout if no existing obibaid Cookies but have a session
         elseif($this->agateClient::hasTicket()){
-                $this->agateClient->logout();
+            $this->agateClient->logout();
+            $this->logoutMessage();
         }
     }
 
@@ -190,7 +197,7 @@ class AgateUserManager extends ControllerBase{
      */
   public function updateAgateUser($userEntity){
       /* Update the current connected Drupal User */
-      if($this->agateClient::hasTicket()){
+      if($this->isAuthenticate()){
           return $this->agateClient->updateUser($this->normalizeDrupalUserAttributes($userEntity,
               preg_grep('/mica\-|opal\-/m', $userEntity->getRoles()), TRUE));
       }
@@ -242,4 +249,8 @@ class AgateUserManager extends ControllerBase{
         }
         return $groups;
     }
+
+    private function logoutMessage() {
+        \Drupal::messenger()->addError('You are logged Out');
+   }
 }

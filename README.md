@@ -32,9 +32,7 @@ Working in progress
     - [x] Mail Activation process (new password creation form in Drupal)
     - [x] Automatic Active user once password saved
     - [x] Override Drupal Mail notification email message to reflect Agate Activation account process
-- [ ] The Edit/Update Drupal user should update Agate User  
+- [x] The Edit/Update Drupal user should update Agate User  
 - [ ] Implement the Password reset process 
-- [ ] Disable Drupal User if disabled/blocked in Agate (Optional)
-- [ ] Delete Drupal User if deleted in Agate (Optional)
 - [ ] Migration implementation from Agate Drupal7
  
