@@ -140,6 +140,35 @@ class AgateClient   implements AgateClientInterface{
         }
     }
 
+    /**
+     * Update Agate Profile user
+     *
+     * @param String $user
+     * @return array|mixed
+     */
+    public function updateUser(String $user){
+        try{
+            $headers = [
+                'Accept' => ['application/json'],
+                'Content-Type' => 'application/json' ,
+                'X-App-Auth' => $this->basicAgateAuth,
+            ];
+
+            $response = $this->httpClient->request(
+                'PUT',
+                $this->agateUrl .  '/ticket/' . $_SESSION[self::OBIBA_COOKIE] . '/profile',
+                [
+                    'headers' => $headers,
+                    'body' => $user,
+                ]
+            );
+
+            return json_decode($response->getBody()->getContents());
+        }catch (\Exception $e){
+            $this->logError($e, __LINE__, __FILE__);
+            return self::parseServerErrorCode($e);
+        }
+    }
   /**
    * @param $userName
    * @param $password
