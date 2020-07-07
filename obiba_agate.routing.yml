@@ -37,6 +37,14 @@ obiba_agate.agate_user_password_activation:
     _description: 'User password confirm Registration'
   requirements:
     _permission: 'access content'
+obiba_agate.agate_user_password_update:
+  path: '/agate/password_update'
+  defaults:
+    _form: '\Drupal\obiba_agate\Form\PasswordProcess'
+    _title: 'Password Agate User Update'
+    _description: 'Agate User password update'
+  requirements:
+    _permission: 'access content'
 obiba_agate.agate_user_password_reset:
   path: '/agate/reset_password'
   defaults:

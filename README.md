@@ -33,6 +33,7 @@ Working in progress
     - [x] Automatic Active user once password saved
     - [x] Override Drupal Mail notification email message to reflect Agate Activation account process
 - [x] The Edit/Update Drupal user should update Agate User  
-- [ ] Implement the Password reset process 
+- [x] Implement the Password update process 
+- [x] Implement the Password reset process 
 - [ ] Migration implementation from Agate Drupal7
  

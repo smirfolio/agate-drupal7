@@ -32,7 +32,7 @@ class ObibaAgate {
     const AGATE_USER_REGISTER_FORM = 'user-register';
 
     // Agate User Password Activation
-    const AGATE_USER_PASSWORD_ACTIVATION_FORM = 'user-reset-password';
+    const AGATE_USER_PASSWORD_ACTIVATION_FORM = 'user-manage-password';
 
     const AGATE_PROVIDER = 'obiba_agate';
 

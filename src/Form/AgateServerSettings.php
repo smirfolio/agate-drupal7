@@ -101,7 +101,7 @@ class AgateServerSettings extends ConfigFormBase {
     $roles = user_role_names();
     $checkboxMicaUser = [
       '#type' => 'checkbox',
-      '#title' => $roles[AgateClient::ROLE_MICA_CLIENT] ? $roles[AgateClient::ROLE_MICA_CLIENT] : AgateClient::ROLE_MICA_CLIENT,
+      '#title' => $roles[AgateClient::ROLE_MICA_USER] ? $roles[AgateClient::ROLE_MICA_USER] : AgateClient::ROLE_MICA_USER,
       '#default_value' => TRUE,
       '#disabled' => TRUE,
     ];
@@ -117,7 +117,7 @@ class AgateServerSettings extends ConfigFormBase {
       '#options' => $roles,
       '#default_value' => $default_check_values,
       '#access' => \Drupal::currentUser()->hasPermission('administer permissions'),
-        AgateClient::ROLE_MICA_CLIENT => $checkboxMicaUser,
+        AgateClient::ROLE_MICA_USER => $checkboxMicaUser,
     ];
     return $form;
   }

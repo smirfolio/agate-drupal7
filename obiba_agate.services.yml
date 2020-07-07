@@ -22,3 +22,7 @@ services:
       - '@obiba_agate.server.agateclient'
       - '@externalauth.externalauth'
       - '@entity.manager'
+  obiba_agate.route_subscriber:
+    class: Drupal\obiba_agate\Routing\ObibaAgateRouteSubscriber
+    tags:
+      - { name: event_subscriber }

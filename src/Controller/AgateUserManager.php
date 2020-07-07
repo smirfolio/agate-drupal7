@@ -186,14 +186,29 @@ class AgateUserManager extends ControllerBase{
       }))->value;
   }
 
+    /**
+     * Create new Agate user
+     *
+     * @param $userEntity
+     * @return array|mixed
+     */
   public function createAgateUser($userEntity){
       /* Create Agate User */
     return $this->agateClient->createUser($this->normalizeDrupalUserAttributes($userEntity,
-        array_keys(\Drupal::config(ObibaAgate::AGATE_SERVER_SETTINGS)->get(ObibaAgate::CONFIG_PREFIX_SERVER . '.' . 'auto_assigned_role'))));
+        array_keys(
+            array_filter(\Drupal::config(ObibaAgate::AGATE_SERVER_SETTINGS)->get(ObibaAgate::CONFIG_PREFIX_SERVER . '.' . 'auto_assigned_role'),
+                function($role) {
+                    return $role == TRUE;
+                }
+            )
+        )));
   }
 
     /**
-     * @param array $user
+     * Update Agate User
+     *
+     * @param array $userEntity
+     *  @return array|mixed
      */
   public function updateAgateUser($userEntity){
       /* Update the current connected Drupal User */
@@ -242,15 +257,42 @@ class AgateUserManager extends ControllerBase{
      */
     private function normalizeDrupalUserRoles(array $roles): String {
         $groups = '';
-        foreach ($roles as $role) {
-            if (!empty($role) && strstr($role, 'mica')) {
-                $groups .= '&group=' . $role;
+        if(!empty($roles) && preg_grep('/mica\-|opal\-/m', $roles)){
+            foreach ($roles as $role) {
+                if (!empty($role) && strstr($role, 'mica')) {
+                    $groups .= '&group=' . $role;
+                }
             }
+        }
+        else{
+            $groups .= '&group=' . AgateClient::ROLE_MICA_USER;
         }
         return $groups;
     }
 
     private function logoutMessage() {
         \Drupal::messenger()->addError('You are logged Out');
+   }
+
+    /**
+     * Check if the user is an external User
+     *
+     * @param $nameEmailUser
+     * @return bool
+     */
+   public function isExternalUser($nameEmailUser){
+       $usersStorage = \Drupal::entityTypeManager()->getStorage('user');
+
+       // Try to load by email.
+       $users = $usersStorage->loadByProperties(['mail' => $nameEmailUser]);
+       if (empty($users)) {
+           // No success, try to load by name.
+           $users = $usersStorage->loadByProperties(['name' => $nameEmailUser]);
+       }
+       $account = reset($users);
+       if ($account && $account->id()) {
+            return \Drupal::service('externalauth.authmap')->get($account->id(), ObibaAgate::AGATE_PROVIDER) ? TRUE : FALSE;
+       }
+        return FALSE;
    }
 }

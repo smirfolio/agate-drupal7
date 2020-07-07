@@ -22,7 +22,7 @@ class AgateClient   implements AgateClientInterface{
 
   const OBIBA_COOKIE = 'obibaid';
   const OBIBA_COOKIE_OBJECT = 'obibaid_object';
-  const ROLE_MICA_CLIENT = 'mica-user';
+  const ROLE_MICA_USER = 'mica-user';
   protected $agateUrl;
   protected $config;
   protected $httpClient;
@@ -298,7 +298,34 @@ class AgateClient   implements AgateClientInterface{
         }
     }
 
-    public function sendPassword($password, $resourceRequest = 'confirm'){
+    public function updatePassword($dataRequest, $currentHashedPassword){
+        try{
+            $headers = [
+                'Accept' => ['application/json'],
+                'Content-Type' => 'application/x-www-form-urlencoded' ,
+                'Authorization' => ['Basic ' . $currentHashedPassword],
+            ];
+
+            $response = $this->httpClient->request(
+                'PUT',
+                $this->agateUrl .  '/user/_current/password',
+                [
+                    'headers' => $headers,
+                    'body' => http_build_query($dataRequest),
+                ]
+            );
+
+            return [
+                'message' => 'Password Sent',
+                'code' => $response->getStatusCode()
+            ];
+        }catch (\Exception $e){
+            $this->logError($e, __LINE__, __FILE__);
+            return self::parseServerErrorCode($e);
+        }
+    }
+
+    public function resetPassword($dataRequest){
         try{
             $headers = [
                 'Accept' => ['application/json'],
@@ -308,10 +335,36 @@ class AgateClient   implements AgateClientInterface{
 
             $response = $this->httpClient->request(
                 'POST',
-                $this->agateUrl .  '/users/_' . $resourceRequest,
+                $this->agateUrl .  '/users/_forgot_password',
                 [
                     'headers' => $headers,
-                    'body' => http_build_query($password),
+                    'body' => http_build_query($dataRequest),
+                ]
+            );
+
+            return [
+                'message' => 'Password Sent',
+                'code' => $response->getStatusCode()
+            ];
+        }catch (\Exception $e){
+            $this->logError($e, __LINE__, __FILE__);
+            return self::parseServerErrorCode($e);
+        }
+    }
+    public function confirmResetPassword($passwordData, $action){
+        try{
+            $headers = [
+                'Accept' => ['application/json'],
+                'Content-Type' => 'application/x-www-form-urlencoded' ,
+                'X-App-Auth' => $this->basicAgateAuth,
+            ];
+
+            $response = $this->httpClient->request(
+                'POST',
+                $this->agateUrl .  '/users/_' . $action,
+                [
+                    'headers' => $headers,
+                    'body' => http_build_query($passwordData),
                 ]
             );
 

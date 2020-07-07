@@ -1,7 +1,0 @@
-password-validation:
-  version: 1.x
-  js:
-    js/obiba-agate-app-confirm-register.js: {}
-  dependencies:
-    - core/jquery
-    - core/jquery.once

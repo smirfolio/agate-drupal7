@@ -9,6 +9,8 @@
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\core\Form\FormStateInterface;
 use Drupal\Core\Link;
+use Drupal\Core\Url;
+use Drupal\Component\Serialization\Json;
 
 use Drupal\obiba_agate\ObibaAgate;
 
@@ -29,7 +31,12 @@ function obiba_agate_help($route_name, RouteMatchInterface $route_match) {
   }
 }
 
-
+/**
+ * Implements hook_theme_suggestions_form_element_alter()
+ *
+ * @param array $suggestions
+ * @param array $variables
+ */
 function obiba_agate_theme_suggestions_form_element_alter(array &$suggestions, array $variables) {
   if (\Drupal::service('path.current')->getPath() == '/user/login') {
     $suggestions[] = $variables['theme_hook_original'] . '--user-login';
@@ -37,7 +44,7 @@ function obiba_agate_theme_suggestions_form_element_alter(array &$suggestions, a
 }
 
 /**
- * Preprocess page title
+ * Implements hook_preprocess_page_title()
  */
 function obiba_agate_preprocess_page_title(&$variables) {
   if (strstr(\Drupal::service('path.current')->getPath(), 'user/login')) {
@@ -49,7 +56,7 @@ function obiba_agate_preprocess_page_title(&$variables) {
 /**
  * Implements hook_form_user_login_form_alter().
  *
- * Adjusts form on login page.
+ * Custom Agate login form.
  */
 function obiba_agate_form_user_login_form_alter(&$form, FormStateInterface $form_state, $form_id){
     $agate_page_config = \Drupal::config(ObibaAgate::AGATE_SERVER_SETTINGS);
@@ -95,35 +102,46 @@ function obiba_agate_form_user_login_form_alter(&$form, FormStateInterface $form
 function obiba_agate_form_alter(&$form, FormStateInterface $form_state, $form_id){
     if($form_id === 'user_form'){
         $form['account']['mail']['#disabled'] = TRUE;
-        $form['account']['pass']['#type'] = 'hidden';
-        $form['account']['current_pass']['#type'] = 'hidden';
-
-        // Administrator can't edit Agate profile fields, as administrator he should do so on agate server
-        if(\Drupal::currentUser()->hasPermission('administrator') && \Drupal::service('externalauth.externalauth')->load($form['account']['name']['#default_value'], 'obiba_agate')){
-            $agate_config = \Drupal::config(ObibaAgate::AGATE_SERVER_SETTINGS);
-            $user_field_mapping = $agate_config->get(ObibaAgate::CONFIG_PREFIX_USER_FIELDS_MAPPING);
-            $form['account']['name']['#disabled'] = TRUE;
-
-            // Read only Agate Roles convention: must begin with 'mica_' or 'opal_'
-            $mica_roles = preg_grep('/mica\-|opal\-/m', $form['account']['roles']['#options']);
-            foreach ($mica_roles as $mica_role){
-                $form['account']['roles'][$mica_role]['#disabled'] = TRUE;
-                if(in_array($mica_role, $form['account']['roles']['#default_value'])){
-                    $form['account']['roles'][$mica_role]['#default_value'] = TRUE;
+        if(\Drupal::service('obiba_agate.controller.agateusermanager')->isExternalUser($form['account']['name']['#default_value'])){
+            $form['#attached']['library'][] = 'core/drupal.dialog.ajax';
+            $form['account']['current_pass']['#type'] = 'hidden';
+            $form['account']['pass']['#type'] = 'hidden';
+            $form['account']['resetpassword'] = [
+                '#type' => 'link',
+                '#title' => t('Reset Password'),
+                '#url' => Url::fromRoute('obiba_agate.agate_user_password_update', ['updatePassword' => TRUE]),
+                '#attributes' => [
+                    'class' => ['btn', 'btn-default', 'use-ajax'],
+                    'data-dialog-type' => 'modal',
+                    'data-dialog-options' => Json::encode([
+                        'width' => 450,
+                    ]),
+                ]
+            ];
+            // Administrator can't edit Agate profile fields, as administrator he should do so on agate server
+            if(\Drupal::currentUser()->hasPermission('administrator')){
+                $agate_config = \Drupal::config(ObibaAgate::AGATE_SERVER_SETTINGS);
+                $user_field_mapping = $agate_config->get(ObibaAgate::CONFIG_PREFIX_USER_FIELDS_MAPPING);
+                $form['account']['name']['#disabled'] = TRUE;
+                // Read only Agate Roles convention: must begin with 'mica_' or 'opal_'
+                $mica_roles = preg_grep('/mica\-|opal\-/m', $form['account']['roles']['#options']);
+                foreach ($mica_roles as $mica_role){
+                    $form['account']['roles'][$mica_role]['#disabled'] = TRUE;
+                    if(in_array($mica_role, $form['account']['roles']['#default_value'])){
+                        $form['account']['roles'][$mica_role]['#default_value'] = TRUE;
+                    }
                 }
-            }
 
-            // Read only Agate profile fields thar are enabled in the mapping drupal field configuration
-            foreach ($user_field_mapping['drupal_profile_field'] as $field => $drupal_field){
-                if($field != 'recaptcha' && ($user_field_mapping['enabled_import'][$field] == 1)){
-                    $form[$drupal_field]['#disabled'] = TRUE;
+                // Read only Agate profile fields thar are enabled in the mapping drupal field configuration
+                foreach ($user_field_mapping['drupal_profile_field'] as $field => $drupal_field){
+                    if($field != 'recaptcha' && ($user_field_mapping['enabled_import'][$field] == 1)){
+                        $form[$drupal_field]['#disabled'] = TRUE;
+                    }
                 }
             }
         }
-
     }
 }
-
 
 /**
  * Implements hook_local_tasks_alter().

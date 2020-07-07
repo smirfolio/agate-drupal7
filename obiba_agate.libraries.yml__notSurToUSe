@@ -1,0 +1,7 @@
+#password-validation:
+#  version: 1.x
+#  js:
+#    js/totoJs.js: {}
+#  dependencies:
+#    - core/jquery
+#    - core/jquery.once
