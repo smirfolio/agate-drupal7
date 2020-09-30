@@ -36,4 +36,6 @@ class ObibaAgate {
 
     const AGATE_PROVIDER = 'obiba_agate';
 
+    const AGATE_DRUPAL_USERS_CONSOLIDATION = 'agate_drupal_users_consolidation';
+
 }

@@ -61,6 +61,15 @@ class AgateClient   implements AgateClientInterface{
   }
 
     /**
+     * Override the default Basic authentication header key
+     *
+     * @param string $name
+     * @param string $password
+     */
+    public function basicAgateAuth(string $name, string $password):void {
+        $this->basicAgateAuth = ['Basic ' . base64_encode($name . ':' . $password)];
+    }
+    /**
      * Check if the user was authenticated by Agate.
      *
      * @return bool
@@ -377,6 +386,41 @@ class AgateClient   implements AgateClientInterface{
             return self::parseServerErrorCode($e);
         }
     }
+
+    /**
+     * Get Agate User by email
+     *
+     * @param string $name
+     *
+     * @return mixed|void
+     */
+
+    public function getUserByEmail(string $email){
+        // The BasicAgateAuth should be overridden by the basicAgateAuth() with correct credential before go ahead with this method
+        try{
+            $headers = [
+                'Accept' => 'application/json' ,
+                'Authorization' => $this->basicAgateAuth,
+            ];
+            \Drupal::logger('obiba_agate')->notice(
+                'credential => @credential' , [
+                 '@credential' => current($this->basicAgateAuth)
+                ]
+            );
+            $response = $this->httpClient->request(
+                'GET',
+                $this->agateUrl .  '/users/find?q=' . $email,
+                [
+                    'headers' => $headers,
+                ]
+            );
+            return json_decode($response->getBody()->getContents());
+        }catch (\Exception $e){
+            $this->logError($e, __LINE__, __FILE__);
+            return ;
+        }
+    }
+
     /**
      * Set Agate User cookies
      *

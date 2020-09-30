@@ -29,6 +29,14 @@ obiba_agate.agate_user_fields_mapping_setting:
     _description: 'Configure The Mapping of The users Agate/Drupal Fields'
   requirements:
     _permission: 'administer obiba agate'
+obiba_agate.consolidate_drupal_agate_users:
+  path: '/admin/config/obiba-agate/consolidate-drupal-agate-users'
+  defaults:
+    _form: '\Drupal\obiba_agate\Form\AgateConsolidateDrupalAgateUsers'
+    _title: 'Settings'
+    _description: 'Consolidate the Drupal Users by checking if already exist in Agate.'
+  requirements:
+    _permission: 'administer obiba agate'
 obiba_agate.agate_user_password_activation:
   path: '/agate/confirm'
   defaults:

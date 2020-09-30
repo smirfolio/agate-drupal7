@@ -17,3 +17,8 @@ obiba_agate.agate_user_fields_mapping_setting:
   route_name: obiba_agate.agate_user_fields_mapping_setting
   description: 'Configure The Mapping of The users Agate/Drupal Fields'
   parent: obiba_agate.admin_config_agate
+obiba_agate.consolidate_drupal_agate_users:
+  title: 'Consolidate the Drupal Users'
+  route_name: obiba_agate.consolidate_drupal_agate_users
+  description: 'Consolidate the Drupal Users by checking if already exist in Agate'
+  parent: obiba_agate.admin_config_agate
